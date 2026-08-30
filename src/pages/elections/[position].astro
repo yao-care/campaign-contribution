@@ -9,6 +9,7 @@ import KeyPoints from '../../components/KeyPoints.astro';
 import Provenance from '../../components/Provenance.astro';
 import NextQuestions from '../../components/NextQuestions.astro';
 import Statute from '../../components/Statute.astro';
+import DonationStats from '../../components/DonationStats.astro';
 import {
   ELECTIONS, CANDIDATE_CAPS, CANDIDATE_CAPS_AGGREGATE, DONOR_LABEL, twd, rocDate,
 } from '../../data/elections';
@@ -134,6 +135,8 @@ const jsonld = [{
       </p>
     </>
   )}
+
+  <DonationStats position={e.slug} positionName={e.position} />
 
   <NextQuestions items={[
     { q: `${e.position}擬參選人要怎麼申請政治獻金專戶？`, href: '/forms/account-application/' },

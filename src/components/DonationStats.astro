@@ -1,0 +1,98 @@
+---
+/**
+ * 實際申報統計。資料來自監察院政治獻金公開查閱平臺的聚合結果，
+ * 不呈現任何個別捐贈者或逐筆交易。
+ *
+ * 用途是讓法條上的數字有真實尺度感：條文說個人對同一擬參選人每年上限 10 萬元，
+ * 這裡讓讀者看到實際上大多數人收到多少。
+ */
+import { POSITION_STATS, DONATION_META } from '../data/donation-stats';
+
+export interface Props {
+  /** 選舉類別 slug；查無資料時整個區塊不輸出 */
+  position: string;
+  positionName: string;
+}
+const { position, positionName } = Astro.props;
+const d = POSITION_STATS[position];
+
+const twd = (n: number) => n.toLocaleString('zh-TW');
+/** 大額金額改用「萬元」以免一長串數字難讀 */
+const wan = (n: number) => n >= 10_000 ? `${Math.round(n / 10_000).toLocaleString('zh-TW')} 萬元` : `${twd(n)} 元`;
+
+const topExpense = d ? Object.entries(d.expense)[0] : null;
+const expenseTotal = d?.expenseTotal || 0;
+const topIncome = d ? Object.entries(d.income)[0] : null;
+const incomeTotal = d?.incomeTotal || 0;
+const pct = (v: number, total: number) => total ? `${(v * 100 / total).toFixed(1)}%` : '—';
+
+/** 統計涵蓋的選舉場次與年度，供頁面標示範圍 */
+const covered = d?.elections ?? [];
+const years = d?.years ?? [];
+---
+{d && d.reportCount > 0 && (
+  <section class="ds" aria-labelledby="ds-h">
+    <h2 id="ds-h">{positionName}擬參選人實際申報了多少？</h2>
+    <p>
+      依監察院公開的政治獻金會計報告書，歷來{positionName}擬參選人共有 {twd(d.reportCount)} 份申報紀錄，
+      收入中位數為 {wan(d.incomeMedian)}{d.expenseMedian ? `，支出中位數為 ${wan(d.expenseMedian)}` : ''}。
+      {d.overAuditThreshold > 0
+        ? `其中 ${twd(d.overAuditThreshold)} 份收受金額達新臺幣 1,000 萬元，依第 21 條第 1 項須委託會計師查核簽證。`
+        : '沒有任何一份達到新臺幣 1,000 萬元的會計師查核簽證門檻。'}
+    </p>
+
+    <dl class="ds-stats">
+      <div><dt>申報份數</dt><dd>{twd(d.reportCount)}</dd></div>
+      <div><dt>收入中位數</dt><dd>{wan(d.incomeMedian)}</dd></div>
+      <div><dt>支出中位數</dt><dd>{d.expenseMedian ? wan(d.expenseMedian) : '—'}</dd></div>
+      <div><dt>最高收入</dt><dd>{wan(d.incomeMax)}</dd></div>
+    </dl>
+
+    <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+      <table>
+        <caption>{positionName}的收支結構（歷年合計，依第 20 條科目）</caption>
+        <thead>
+          <tr><th scope="col">科目</th><th scope="col" class="num">金額</th><th scope="col" class="num">占比</th></tr>
+        </thead>
+        <tbody>
+          {Object.entries(d.income).map(([k, v]) => (
+            <tr><th scope="row">{k}</th><td class="num">{wan(v)}</td><td class="num">{pct(v, incomeTotal)}</td></tr>
+          ))}
+          <tr class="sub"><th scope="row">收入合計</th><td class="num">{wan(incomeTotal)}</td><td class="num">100%</td></tr>
+          {Object.entries(d.expense).map(([k, v]) => (
+            <tr><th scope="row">{k}</th><td class="num">{wan(v)}</td><td class="num">{pct(v, expenseTotal)}</td></tr>
+          ))}
+          <tr class="sub"><th scope="row">支出合計</th><td class="num">{wan(expenseTotal)}</td><td class="num">100%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    {topIncome && topExpense && (
+      <p>
+        收入以「{topIncome[0]}」為大宗，占 {pct(topIncome[1], incomeTotal)}；
+        支出則以「{topExpense[0]}」最高，占 {pct(topExpense[1], expenseTotal)}。
+      </p>
+    )}
+
+    <p class="ds-note">
+      統計涵蓋 {covered.length} 場選舉{years.length ? `（民國 ${years.at(-1)}–${years[0]} 年）` : ''}，
+      為所有申報人的合計，非單一候選人的數字。資料來源為監察院政治獻金公開查閱平臺，
+      依政治獻金法第 21 條第 4 項公開，抓取日 {DONATION_META.fetchedAt.slice(0, 10)}。
+      本站不呈現個別捐贈者資料，亦不作候選人之間的比較。
+    </p>
+  </section>
+)}
+
+<style>
+  .ds { border-block-start: 2px solid var(--slate); margin-block-start: 3rem; padding-block-start: 1rem; }
+  .ds-stats {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--rule); border: 1px solid var(--rule); margin-block: 1.5rem;
+  }
+  .ds-stats > div { background: var(--ground); padding: .9em 1em; }
+  .ds-stats dt { font-size: var(--text-xs); color: var(--muted); margin: 0; }
+  .ds-stats dd { margin: .2em 0 0; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--slate); }
+  tr.sub th, tr.sub td { border-block-start: 2px solid var(--ink); font-weight: 700; }
+  .ds-note { font-size: var(--text-xs); color: var(--muted); }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

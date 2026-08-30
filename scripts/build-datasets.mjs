@@ -75,6 +75,9 @@ await out('villages',
     note: '應選名額與上屆當選得票須待中央選舉委員會選舉公告發布，目前為空值。',
     source: villages.source });
 
+// 註：各職位申報收支統計改由 Astro 端點產生（src/pages/data/donation-statistics.*.ts），
+// 以便直接重用 src/data/donation-stats.ts 的聚合邏輯，不在此處複製一份。
+
 // 4. 第 7 條 11 款不得捐贈者
 await out('prohibited-donors',
   ['款次', '對象', '查證機關', '違規處理', '頁面'],

@@ -14,6 +14,7 @@ import NextQuestions from '../../components/NextQuestions.astro';
 import partyData from '../../data/parties.json';
 import { PARTY_CAPS, PARTY_CAPS_AGGREGATE, DONOR_LABEL, twd } from '../../data/elections';
 import lawData from '../../data/law.json';
+import PartyDonationStats from '../../components/PartyDonationStats.astro';
 
 export function getStaticPaths() {
   return partyData.parties.map((p) => ({ params: { party: p.slug }, props: { p } }));
@@ -40,8 +41,8 @@ const title = `${p.name}政治獻金怎麼捐｜上限與申報規則`;
   ]} />
 
   <p class="disclaimer">
-    本頁只呈現法定的制度事實與登錄資料。本站不對任何政黨作評論、不作比較、
-    不呈現政治獻金金額排行。所有政黨頁使用同一組欄位。
+    本頁只呈現法定的制度事實、登錄資料，以及該黨自行向監察院申報的收支數字。
+    本站不對任何政黨作評論、不作比較、不呈現跨黨排行。所有政黨頁使用同一組欄位。
   </p>
 
   <h2>{p.name}的登錄資料</h2>
@@ -92,6 +93,8 @@ const title = `${p.name}政治獻金怎麼捐｜上限與申報規則`;
     以及超過新臺幣 3 萬元收支對象的詳細資料。會計報告書由負責人或代表人簽名或蓋章，
     應委託會計師查核簽證，並於每年度結束後 5 個月內向監察院申報。
   </p>
+
+  <PartyDonationStats partyName={p.name} />
 
   <NextQuestions items={[
     { q: '個人捐給政黨一年最多多少？', href: '/tools/limit/individual-to-party/' },

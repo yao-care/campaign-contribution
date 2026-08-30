@@ -1,0 +1,99 @@
+---
+/**
+ * 政黨自己申報的收支數字。
+ *
+ * 建站規格 §6 T7 原本的自我約束是政黨頁「沒有金額排行、沒有敘述性段落」。
+ * 經甲方確認後放寬為：呈現該黨自己申報的數字，但仍不做跨黨排行、不做比較、
+ * 不寫敘述性評論。每一頁的欄位完全相同，版型不提供寫出比較的空間。
+ */
+import { PARTY_STATS, DONATION_META } from '../data/donation-stats';
+
+export interface Props { partyName: string }
+const { partyName } = Astro.props;
+
+const all = PARTY_STATS;
+/** 申報名稱可能與政黨資訊網登錄名稱有細微差異，先精確比對再退回去空白比對 */
+const key = Object.keys(all).find((k) => k === partyName)
+  ?? Object.keys(all).find((k) => k.replace(/\s/g, '') === partyName.replace(/\s/g, ''));
+const byYear = key ? all[key] : null;
+const years = byYear ? Object.keys(byYear).sort((a, b) => Number(b) - Number(a)) : [];
+
+const twd = (n: number) => n.toLocaleString('zh-TW');
+const wan = (n: number) => n >= 10_000 ? `${Math.round(n / 10_000).toLocaleString('zh-TW')} 萬元` : `${twd(n)} 元`;
+const latest = years.length ? byYear![years[0]] : null;
+/**
+ * 收支科目在此先取出。型別斷言不能寫在模板裡——Astro 會把 `as Record<string, ...>`
+ * 的 `<string` 當成 JSX 標籤解析，建置雖然過得去，astro check 會報一堆假錯誤。
+ */
+const latestIncome: [string, number][] = latest ? Object.entries(latest.income) : [];
+const latestExpense: [string, number][] = latest ? Object.entries(latest.expense) : [];
+---
+{!latest && (
+  <section class="pd" aria-labelledby="pd-none">
+    <h2 id="pd-none">{partyName}申報了多少政治獻金？</h2>
+    <p class="pd-note">
+      監察院政治獻金公開查閱平臺目前查無{partyName}的政治獻金會計報告書。
+      可能是該黨尚未收受政治獻金、未達申報義務，或申報年度不在平臺公開範圍內。
+      政黨如收受政治獻金，應於每年度結束後 5 個月內申報並委託會計師查核簽證（第 21 條第 1 項）。
+      最新狀態請至<a href={DONATION_META.source} rel="noopener">查閱平臺</a>確認。
+    </p>
+  </section>
+)}
+
+{latest && (
+  <section class="pd" aria-labelledby="pd-h">
+    <h2 id="pd-h">{partyName}申報了多少政治獻金？</h2>
+    <p>
+      依監察院公開的會計報告書，{partyName}最近一次申報為民國 {years[0]} 年度，
+      收入合計 {wan(latest.incomeTotal)}，支出合計 {wan(latest.expenseTotal)}。
+      以下為該黨自行申報的數字，依政治獻金法第 20 條第 2 項的科目分類。
+    </p>
+
+    <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+      <table>
+        <caption>{partyName}歷年申報收支合計</caption>
+        <thead><tr><th scope="col">年度</th><th scope="col" class="num">收入</th><th scope="col" class="num">支出</th></tr></thead>
+        <tbody>
+          {years.map((y) => (
+            <tr>
+              <th scope="row">民國 {y} 年</th>
+              <td class="num">{wan(byYear![y].incomeTotal)}</td>
+              <td class="num">{wan(byYear![y].expenseTotal)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+      <table>
+        <caption>民國 {years[0]} 年度收支科目明細（第 20 條第 2 項）</caption>
+        <thead><tr><th scope="col">科目</th><th scope="col" class="num">金額</th></tr></thead>
+        <tbody>
+          {latestIncome.map(([k, v]) => (
+            <tr><th scope="row">{k}</th><td class="num">{wan(v)}</td></tr>
+          ))}
+          <tr class="sub"><th scope="row">收入合計</th><td class="num">{wan(latest.incomeTotal)}</td></tr>
+          {latestExpense.map(([k, v]) => (
+            <tr><th scope="row">{k}</th><td class="num">{wan(v)}</td></tr>
+          ))}
+          <tr class="sub"><th scope="row">支出合計</th><td class="num">{wan(latest.expenseTotal)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="pd-note">
+      數字為{partyName}依政治獻金法第 20 條、第 21 條向監察院申報的內容，
+      經監察院依第 21 條第 4 項公開。抓取日 {DONATION_META.fetchedAt.slice(0, 10)}。
+      本站不作政黨之間的比較與排行，亦不對申報內容作評論；完整報告書請至
+      <a href={DONATION_META.source} rel="noopener">監察院政治獻金公開查閱平臺</a>查閱。
+    </p>
+  </section>
+)}
+
+<style>
+  .pd { border-block-start: 2px solid var(--slate); margin-block-start: 3rem; padding-block-start: 1rem; }
+  tr.sub th, tr.sub td { border-block-start: 2px solid var(--ink); font-weight: 700; }
+  .pd-note { font-size: var(--text-xs); color: var(--muted); }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

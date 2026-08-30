@@ -9,7 +9,7 @@
     "build:only": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "data": "npm run fetch:law && npm run fetch:villages && npm run fetch:parties && npm run build:regions && npm run build:datasets",
+    "data": "npm run fetch:law && npm run fetch:villages && npm run fetch:parties && npm run fetch:donations && npm run build:regions && npm run build:datasets",
     "fetch:law": "node scripts/fetch-law.mjs",
     "fetch:villages": "node scripts/fetch-villages.mjs",
     "fetch:parties": "node scripts/fetch-parties.mjs",
@@ -17,7 +17,8 @@
     "build:datasets": "node scripts/build-datasets.mjs",
     "check:links": "node scripts/check-links.mjs",
     "indexnow": "node scripts/indexnow.mjs",
-    "shot": "node scripts/screenshot.mjs"
+    "shot": "node scripts/screenshot.mjs",
+    "fetch:donations": "node scripts/fetch-donations.mjs"
   },
   "dependencies": {
     "astro": "^7.2.9"

@@ -5,6 +5,7 @@ import Provenance from '../components/Provenance.astro';
 import { SITE, REVIEWER } from '../site.mjs';
 import lawData from '../data/law.json';
 import villagesData from '../data/villages.json';
+import { POSITION_STATS } from '../data/donation-stats';
 
 const DATASETS = [
   { slug: 'receiving-periods', name: '政治獻金收受期間起算日對照', rows: 11,
@@ -16,6 +17,10 @@ const DATASETS = [
   { slug: 'villages', name: '全國村里政治獻金基本資料', rows: villagesData.count,
     desc: `全國 ${villagesData.count.toLocaleString('zh-TW')} 個村里的縣市、鄉鎮市區、村里名與村里長收受起算日。應選名額與上屆得票欄位待中選會公告。`,
     basis: '內政部戶政司 ODRP001、政治獻金法第 12 條' },
+  { slug: 'donation-statistics', name: '各職位政治獻金申報收支統計',
+    rows: Object.values(POSITION_STATS).reduce((a, p) => a + Object.keys(p.income).length + Object.keys(p.expense).length, 0),
+    desc: '依職位彙整的申報收支統計，含各會計科目金額與該職位申報份數。聚合統計，不含逐筆交易與個別捐贈者資料。',
+    basis: '政治獻金法第 20 條、第 21 條第 4 項；原始資料為監察院政治獻金公開查閱平臺' },
   { slug: 'prohibited-donors', name: '第 7 條 11 款不得捐贈者對照', rows: 11,
     desc: '11 款排除對象、對應查證機關，以及違規獻金應返還或繳庫的處理路徑。',
     basis: '政治獻金法第 7 條、第 15 條' },
