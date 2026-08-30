@@ -1,27 +1,44 @@
 /**
- * IndexNow 提交（§8.4）。建置後執行，把有變動的 URL 一次送出。
- * 用法：node scripts/indexnow.mjs [url ...]
- * 不給參數時讀 dist/sitemap-index.xml 底下所有分片的全部 URL。
+ * IndexNow 提交（建站規格 §8.4）。選舉季的日期變動需要當天生效。
+ *
+ * 用法：
+ *   node scripts/indexnow.mjs                  讀 dist/ 的 sitemap 分片
+ *   node scripts/indexnow.mjs --live           改讀線上 sitemap（部署後用，不必重新建置）
+ *   node scripts/indexnow.mjs <url> [url ...]  只提交指定的 URL
  */
 import { readFile, readdir } from 'node:fs/promises';
 import { SITE } from '../src/site.mjs';
 
 const key = process.env.INDEXNOW_KEY;
-if (!key) throw new Error('缺 INDEXNOW_KEY，見 .env.example');
+if (!key) {
+  console.log('未設定 INDEXNOW_KEY，略過提交。（見 .env.example）');
+  process.exit(0);
+}
 
-let urls = process.argv.slice(2);
+const args = process.argv.slice(2);
+const live = args.includes('--live');
+let urls = args.filter((a) => a.startsWith('http'));
+
+const locs = (xml) => [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+
 if (urls.length === 0) {
-  const files = (await readdir('dist')).filter((f) => /^sitemap-.*\.xml$/.test(f) && f !== 'sitemap-index.xml');
-  for (const f of files) {
-    const xml = await readFile(`dist/${f}`, 'utf-8');
-    urls.push(...[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+  if (live) {
+    const idx = await fetch(`${SITE.origin}/sitemap-index.xml`);
+    if (!idx.ok) throw new Error(`讀不到線上 sitemap-index：HTTP ${idx.status}`);
+    for (const shard of locs(await idx.text())) {
+      const r = await fetch(shard);
+      if (r.ok) urls.push(...locs(await r.text()));
+    }
+  } else {
+    const files = (await readdir('dist')).filter((f) => /^sitemap-.*\.xml$/.test(f) && f !== 'sitemap-index.xml');
+    for (const f of files) urls.push(...locs(await readFile(`dist/${f}`, 'utf-8')));
   }
 }
+
 if (urls.length === 0) { console.log('無 URL 可提交'); process.exit(0); }
 
 const host = new URL(SITE.origin).host;
-// IndexNow 單次上限 10,000 筆
-for (let i = 0; i < urls.length; i += 10000) {
+for (let i = 0; i < urls.length; i += 10000) {   // IndexNow 單次上限 10,000 筆
   const batch = urls.slice(i, i + 10000);
   const res = await fetch('https://api.indexnow.org/IndexNow', {
     method: 'POST',

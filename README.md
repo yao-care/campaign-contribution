@@ -46,6 +46,43 @@ npm run build:only  # 只建置，不重抓資料
 | `npm run shot <url> <out> <寬> <高> [dark]` | CDP 截圖，第五個參數傳 `dark` 取得暗色版 |
 | `npm run indexnow` | 建置後向 IndexNow 提交變動的 URL |
 
+## 部署
+
+GitHub Actions → GitHub Pages。推送到 `main` 自動建置並部署；另有每日排程重建，讓首頁與 `/countdown/` 的「距投票日 N 天」保持正確。
+
+工作流程在 `.github/workflows/deploy.yml`，建置前會跑型別檢查與全站內部連結檢查，任一失敗就不部署。
+
+外部資料預設使用 repo 內已提交的檔案，建置不依賴外部網站是否可用。要更新資料時，到 Actions 手動觸發並勾選 **重新抓取外部資料**。
+
+### 網域
+
+正式網域寫在 `src/site.mjs` 的 `DOMAIN` 常數，全站的 canonical、sitemap、robots、JSON-LD 與開放資料集網址都由此推導。
+
+**換網域時要同時改兩個地方**，兩者必須一致，否則 GitHub Pages 會拒絕：
+
+1. `src/site.mjs` 的 `DOMAIN`
+2. `public/CNAME`
+
+### DNS 設定
+
+在 `yao.care` 的 DNS 服務商新增一筆 CNAME：
+
+| 類型 | 名稱 | 值 | TTL |
+|------|------|-----|-----|
+| CNAME | `campaign` | `yao-care.github.io` | 自動或 3600 |
+
+若使用 Cloudflare，**Proxy status 要設為 DNS only（灰雲）**，不要開橘雲。開了橘雲會讓 GitHub 無法簽發憑證，且 §10.1 的 managed robots.txt 與 Bot Fight Mode 會擋掉 AI 爬蟲。
+
+設定後到 repo 的 Settings → Pages 確認 Custom domain 顯示 `campaign.yao.care`，並勾選 **Enforce HTTPS**（憑證簽發約需數分鐘到一小時）。
+
+### GitHub Actions Secrets
+
+| Secret | 用途 | 沒設定的後果 |
+|--------|------|--------------|
+| `INDEXNOW_KEY` | IndexNow 金鑰，用於選舉季當天通知搜尋引擎 | 建置正常，但不產生金鑰驗證檔、不提交 IndexNow |
+
+金鑰是任意的 32 位十六進位字串，本機的在 `.env`。設定位置：Settings → Secrets and variables → Actions。
+
 ## 資料來源
 
 | 資料 | 來源 | 取得方式 |
