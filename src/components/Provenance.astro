@@ -8,8 +8,14 @@ export interface Props {
   sources: { label: string; href: string }[];
 }
 const { updated, reviewer, sources } = Astro.props;
-const iso = updated.toISOString().slice(0, 10);
-const roc = `民國 ${updated.getFullYear() - 1911} 年 ${updated.getMonth() + 1} 月 ${updated.getDate()} 日`;
+// updated 是抓取當下的真實時刻，不是純日期，所以指定台北時區呈現，
+// 不能用建置機器的本地時區（CI 是 UTC，會少一天）。
+const tp = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+}).format(updated);
+const [y, m, d] = tp.split('-').map(Number);
+const iso = tp;
+const roc = `民國 ${y - 1911} 年 ${m} 月 ${d} 日`;
 ---
 <footer class="provenance">
   <p>

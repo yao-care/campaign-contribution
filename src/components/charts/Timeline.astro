@@ -16,7 +16,8 @@ export interface Props {
   anchor?: string;
 }
 const { title, rows, marks = [], describedBy, anchor } = Astro.props;
-const D = (s: string) => new Date(s + 'T00:00:00+08:00');
+// 純日期一律 UTC 進出，見 src/data/elections.ts 的 rocDate 註解
+const D = (s: string) => new Date(s + 'T00:00:00Z');
 const all = [...rows.flatMap((r) => [r.start, r.end, r.point]), ...marks.map((m) => m.at)]
   .filter(Boolean).map((s) => D(s as string));
 const lo = new Date(Math.min(...all.map((d) => +d)));
@@ -24,7 +25,7 @@ const hi = new Date(Math.max(...all.map((d) => +d)));
 const W = 640, LABEL = 176, PAD_R = 24, TOP = 26;
 const H = rows.length * (CHART.rowH + CHART.gap) + TOP + 12;
 const x = scaleTime().domain([lo, hi]).range([LABEL, W - PAD_R]).nice();
-const roc = (s: string) => { const d = D(s); return `${d.getFullYear() - 1911}/${d.getMonth() + 1}/${d.getDate()}`; };
+const roc = (s: string) => { const d = D(s); return `${d.getUTCFullYear() - 1911}/${d.getUTCMonth() + 1}/${d.getUTCDate()}`; };
 ---
 <figure class="chart" id={anchor}>
   <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img"

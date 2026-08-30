@@ -20,7 +20,8 @@
     "shot": "node scripts/screenshot.mjs",
     "fetch:donations": "node scripts/fetch-donations.mjs",
     "build:media": "node --experimental-strip-types scripts/build-media.mjs && node --experimental-strip-types scripts/build-media-zip.mjs",
-    "signal": "node scripts/news-signal.mjs"
+    "signal": "node scripts/news-signal.mjs",
+    "check:dates": "node scripts/check-dates.mjs"
   },
   "dependencies": {
     "astro": "^7.2.9",

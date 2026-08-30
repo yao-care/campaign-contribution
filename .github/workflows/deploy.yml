@@ -14,6 +14,11 @@ on:
         type: boolean
         default: false
 
+# runner 預設 UTC，但站上的「今天」指台北的今天——
+# 導覽列的分期與首頁倒數天數都由建置期的當下決定。
+env:
+  TZ: Asia/Taipei
+
 permissions:
   contents: read
   pages: write
@@ -42,6 +47,11 @@ jobs:
       - name: 重新抓取外部資料
         if: inputs.refresh_data
         run: npm run data
+
+      # 日期把關要在建置「之前」跑：日期算錯不會讓建置失敗，
+      # 而 runner 在 UTC、開發機在 +08，錯的那一版只會在線上出現。
+      - name: 日期把關
+        run: npm run check:dates
 
       - name: 建置
         run: npm run build:only

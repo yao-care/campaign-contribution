@@ -188,7 +188,18 @@ export const DEDUCTION = {
 
 export const twd = (n: number) => `新臺幣 ${n.toLocaleString('zh-TW')} 元`;
 
+/**
+ * 民國日期格式化。輸入是純日期（YYYY-MM-DD），沒有時刻。
+ *
+ * ⚠ 這裡曾經是 `new Date(iso + 'T00:00:00+08:00')` 配 getFullYear/getMonth/getDate：
+ * 解析成台北零時（等於 UTC 前一天 16:00），再用「建置機器的本地時區」讀回來。
+ * 開發機在 +08 看起來正確，CI 跑在 UTC，於是線上全站每個日期都少一天——
+ * 投票日 2026-11-28 印成「民國 115 年 11 月 27 日」。
+ *
+ * 純日期就該全程用 UTC 進、UTC 出，與任何機器的時區無關。
+ * 由 scripts/check-dates.mjs 在 TZ=UTC 下把關，不再靠肉眼。
+ */
 export const rocDate = (iso: string) => {
-  const d = new Date(iso + 'T00:00:00+08:00');
-  return `民國 ${d.getFullYear() - 1911} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+  const d = new Date(iso + 'T00:00:00Z');
+  return `民國 ${d.getUTCFullYear() - 1911} 年 ${d.getUTCMonth() + 1} 月 ${d.getUTCDate()} 日`;
 };
