@@ -1,7 +1,7 @@
 {
   "period": "11102",
   "source": "https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001",
-  "fetchedAt": "2026-08-30T03:44:08.244Z",
+  "fetchedAt": "2026-08-30T06:39:25.762Z",
   "note": "應選名額與選舉區劃分待中選會 115 年選舉公告發布，seatsPending 為 true 時頁面不呈現名額。",
   "counties": [
     {
@@ -10505,8 +10505,8 @@
               "name": "中庄里"
             },
             {
-              "slug": "龜売里",
-              "name": "龜売里"
+              "slug": "龜売里",
+              "name": "龜売里"
             },
             {
               "slug": "福興里",
@@ -12070,8 +12070,8 @@
               "name": "港東里"
             },
             {
-              "slug": "檨林里",
-              "name": "檨林里"
+              "slug": "檨林里",
+              "name": "檨林里"
             },
             {
               "slug": "後營里",

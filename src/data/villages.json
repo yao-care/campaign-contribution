@@ -2,7 +2,7 @@
   "source": "https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001",
   "dataset": "ODRP001 鄉鎮市區出生死亡結婚離婚數",
   "period": "11102",
-  "fetchedAt": "2026-08-30T03:43:07.147Z",
+  "fetchedAt": "2026-08-30T06:39:11.514Z",
   "count": 7734,
   "note": "本資料集提供出生死亡結婚離婚數，不含戶籍人口數；村里頁人口欄位另需資料來源。",
   "counties": [
@@ -27149,7 +27149,7 @@
       "period": "11102",
       "county": "臺中市",
       "district": "大安區",
-      "village": "龜売里",
+      "village": "龜売里",
       "vitals": {
         "birth": 0,
         "death": 4
@@ -30966,7 +30966,7 @@
       "period": "11102",
       "county": "臺南市",
       "district": "西港區",
-      "village": "檨林里",
+      "village": "檨林里",
       "vitals": {
         "birth": 2,
         "death": 2

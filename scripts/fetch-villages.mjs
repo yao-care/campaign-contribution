@@ -55,7 +55,16 @@ process.stdout.write('\n');
 
 /** site_id 形如「新北市板橋區」，切成縣市與鄉鎮市區 */
 const COUNTY_RE = /^(.+?[市縣])(.+)$/;
-const slug = (s) => s.replace(/[\s]/g, '');
+
+/**
+ * 一律正規化為 NFC。
+ *
+ * ODRP001 的資料含 CJK 相容表意文字（例如臺中市大安區「龜売里」的第二字為
+ * U+2F85A，臺南市西港區「檨林里」的第一字為 U+2F8EB），它們在 NFC 下會
+ * 對應到統一表意文字。macOS 的檔案系統會自動正規化，Linux 不會——不做這一步
+ * 的話，網址與實際產出的檔案路徑會在 Linux 上對不起來，本機測不出、CI 才爆。
+ */
+const slug = (s) => s.normalize('NFC').replace(/\s/g, '');
 
 const villages = rows.map((r) => {
   const m = COUNTY_RE.exec(r.site_id) ?? [];
@@ -78,6 +87,24 @@ const villages = rows.map((r) => {
 });
 
 const counties = [...new Set(villages.map((v) => v.county))];
+
+/**
+ * 私用區（PUA）造字偵測。
+ * 臺灣的地名資料常以 PUA 碼位承載 CNS 11643 造字，這些字在多數裝置上顯示為
+ * 豆腐字。NFC 不會處理它們，也無法自動推定正字——需要人工對照後才能替換，
+ * 因此此處只列出、不猜。
+ */
+const isPUA = (cp) => (cp >= 0xE000 && cp <= 0xF8FF)
+  || (cp >= 0xF0000 && cp <= 0xFFFFD) || (cp >= 0x100000 && cp <= 0x10FFFD);
+const puaHits = villages.filter((v) => [...v.village].some((ch) => isPUA(ch.codePointAt(0))));
+if (puaHits.length) {
+  console.warn(`\n警告：${puaHits.length} 個村里名含私用區造字，在多數裝置上會顯示為豆腐字：`);
+  for (const v of puaHits) {
+    const cps = [...v.village].map((ch) => `U+${ch.codePointAt(0).toString(16).toUpperCase()}`).join(' ');
+    console.warn(`  ${v.county}${v.district}${v.village}  ${cps}`);
+  }
+  console.warn('正字須人工對照內政部或戶政司的正式公告後替換，本腳本不做推定。\n');
+}
 await mkdir('src/data', { recursive: true });
 await writeFile('src/data/villages.json', JSON.stringify({
   source: 'https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001',
