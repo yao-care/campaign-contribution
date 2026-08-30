@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { REVIEWER } from '../../site.mjs';
+import { MEDIA, MEDIA_TOPICS, FORMAT_LABEL, LICENSE } from '../../data/media';
+import lawData from '../../data/law.json';
+
+const byTopic = MEDIA_TOPICS.map((t) => ({ t, items: MEDIA.filter((m) => m.topic === t) }))
+  .filter((g) => g.items.length);
+const totalFiles = MEDIA.reduce((a, m) => a + m.formats.filter((f) => f !== 'text' && f !== 'video-script').length, 0);
+---
+<BaseLayout
+  title="宣導素材庫：長輩圖、懶人包、可列印傳單"
+  description={`${MEDIA.length} 個政治獻金知識點的自製宣導素材，含 1080×1080 長輩圖、懶人包長圖、A4 可列印傳單與可複製轉發的問答卡片。以 ${LICENSE.name} 釋出，歡迎轉發、印製與改作。`}
+  crumbs={[{ name: '素材庫', href: '/media/' }]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'CollectionPage',
+    name: '政治獻金指南宣導素材庫', inLanguage: 'zh-Hant-TW',
+    license: LICENSE.url,
+  }]}
+>
+  <h1>宣導素材庫</h1>
+
+  <KeyPoints points={[
+    `${MEDIA.length} 個知識點，共 ${totalFiles} 張圖檔，另有可直接複製貼 LINE 的純文字版。`,
+    `全部以 ${LICENSE.name} 釋出，歡迎轉發、印製、改作，只要標示來源即可。`,
+    '每張圖都有獨立頁面，附完整文字說明與法條連結，圖片不是唯一載體。',
+  ]} />
+
+  <p class="lede">
+    做給要轉發的人用的。長輩圖丟 LINE 群組、傳單印出來貼里辦公處布告欄、
+    純文字版直接複製貼上。不必問過本站，也不必註明是誰做的以外的任何事。
+  </p>
+
+  <nav class="jump" aria-label="依主題跳至">
+    <span>依主題：</span>
+    {byTopic.map((g) => <a href={`#t-${g.t}`}>{g.t}（{g.items.length}）</a>)}
+  </nav>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>提供的尺寸與用途</caption>
+      <thead><tr><th scope="col">格式</th><th scope="col">尺寸</th><th scope="col">用途</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">長輩圖</th><td>1080×1080</td><td>LINE 群組轉發，一張一個知識點</td></tr>
+        <tr><th scope="row">懶人包長圖</th><td>1080×1350</td><td>IG 貼文、社群輪播</td></tr>
+        <tr><th scope="row">可列印傳單</th><td>A4（794×1123）</td><td>里辦公處、社區布告欄，附 QR code</td></tr>
+        <tr><th scope="row">問答卡片</th><td>純文字</td><td>直接複製貼 LINE 或簡訊</td></tr>
+        <tr><th scope="row">短影音腳本</th><td>9:16、15–30 秒</td><td>提供腳本與分鏡，供自行拍攝</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  {byTopic.map((g) => (
+    <section aria-labelledby={`t-${g.t}`}>
+      <h2 id={`t-${g.t}`}>{g.t}</h2>
+      <ul class="grid">
+        {g.items.map((m) => (
+          <li>
+            <a href={`/media/${m.slug}/`}>
+              <img src={`/media/${m.slug}-square.png`} alt={m.alt} width="1080" height="1080" loading="lazy" />
+              <span class="cap">
+                <strong>{m.headline}</strong>
+                <span class="s">{m.sub}</span>
+                <span class="f">{m.formats.map((f) => FORMAT_LABEL[f].split(' ')[0]).join('、')}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  <h2>授權：{LICENSE.name}</h2>
+  <p>
+    所有自製素材以 <a href={LICENSE.url} rel="license noopener">姓名標示 4.0 國際（{LICENSE.name}）</a>釋出。
+    可以自由轉發、印製、剪裁、改作，包括商業用途，只要標示來源。
+  </p>
+  <p class="note">
+    為什麼是 CC BY 而不是 CC0：這些素材講的是法律規則，出處會影響讀者要不要相信它。
+    保留姓名標示的要求，是讓拿到圖的人知道可以回來查原文、也知道出錯要找誰更正。
+    CC0 拋棄署名要求，圖傳開之後就追不回源頭了。
+  </p>
+  <p>
+    法條原文本身屬公文，依著作權法第 9 條不得為著作權標的，不受本授權拘束。
+  </p>
+
+  <h2>整包下載</h2>
+  <p>
+    <a href="/media/campaign-yao-care-media.zip" download>下載全部素材（ZIP）</a>
+    ，含所有尺寸的 PNG、純文字版與授權說明。
+  </p>
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .jump { display: flex; flex-wrap: wrap; gap: .5rem 1rem; font-size: var(--text-sm); margin-block: 1.5rem; }
+  .jump span { color: var(--muted); }
+  .grid { list-style: none; padding: 0; display: grid; gap: 1.5rem;
+          grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  .grid a { display: block; text-decoration: none; color: var(--ink); border: 1px solid var(--rule); }
+  .grid a:hover { background: var(--alt); }
+  .grid img { display: block; width: 100%; height: auto; border-block-end: 1px solid var(--rule); }
+  .cap { display: block; padding: .9em 1em; }
+  .cap strong { display: block; font-size: var(--text-lg); color: var(--stamp); }
+  .cap .s { display: block; font-size: var(--text-sm); color: var(--ink-2); margin-block: .3em; }
+  .cap .f { display: block; font-size: var(--text-xs); color: var(--muted); }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

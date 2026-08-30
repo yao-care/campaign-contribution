@@ -65,8 +65,9 @@ ${lawData.articles.map((a) => `- [政治獻金法第 ${a.article} 條](${o}/law/
 - 村里戶籍人口（尚無可用開放資料集）
 - 因此 7,734 個村里頁目前標示 noindex，且不列入 sitemap
 
-## 辦理機關
+## 關於本站
 
-${SITE.agency}｜${SITE.program}
+自費製作的民間網站，與內政部、監察院、中央選舉委員會均無委託或合作關係。
+白話說明未經機關審閱，引用時請以法條原文為準。詳見 ${o}/about/statement/
 `, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 };

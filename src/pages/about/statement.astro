@@ -1,0 +1,140 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { REVIEWER } from '../../site.mjs';
+import lawData from '../../data/law.json';
+import villagesData from '../../data/villages.json';
+import { LOCAL_CYCLE } from '../../data/elections';
+---
+<BaseLayout
+  title="站點聲明：誰做的、資料哪裡來、立場是什麼"
+  description="本站為自費製作的民間網站，與內政部、監察院、中央選舉委員會均無委託或合作關係。法條原文取自全國法規資料庫，白話說明未經機關審閱。"
+  crumbs={[{ name: '關於本站', href: '/about/' }, { name: '站點聲明', href: '/about/statement/' }]}
+>
+  <h1>站點聲明</h1>
+
+  <KeyPoints points={[
+    '本站自費製作，未接受任何機關委託，也沒有動用政府預算。',
+    '與內政部、監察院、中央選舉委員會均無委託或合作關係，未使用任何機關的識別標誌。',
+    '法條原文取自全國法規資料庫，白話說明是本站的詮釋，未經機關審閱。',
+  ]} />
+
+  <h2>誰做的</h2>
+  <p>
+    一個人自費做的網站。沒有接受機關委託，沒有拿政府預算，也沒有任何政黨、候選人或利益團體出錢。
+  </p>
+  <p>
+    做的理由很簡單：政治獻金法有 36 條，多數人真正要問的只有四件事——我能不能捐、能捐多少、
+    什麼時候可以開始收、事後怎麼申報。這些答案散在條文各處，官方網站也沒有整理成可查詢的形式。
+    所以做了一個。
+  </p>
+
+  <h2>與機關的關係</h2>
+  <p>
+    沒有關係。本站與內政部（主管機關）、監察院（受理申報機關）、中央選舉委員會之間，
+    沒有委託、合作、贊助或任何形式的往來。
+  </p>
+  <p>
+    本站不使用上述機關的名稱作為識別、不使用機關的識別標誌與代表色、
+    不以任何方式暗示官方背書。如果你在別處看到有人拿本站宣稱與機關有關，那不是事實。
+  </p>
+
+  <h2>資料哪裡來</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>本站使用的資料與來源</caption>
+      <thead><tr><th scope="col">資料</th><th scope="col">來源</th><th scope="col">取得方式</th></tr></thead>
+      <tbody>
+        <tr>
+          <th scope="row">政治獻金法全文 {lawData.count} 條</th>
+          <td><a href={lawData.source} rel="noopener">全國法規資料庫</a></td>
+          <td>程式抓取，原文一字不改</td>
+        </tr>
+        <tr>
+          <th scope="row">收受起算日、書表格式</th>
+          <td><a href={LOCAL_CYCLE.source} rel="noopener">監察院陽光法令主題網</a></td>
+          <td>依 115 年 2 月 9 日公告</td>
+        </tr>
+        <tr>
+          <th scope="row">申報收支統計</th>
+          <td><a href="https://ardata.cy.gov.tw/" rel="noopener">監察院政治獻金公開查閱平臺</a></td>
+          <td>第 21 條第 4 項的法定公開資訊</td>
+        </tr>
+        <tr>
+          <th scope="row">村里清單 {villagesData.count.toLocaleString('zh-TW')} 筆</th>
+          <td><a href={villagesData.source} rel="noopener">內政部戶政司 ODRP001</a></td>
+          <td>期別 {villagesData.period}</td>
+        </tr>
+        <tr>
+          <th scope="row">現存政黨</th>
+          <td><a href="https://party.moi.gov.tw/" rel="noopener">內政部政黨資訊網</a></td>
+          <td>登錄資料</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    引用這些來源不代表來源機關認可本站。所有來源都是公開資料，任何人都可以自行查證。
+  </p>
+
+  <h2>白話說明沒有經過機關審閱</h2>
+  <p>
+    站上每一條法條頁都分成兩部分：襯線體、灰底加朱線的是<strong>法條原文</strong>，
+    由程式從全國法規資料庫抓取後原樣呈現；黑體的是<strong>本站的白話說明</strong>。
+  </p>
+  <p>
+    白話說明沒有經過主管機關審閱，也沒有律師或會計師掛名。它可能有誤。
+    兩者有出入時，以原文為準；牽涉具體案件時，請洽主管機關或專業人士。
+    本站不提供法律意見。
+  </p>
+
+  <h2>選舉期間的自我約束</h2>
+  <p>
+    本屆地方公職人員選舉投票日為民國 115 年 11 月 28 日。選舉期間本站維持以下約束：
+  </p>
+  <ul>
+    <li>不涉任何候選人或政黨的立場，不評論、不推薦、不批評。</li>
+    <li>政黨頁只有制度事實欄位與該黨自行申報的數字，不做跨黨排行與比較。所有政黨頁使用同一組欄位。</li>
+    <li>不呈現政治獻金金額排行，不製作「誰收最多」這類內容。</li>
+    <li>村里頁在中選會公告發布前，不呈現上屆當選人姓名與得票。</li>
+    <li>不轉載監察院的申報公開資料，只提供查閱管道導覽。</li>
+  </ul>
+  <p>
+    這些約束不是法律要求本站做的——本站不是機關，不受行政中立相關規範拘束。
+    是自己訂的，因為一個講規則的網站如果同時在選邊，那些規則就沒人信。
+  </p>
+
+  <h2>不蒐集你的資料</h2>
+  <p>
+    本站不使用 Cookie、不設置 Google Analytics 或任何第三方追蹤程式、不嵌入外部字型與腳本、
+    不嵌入 YouTube 或其他會帶入外部追蹤的內容。
+  </p>
+  <p>
+    因此本站沒有 Cookie 同意彈窗，也不需要蒐集個人資料的隱私政策。
+    工具頁的計算全部在你的瀏覽器內完成，不會傳送到任何伺服器。
+    伺服器日誌只用於了解流量來源與爬蟲行為。
+  </p>
+
+  <h2>發現錯誤怎麼辦</h2>
+  <p>
+    法條原文如果與全國法規資料庫不一致，那是本站的抓取或呈現出錯，請直接告知，會盡快更正。
+    白話說明如果有誤或容易造成誤解，也歡迎指正。
+  </p>
+  <p>
+    回報管道：本站原始碼公開於
+    <a href="https://github.com/yao-care/campaign-contribution" rel="noopener">GitHub</a>，
+    可在該處開 issue。每次資料更新與內容修正都記錄在<a href="/updates/">更新紀錄</a>。
+  </p>
+
+  <h2>內容授權</h2>
+  <p>
+    本站自製的宣導素材以 CC BY 4.0 釋出，歡迎轉發、印製、改作，
+    詳見<a href="/media/">素材庫</a>。法條原文屬公文，本無著作權。
+    開放資料集見<a href="/downloads/">下載頁</a>。
+  </p>
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

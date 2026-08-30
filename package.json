@@ -9,7 +9,7 @@
     "build:only": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "data": "npm run fetch:law && npm run fetch:villages && npm run fetch:parties && npm run fetch:donations && npm run build:regions && npm run build:datasets",
+    "data": "npm run fetch:law && npm run fetch:villages && npm run fetch:parties && npm run fetch:donations && npm run build:regions && npm run build:datasets && npm run build:media",
     "fetch:law": "node scripts/fetch-law.mjs",
     "fetch:villages": "node scripts/fetch-villages.mjs",
     "fetch:parties": "node scripts/fetch-parties.mjs",
@@ -18,7 +18,8 @@
     "check:links": "node scripts/check-links.mjs",
     "indexnow": "node scripts/indexnow.mjs",
     "shot": "node scripts/screenshot.mjs",
-    "fetch:donations": "node scripts/fetch-donations.mjs"
+    "fetch:donations": "node scripts/fetch-donations.mjs",
+    "build:media": "node --experimental-strip-types scripts/build-media.mjs && node --experimental-strip-types scripts/build-media-zip.mjs"
   },
   "dependencies": {
     "astro": "^7.2.9",
@@ -34,6 +35,7 @@
     "@types/d3-scale": "^4.0.9",
     "@types/d3-shape": "^3.2.0",
     "@types/node": "^26.4.0",
+    "qrcode": "^1.5.4",
     "typescript": "^6.0.3"
   }
 }

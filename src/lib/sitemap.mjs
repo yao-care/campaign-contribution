@@ -16,6 +16,7 @@ import { LIMITS } from '../data/limits';
 import { DEADLINES } from '../data/deadlines';
 import { DEDUCTION_ENTITIES } from '../data/deductions';
 import partyData from '../data/parties.json';
+import { MEDIA } from '../data/media';
 
 export const SHARD_SIZE = 1000;   // 遠低於協定的 50,000，換取可診斷性
 
@@ -56,6 +57,7 @@ export function contentUrls() {
     { loc: '/forms/' }, ...FORMS.map((f) => ({ loc: `/forms/${f.slug}/` })),
     { loc: '/guides/' }, ...GUIDES.map((g) => ({ loc: `/guides/${g.slug}/` })),
     { loc: '/elections/' }, ...ELECTIONS.map((e) => ({ loc: `/elections/${e.slug}/` })),
+    { loc: '/media/' }, ...MEDIA.map((m) => ({ loc: `/media/${m.slug}/` })),
     { loc: '/parties/' },
     ...partyData.parties.map((p) => ({ loc: `/parties/${encodeURIComponent(p.slug)}/` })),
   ];
@@ -93,6 +95,7 @@ export function miscUrls() {
     { loc: '/about/' },
     { loc: '/villages/' },
     { loc: '/about/editorial/' },
+    { loc: '/about/statement/' },
     { loc: '/countdown/' },
     { loc: '/downloads/' },
     { loc: '/reports/' },

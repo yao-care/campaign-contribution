@@ -11,6 +11,7 @@ export const NAV = [
   { label: '書表', href: '/forms/' },
   { label: '問答', href: '/faq/' },
   { label: '名詞', href: '/glossary/' },
+  { label: '素材庫', href: '/media/' },
 ];
 
 export const FOOTER = [
@@ -55,7 +56,9 @@ export const FOOTER = [
     h: '關於',
     items: [
       { label: '關於本站', href: '/about/' },
+      { label: '站點聲明', href: '/about/statement/' },
       { label: '編輯與審閱原則', href: '/about/editorial/' },
+      { label: '宣導素材庫', href: '/media/' },
       { label: '開放資料下載', href: '/downloads/' },
       { label: '申報資料查詢', href: '/reports/' },
       { label: '資料更新紀錄', href: '/updates/' },

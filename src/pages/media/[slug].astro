@@ -1,0 +1,114 @@
+---
+/**
+ * 單一素材頁。這頁本身是 SEO 資產：圖只是載體，完整文字說明與法條連結都在 HTML 裡。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import { REVIEWER, SITE } from '../../site.mjs';
+import { MEDIA, FORMAT_LABEL, LICENSE } from '../../data/media';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return MEDIA.map((m) => ({ params: { slug: m.slug }, props: { m } }));
+}
+const { m } = Astro.props;
+const imgFormats = m.formats.filter((f) => f !== 'text' && f !== 'video-script');
+const others = MEDIA.filter((x) => x.slug !== m.slug).slice(0, 4);
+---
+<BaseLayout
+  title={`${m.sub}｜宣導素材`}
+  description={m.body[0]}
+  crumbs={[{ name: '素材庫', href: '/media/' }, { name: m.sub, href: `/media/${m.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'ImageObject',
+    contentUrl: new URL(`/media/${m.slug}-square.png`, SITE.origin).href,
+    caption: m.alt, description: m.body[0],
+    license: LICENSE.url, acquireLicensePage: new URL('/media/', SITE.origin).href,
+    inLanguage: 'zh-Hant-TW',
+  }]}
+>
+  <h1>{m.sub}</h1>
+
+  <KeyPoints points={[
+    m.body[0],
+    `提供 ${m.formats.map((f) => FORMAT_LABEL[f]).join('、')}。`,
+    `以 ${LICENSE.name} 釋出，歡迎轉發、印製與改作，標示來源即可。`,
+  ]} />
+
+  <figure class="hero">
+    <img src={`/media/${m.slug}-square.png`} alt={m.alt} width="1080" height="1080" />
+    <figcaption>長輩圖 1080×1080。點下方連結可下載其他尺寸。</figcaption>
+  </figure>
+
+  <h2>完整說明</h2>
+  {m.body.map((p) => <p>{p}</p>)}
+
+  <h2>法條依據</h2>
+  <ul class="refs">
+    {m.lawRefs.map((r) => <li><a href={r.href}>{r.label}</a></li>)}
+  </ul>
+
+  <h2>下載</h2>
+  <ul class="dl">
+    {imgFormats.map((f) => (
+      <li>
+        <a href={`/media/${m.slug}-${f}.png`} download>{FORMAT_LABEL[f]}</a>
+        <span class="alt">替代文字：{m.alt}</span>
+      </li>
+    ))}
+    <li><a href="/media/campaign-yao-care-media.zip" download>全部素材整包（ZIP）</a></li>
+  </ul>
+
+  <h2>可直接複製轉發的文字</h2>
+  <p>下面這段可以整段複製，貼到 LINE、簡訊或社群貼文。已含連結。</p>
+  <pre class="line-text">{m.lineText}</pre>
+
+  {m.shots && (
+    <>
+      <h2>短影音腳本與分鏡</h2>
+      <p>直式 9:16，全長約 25 秒。歡迎自行拍攝，不需要事先告知本站。</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+        <table>
+          <caption>分鏡表</caption>
+          <thead><tr><th scope="col">時間</th><th scope="col">畫面</th><th scope="col">旁白</th></tr></thead>
+          <tbody>
+            {m.shots.map((s) => (
+              <tr><th scope="row">{s.t}</th><td>{s.visual}</td><td>{s.vo}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )}
+
+  <h2>授權</h2>
+  <p>
+    本素材以 <a href={LICENSE.url} rel="license noopener">{LICENSE.name}（姓名標示 4.0 國際）</a>釋出。
+    可自由轉發、印製、剪裁、改作，包括商業用途，只要標示來源為
+    政治獻金指南（{SITE.origin.replace('https://', '')}）。
+    本站為民間自製，與內政部、監察院、中央選舉委員會均無委託關係。
+  </p>
+
+  <NextQuestions items={[
+    ...m.lawRefs.map((r) => ({ q: r.label, href: r.href })),
+    ...others.slice(0, 2).map((o) => ({ q: o.sub, href: `/media/${o.slug}/` })),
+    { q: '所有素材', href: '/media/' },
+  ].slice(0, 5)} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .hero { margin: 1.5rem 0; }
+  .hero img { display: block; width: 100%; max-width: 34rem; height: auto; border: 1px solid var(--rule); }
+  .hero figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+  .refs, .dl { list-style: none; padding: 0; }
+  .refs li, .dl li { border-block-end: 1px solid var(--rule); padding-block: .7em; }
+  .dl .alt { display: block; font-size: var(--text-xs); color: var(--muted); margin-top: .3em; }
+  .line-text { background: var(--alt); border-inline-start: 4px solid var(--slate);
+               padding: 1.25em; font-family: inherit; font-size: var(--text-sm);
+               white-space: pre-wrap; line-height: 1.7; overflow-x: auto; }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>
