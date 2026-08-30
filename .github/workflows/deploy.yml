@@ -53,6 +53,9 @@ jobs:
       - name: 日期把關
         run: npm run check:dates
 
+      - name: 文件把關
+        run: npm run check:docs
+
       - name: 建置
         run: npm run build:only
         env:

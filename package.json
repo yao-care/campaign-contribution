@@ -21,7 +21,14 @@
     "fetch:donations": "node scripts/fetch-donations.mjs",
     "build:media": "node --experimental-strip-types scripts/build-media.mjs && node --experimental-strip-types scripts/build-media-zip.mjs",
     "signal": "node scripts/news-signal.mjs",
-    "check:dates": "node scripts/check-dates.mjs"
+    "check:dates": "node scripts/check-dates.mjs",
+    "stat": "node scripts/stat.mjs",
+    "audit:prose": "node scripts/audit-prose.mjs",
+    "audit:paraphrase": "node scripts/audit-paraphrase.mjs",
+    "audit:tone": "node scripts/audit-ai-tone.mjs",
+    "audit": "npm run audit:prose && npm run audit:paraphrase && npm run audit:tone",
+    "banner": "node scripts/build-banner.mjs",
+    "check:docs": "node scripts/check-docs.mjs"
   },
   "dependencies": {
     "astro": "^7.2.9",
