@@ -49,7 +49,7 @@ const shell = (w, h, inner, pad = 72) => `<!doctype html><html lang="zh-Hant-TW"
        padding:${pad}px;display:flex;flex-direction:column;
        -webkit-font-smoothing:antialiased}
   .brand{display:flex;align-items:center;gap:.5em;font-size:26px;font-weight:700;color:${C.ink}}
-  .headline{font-weight:900;line-height:.95;color:${C.stamp};letter-spacing:-.02em}
+  .headline{font-weight:900;line-height:1.06;color:${C.stamp};letter-spacing:-.02em}
   .sub{color:${C.ink};font-weight:700;line-height:1.45}
   .rule{height:3px;background:${C.ink};margin:28px 0}
   .foot{margin-top:auto;color:${C.muted};font-size:20px;line-height:1.6;border-top:1px solid ${C.rule};padding-top:20px}
@@ -61,38 +61,122 @@ const foot = (item, extra = '') => `<div class="foot">
   <b>${SITE}</b>　本站為民間自製，與各機關無委託關係　CC BY 4.0
 </div>`;
 
-/** 大字依字數自動調級，避免長標題換行擠壓 */
-const fit = (text, max, min = 0.42) => {
-  const n = [...text].length;
-  const scale = n <= 2 ? 1 : n <= 3 ? 0.82 : n <= 4 ? 0.62 : n <= 5 ? 0.5 : min;
-  return Math.round(max * scale);
+const nl = (t) => esc(t).replace(/\\n|\n/g, '<br>');
+
+/**
+ * 大字依視覺寬度自動調級。
+ * 中日韓字元算 1，其餘（數字、空白、拉丁字母）算 0.55——
+ * 用字數會把「一年 10 萬」誤判成 7 個全形字，字級被壓得太小。
+ */
+const visualWidth = (s) =>
+  [...s].reduce((w, ch) => w + (/[\u3000-\u9fff\uff00-\uffef]/.test(ch) ? 1 : 0.55), 0);
+/**
+ * 長輩圖是隔一公尺看手機的人在看，字級守下限、不讓文案長度把字壓小：
+ * 依可用寬度回推最大可放字級，再夾在 max 與 max*0.72 之間。
+ * 夾到下限還是塞不下 → 是文案要改短，不是字要變小，所以直接擋掉。
+ */
+const fit = (lines, max, boxWidth = 900, boxHeight = 0) => {
+  const n = Math.max(...lines.map(visualWidth));
+  let size = Math.min(max, Math.max(Math.round(max * 0.72), Math.floor(boxWidth / n)));
+  // 直式版的大字要跟下面的內文共用高度，給了高度預算就以它為準，不套字級下限
+  if (boxHeight) return Math.min(size, Math.floor(boxHeight / (lines.length * 1.06)));
+  if (n * size > boxWidth * 1.02) {
+    throw new Error(`文案太長塞不下：「${lines.join('／')}」約 ${n.toFixed(1)} 字寬，` +
+      `${boxWidth}px 內要維持 ${Math.round(max * 0.72)}px 字級最多 ` +
+      `${(boxWidth / (max * 0.72)).toFixed(1)} 字，請改短文案。`);
+  }
+  return size;
 };
 
+const MARK_C = (c) => `<span style="display:inline-block;width:.85em;height:.85em;border:2px solid ${c};position:relative;vertical-align:-.03em"><span style="position:absolute;left:.15em;right:.15em;top:calc(50% - 1px);border-top:2px solid ${c}"></span></span>`;
+
+const srcLine = (item) =>
+  `依政治獻金法${esc(item.lawRefs[0].label.replace('政治獻金法', ''))}．監察院與全國法規資料庫`;
+
 const TEMPLATES = {
-  /** 長輩圖：一張一個知識點，超大字、單一重點 */
-  square: (item) => ({ w: 1080, h: 1080, html: shell(1080, 1080, `
-    <div class="brand">${MARK}<span>政治獻金指南</span></div>
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
-      <div class="headline" style="font-size:${fit(item.headline, 320)}px">${esc(item.headline)}</div>
-      <div class="rule"></div>
-      <div class="sub" style="font-size:52px">${esc(item.sub)}</div>
-    </div>
-    ${foot(item)}`) }),
+  /** A 警示：深底高對比，訊息最強 */
+  'square-a': (item) => {
+    const h = item.hook;
+    return { w: 1080, h: 1080, html: `<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8"><style>
+      *{box-sizing:border-box;margin:0;padding:0}html,body{width:1080px;height:1080px}
+      body{font-family:${FONT};background:#1a1210;color:#fff;padding:72px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+      </style></head><body>
+      <div style="display:flex;align-items:center;gap:.5em;font-size:26px;font-weight:700;color:#f0a598">
+        ${MARK_C('#f0a598')}<span>政治獻金指南</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:34px">
+        <div style="display:inline-flex;align-items:center;gap:18px;align-self:flex-start;background:#c1352a;padding:14px 30px;border-radius:6px">
+          <span style="font-size:44px">⚠</span>
+          <span style="font-size:38px;font-weight:800;letter-spacing:.05em">${esc(h.who)}</span></div>
+        <div style="font-size:${fit(h.warn, 118, 900)}px;font-weight:900;line-height:1.18">
+          ${esc(h.warn[0])}<br>${esc(h.warn[1])}<br><span style="color:#ff8f7d">${esc(h.warn[2])}</span></div>
+        <div style="font-size:36px;line-height:1.6;color:#e8ded9">${nl(h.warnSub)}</div>
+      </div>
+      <div style="border-top:1px solid #4a3a36;padding-top:22px;font-size:21px;color:#b3a49f;line-height:1.6">
+        ${srcLine(item)}<br><b style="color:#fff">${SITE}</b>　民間自製，與各機關無委託關係　CC BY 4.0</div>
+      </body></html>` };
+  },
+
+  /** B 溫馨：暖色漸層加圓角白卡，最接近實際會被轉發的長輩圖 */
+  'square-b': (item) => {
+    const h = item.hook;
+    return { w: 1080, h: 1080, html: `<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8"><style>
+      *{box-sizing:border-box;margin:0;padding:0}html,body{width:1080px;height:1080px}
+      body{font-family:${FONT};background:linear-gradient(160deg,#f7ede4 0%,#f0dcd0 55%,#e8cdbd 100%);
+           color:#2a1f1b;padding:56px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+      </style></head><body>
+      <div style="text-align:center;font-size:38px;font-weight:800;color:#a8442f;letter-spacing:.08em">早安 ☀</div>
+      <div style="background:#fff;border-radius:28px;padding:52px 50px;margin-top:30px;flex:1;
+           display:flex;flex-direction:column;box-shadow:0 10px 32px rgba(120,70,50,.16)">
+        <div style="font-size:42px;font-weight:800;line-height:1.45">${nl(h.lead)}</div>
+        <div style="height:4px;background:#c1352a;width:96px;margin:28px 0"></div>
+        <div style="font-size:${fit(h.big, 92, 760)}px;font-weight:900;color:#c1352a;line-height:1.22">
+          ${h.big.map(esc).join('<br>')}</div>
+        <div style="margin-top:auto;font-size:32px;line-height:1.65;color:#5a4a44">${nl(h.care)}<br>
+          <span style="color:#a8442f;font-weight:700">請幫忙轉給需要的朋友 🙏</span></div>
+      </div>
+      <div style="text-align:center;margin-top:24px;font-size:20px;color:#7a655c;line-height:1.55">
+        ${srcLine(item)}<br><b style="color:#3d2e28">${SITE}</b>　民間自製，與各機關無委託關係　CC BY 4.0</div>
+      </body></html>` };
+  },
+
+  /** C 對話：模擬 LINE 問答，問句開頭比宣告有效 */
+  'square-c': (item) => {
+    const h = item.hook;
+    return { w: 1080, h: 1080, html: `<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8"><style>
+      *{box-sizing:border-box;margin:0;padding:0}html,body{width:1080px;height:1080px}
+      body{font-family:${FONT};background:#e6ded3;color:#241c18;padding:64px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+      </style></head><body>
+      <div style="display:flex;align-items:center;gap:.5em;font-size:26px;font-weight:700;color:#8a4032">
+        ${MARK_C('#8a4032')}<span>政治獻金指南</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px">
+        <div style="align-self:flex-start;max-width:80%;background:#fff;border-radius:22px 22px 22px 6px;
+             padding:30px 34px;font-size:38px;font-weight:600;line-height:1.5;box-shadow:0 3px 10px rgba(80,50,40,.12)">
+          ${nl(h.ask)}</div>
+        <div style="align-self:flex-end;max-width:88%;background:#c1352a;color:#fff;border-radius:22px 22px 6px 22px;
+             padding:34px 38px;box-shadow:0 3px 12px rgba(140,50,35,.28)">
+          <div style="font-size:${fit(h.answer.split(/\\n|\n/), 84, 520)}px;font-weight:900;line-height:1.25">${nl(h.answer)}</div>
+          <div style="font-size:30px;line-height:1.6;margin-top:18px;color:#ffe2db">${nl(h.answerSub)}</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #c9bcaf;padding-top:22px;font-size:21px;color:#6d5c53;line-height:1.6">
+        ${srcLine(item)}<br><b style="color:#241c18">${SITE}</b>　民間自製，與各機關無委託關係　CC BY 4.0</div>
+      </body></html>` };
+  },
 
   /** 懶人包長圖：標題 + 條列重點 */
   tall: (item) => ({ w: 1080, h: 1350, html: shell(1080, 1350, `
     <div class="brand">${MARK}<span>政治獻金指南</span></div>
     <div style="margin-top:48px">
-      <div class="headline" style="font-size:${fit(item.headline, 190)}px">${esc(item.headline)}</div>
-      <div class="sub" style="font-size:46px;margin-top:16px">${esc(item.sub)}</div>
+      <div class="headline" style="font-size:${fit(item.hook.big, 150, 900, 420)}px">${item.hook.big.map(esc).join('<br>')}</div>
+      <div class="sub" style="font-size:42px;margin-top:20px">${esc(item.sub)}</div>
     </div>
     <div class="rule"></div>
-    <ol style="list-style:none;font-size:34px;line-height:1.6;color:${C.ink2}">
+    <ol style="list-style:none;font-size:33px;line-height:1.6;color:${C.ink2}">
       ${item.body.slice(0, 3).map((b, i) => `
-        <li style="display:flex;gap:20px;margin-bottom:30px">
+        <li style="display:flex;gap:20px;margin-bottom:28px">
           <span style="flex:0 0 44px;height:44px;border:2px solid ${C.stamp};color:${C.stamp};
                 font-weight:700;font-size:26px;display:flex;align-items:center;justify-content:center">${i + 1}</span>
-          <span>${esc(b.length > 78 ? b.slice(0, 78) + '…' : b)}</span>
+          <span>${esc(b.length > 76 ? b.slice(0, 76) + '…' : b)}</span>
         </li>`).join('')}
     </ol>
     ${foot(item)}`) }),
@@ -100,16 +184,15 @@ const TEMPLATES = {
   /** A4 傳單：210×297mm，96dpi 下為 794×1123 */
   a4: (item, qr) => ({ w: 794, h: 1123, html: shell(794, 1123, `
     <div class="brand" style="font-size:20px">${MARK}<span>政治獻金指南</span></div>
-    <div style="margin-top:34px">
-      <div class="headline" style="font-size:${fit(item.headline, 132)}px">${esc(item.headline)}</div>
-      <div class="sub" style="font-size:32px;margin-top:10px">${esc(item.sub)}</div>
+    <div style="margin-top:32px">
+      <div class="headline" style="font-size:${fit(item.hook.big, 104, 620, 260)}px">${item.hook.big.map(esc).join('<br>')}</div>
+      <div class="sub" style="font-size:30px;margin-top:14px">${esc(item.sub)}</div>
     </div>
     <div class="rule" style="margin:22px 0"></div>
     <div style="font-size:19px;line-height:1.75;color:${C.ink2};display:flex;flex-direction:column;gap:14px">
       ${item.body.map((b) => `<p>${esc(b)}</p>`).join('')}
     </div>
-    <div style="margin-top:auto;display:flex;gap:24px;align-items:flex-end;
-                border-top:1px solid ${C.rule};padding-top:20px">
+    <div style="margin-top:auto;display:flex;gap:24px;align-items:flex-end;border-top:1px solid ${C.rule};padding-top:20px">
       <div style="flex:0 0 132px">${qr}</div>
       <div style="font-size:17px;line-height:1.6;color:${C.muted}">
         <b style="color:${C.ink};font-size:19px">掃描查看完整說明與法條原文</b><br>

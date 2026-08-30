@@ -15,6 +15,13 @@ export function getStaticPaths() {
 }
 const { m } = Astro.props;
 const imgFormats = m.formats.filter((f) => f !== 'text' && f !== 'video-script');
+// 三種長輩圖版型並列，讓轉發的人自己挑順眼的；其餘尺寸只放在下載清單。
+const SQUARE_NOTE: Record<string, string> = {
+  'square-a': '深底白字，先講會被罰什麼',
+  'square-b': '暖色早安圖，先問候再講重點',
+  'square-c': 'LINE 對話框，一問一答',
+};
+const squares = m.formats.filter((f) => f.startsWith('square-'));
 const others = MEDIA.filter((x) => x.slug !== m.slug).slice(0, 4);
 ---
 <BaseLayout
@@ -23,7 +30,7 @@ const others = MEDIA.filter((x) => x.slug !== m.slug).slice(0, 4);
   crumbs={[{ name: '素材庫', href: '/media/' }, { name: m.sub, href: `/media/${m.slug}/` }]}
   jsonld={[{
     '@context': 'https://schema.org', '@type': 'ImageObject',
-    contentUrl: new URL(`/media/${m.slug}-square.png`, SITE.origin).href,
+    contentUrl: new URL(`/media/${m.slug}-${squares[0] ?? 'tall'}.png`, SITE.origin).href,
     caption: m.alt, description: m.body[0],
     license: LICENSE.url, acquireLicensePage: new URL('/media/', SITE.origin).href,
     inLanguage: 'zh-Hant-TW',
@@ -37,10 +44,24 @@ const others = MEDIA.filter((x) => x.slug !== m.slug).slice(0, 4);
     `以 ${LICENSE.name} 釋出，歡迎轉發、印製與改作，標示來源即可。`,
   ]} />
 
-  <figure class="hero">
-    <img src={`/media/${m.slug}-square.png`} alt={m.alt} width="1080" height="1080" />
-    <figcaption>長輩圖 1080×1080。點下方連結可下載其他尺寸。</figcaption>
-  </figure>
+  <h2>三種版型，挑一張轉發</h2>
+  <p>
+    同一件事做了三種講法，內容完全一樣，差在版面和開場。
+    哪一張在群組裡比較有人看，我們也不知道，所以三張都放上來——挑你順眼的那張下載就好。
+  </p>
+  <div class="gallery">
+    {squares.map((f) => (
+      <figure>
+        <img src={`/media/${m.slug}-${f}.png`} alt={`${FORMAT_LABEL[f]}：${m.alt}`}
+             width="1080" height="1080" loading="lazy" />
+        <figcaption>
+          <strong>{FORMAT_LABEL[f].replace(' 1080×1080', '')}</strong>
+          <span>{SQUARE_NOTE[f]}</span>
+          <a href={`/media/${m.slug}-${f}.png`} download>下載這張</a>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
 
   <h2>完整說明</h2>
   {m.body.map((p) => <p>{p}</p>)}
@@ -101,9 +122,13 @@ const others = MEDIA.filter((x) => x.slug !== m.slug).slice(0, 4);
     sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
 </BaseLayout>
 <style>
-  .hero { margin: 1.5rem 0; }
-  .hero img { display: block; width: 100%; max-width: 34rem; height: auto; border: 1px solid var(--rule); }
-  .hero figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+  .gallery { display: grid; gap: 1.5rem; margin: 1.5rem 0;
+             grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+  .gallery figure { margin: 0; }
+  .gallery img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); }
+  .gallery figcaption { font-size: var(--text-xs); margin-top: .6em; line-height: 1.6; }
+  .gallery figcaption strong { display: block; font-size: var(--text-sm); }
+  .gallery figcaption span { display: block; color: var(--muted); }
   .refs, .dl { list-style: none; padding: 0; }
   .refs li, .dl li { border-block-end: 1px solid var(--rule); padding-block: .7em; }
   .dl .alt { display: block; font-size: var(--text-xs); color: var(--muted); margin-top: .3em; }

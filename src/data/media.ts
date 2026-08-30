@@ -5,7 +5,29 @@
  * headline 與 body 的每個數字都能在 lawRefs 指向的頁面找到出處。
  * 授權 CC BY 4.0：要求標示來源，但允許轉發、印製與改作。
  */
-export type MediaFormat = 'square' | 'tall' | 'a4' | 'text' | 'video-script';
+export type MediaFormat = 'square-a' | 'square-b' | 'square-c' | 'tall' | 'a4' | 'text' | 'video-script';
+
+/** 長輩圖三種版型共用的鉤子文案。鉤子是「會被罰」而不是日期本身。 */
+export interface Hook {
+  /** C 對話框：使用者問的話 */
+  ask: string;
+  /** C 對話框：紅底大字的答案 */
+  answer: string;
+  /** C 對話框：答案底下的補充 */
+  answerSub: string;
+  /** A 警示：紅色標籤上的對象 */
+  who: string;
+  /** A 警示：三行大字，第三行會標紅 */
+  warn: [string, string, string];
+  /** A 警示：大字底下的補充 */
+  warnSub: string;
+  /** B 長輩圖：白卡最上方的引導句 */
+  lead: string;
+  /** B 長輩圖：紅色大字，三行以內 */
+  big: string[];
+  /** B 長輩圖：大字底下的叮嚀 */
+  care: string;
+}
 
 export interface MediaItem {
   slug: string;
@@ -22,6 +44,7 @@ export interface MediaItem {
   topic: '資格' | '金額' | '時間' | '程序' | '稅務' | '罰則';
   lawRefs: { label: string; href: string }[];
   formats: MediaFormat[];
+  hook: Hook;
   /** 短影音腳本與分鏡，僅 video-script 用 */
   shots?: { t: string; visual: string; vo: string }[];
 }
@@ -44,7 +67,18 @@ export const MEDIA: MediaItem[] = [
       { label: '政治獻金法第 12 條', href: '/law/12/' },
       { label: '村里長起算日查詢', href: '/tools/timeline/village-chief/' },
     ],
-    formats: ['square', 'tall', 'a4', 'text'],
+    formats: ['square-a', 'square-b', 'square-c', 'tall', 'a4', 'text'],
+    hook: {
+      ask: '我要選里長，現在\n就可以收政治獻金嗎？',
+      answer: '不行，\n8月20日才能收',
+      answerSub: '早一天收就罰兩倍，錢還會被沒入。\n到 11月27日 為止。',
+      who: '村里長候選人注意',
+      warn: ['8月20日之前', '收政治獻金', '罰你兩倍'],
+      warnSub: '錢還會被沒入。專戶許可沒下來就收，\n還有 3 年以下有期徒刑。',
+      lead: '今年要選里長的人\n要記得這件事',
+      big: ['8月20日', '才能開始', '收政治獻金'],
+      care: '早一天收，罰兩倍，\n錢還會被沒入。',
+    },
   },
   {
     slug: 'individual-cap',
@@ -64,7 +98,18 @@ export const MEDIA: MediaItem[] = [
       { label: '政治獻金法第 18 條', href: '/law/18/' },
       { label: '上限試算', href: '/tools/limit/individual-to-candidate/' },
     ],
-    formats: ['square', 'tall', 'a4', 'text'],
+    formats: ['square-a', 'square-b', 'square-c', 'tall', 'a4', 'text'],
+    hook: {
+      ask: '我想支持一位候選人，\n可以捐多少？',
+      answer: '一年 10 萬\n就是上限',
+      answerSub: '對不同候選人加起來，一年最多 30 萬。\n超過罰兩倍，還不能抵稅。',
+      who: '要捐政治獻金的人注意',
+      warn: ['同一位候選人', '一年超過 10 萬', '就是違法'],
+      warnSub: '對不同候選人加總一年也只有 30 萬。\n超過的部分罰兩倍，而且不能抵稅。',
+      lead: '想支持候選人的話\n這個數字要記得',
+      big: ['一年 10 萬', '是對同一位', '候選人的上限'],
+      care: '對不同候選人加起來\n一年最多 30 萬。',
+    },
   },
   {
     slug: 'who-cannot-donate',
@@ -84,7 +129,18 @@ export const MEDIA: MediaItem[] = [
       { label: '政治獻金法第 7 條', href: '/law/7/' },
       { label: '11 款完整清單', href: '/donors/' },
     ],
-    formats: ['square', 'tall', 'a4', 'text'],
+    formats: ['square-a', 'square-b', 'square-c', 'tall', 'a4', 'text'],
+    hook: {
+      ask: '我開公司，可以捐\n政治獻金嗎？',
+      answer: '先看這\n11 款',
+      answerSub: '公司去年帳上還有累積虧損沒彌補，\n就不能捐。捐了罰兩倍。',
+      who: '捐錢之前先確認',
+      warn: ['有 11 種人', '和公司', '不能捐'],
+      warnSub: '最常踩到的是公司還有累積虧損、\n正在履行政府採購契約、未成年。',
+      lead: '不是每個人\n都可以捐政治獻金',
+      big: ['11 款', '不能捐的', '對象'],
+      care: '公司有累積虧損不能捐，\n未成年也不行。',
+    },
   },
   {
     slug: 'tax-deduction',
@@ -104,7 +160,18 @@ export const MEDIA: MediaItem[] = [
       { label: '政治獻金法第 19 條', href: '/law/19/' },
       { label: '抵稅試算', href: '/tools/deduction/individual/' },
     ],
-    formats: ['square', 'tall', 'a4', 'text'],
+    formats: ['square-a', 'square-b', 'square-c', 'tall', 'a4', 'text'],
+    hook: {
+      ask: '捐了政治獻金\n可以抵稅嗎？',
+      answer: '可以，\n上限 20 萬',
+      answerSub: '是綜合所得總額的 20%，\n但最多 20 萬。沒收據就不能扣。',
+      who: '捐款人注意',
+      warn: ['沒拿收據', '這筆錢', '抵不了稅'],
+      warnSub: '個人上限是綜合所得總額 20%，\n且不超過 20 萬元。事後補不了收據。',
+      lead: '捐政治獻金\n記得跟對方拿收據',
+      big: ['最多', '抵 20 萬', '的稅'],
+      care: '沒收據就不能扣，\n年底才發現補不回來。',
+    },
   },
   {
     slug: 'no-account-penalty',
@@ -124,7 +191,18 @@ export const MEDIA: MediaItem[] = [
       { label: '政治獻金法第 26 條', href: '/law/26/' },
       { label: '專戶申請流程', href: '/forms/account-application/' },
     ],
-    formats: ['square', 'tall', 'a4', 'text'],
+    formats: ['square-a', 'square-b', 'square-c', 'tall', 'a4', 'text'],
+    hook: {
+      ask: '支持者要匯錢給我，\n可以先收嗎？',
+      answer: '許可沒下來\n就是 3 年',
+      answerSub: '未經許可設立專戶就收受，\n處 3 年以下有期徒刑。收一千塊也算。',
+      who: '擬參選人注意',
+      warn: ['沒開專戶', '就收錢', '關 3 年'],
+      warnSub: '併科 20 萬到 100 萬罰金。\n幫忙收錢的人一樣有事。',
+      lead: '戶頭開好了\n不代表可以收錢',
+      big: ['沒許可', '就收錢', '是刑事責任'],
+      care: '3 年以下有期徒刑，\n收一千塊也成立。',
+    },
   },
   {
     slug: 'report-deadline',
@@ -144,7 +222,18 @@ export const MEDIA: MediaItem[] = [
       { label: '政治獻金法第 21 條', href: '/law/21/' },
       { label: '申報期限', href: '/tools/deadline/candidate/' },
     ],
-    formats: ['square', 'tall', 'a4', 'text', 'video-script'],
+    formats: ['square-a', 'square-b', 'square-c', 'tall', 'a4', 'text', 'video-script'],
+    hook: {
+      ask: '選完了，政治獻金\n還要處理嗎？',
+      answer: '要，\n3個月內申報',
+      answerSub: '本屆期限是 116年2月28日。\n沒選上也要申報。',
+      who: '選完的人注意',
+      warn: ['投票日後', '3個月內', '要申報'],
+      warnSub: '沒申報罰 6 萬到 120 萬，\n而且可以按次一直罰。沒選上也要申報。',
+      lead: '選完不是就沒事了',
+      big: ['3個月內', '要向監察院', '申報'],
+      care: '沒申報罰 6 萬起跳，\n而且沒選上也要申報。',
+    },
     shots: [
       { t: '0–3 秒', visual: '黑底白字，只有「選完就沒事了？」六個字，靜止。', vo: '選完就沒事了？' },
       { t: '3–8 秒', visual: '切到日曆特寫，115 年 11 月 28 日被圈起來，鏡頭往右滑到 116 年 2 月 28 日。', vo: '投票日之後，還有三個月的申報期限。' },
@@ -157,7 +246,9 @@ export const MEDIA: MediaItem[] = [
 
 export const MEDIA_TOPICS = ['資格', '金額', '時間', '程序', '稅務', '罰則'] as const;
 export const FORMAT_LABEL: Record<MediaFormat, string> = {
-  square: '長輩圖 1080×1080',
+  'square-a': '長輩圖 A 警示版 1080×1080',
+  'square-b': '長輩圖 B 溫馨版 1080×1080',
+  'square-c': '長輩圖 C 對話版 1080×1080',
   tall: '懶人包長圖 1080×1350',
   a4: '可列印傳單 A4',
   text: '問答卡片（純文字）',

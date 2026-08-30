@@ -32,6 +32,11 @@ const totalFiles = MEDIA.reduce((a, m) => a + m.formats.filter((f) => f !== 'tex
     做給要轉發的人用的。長輩圖丟 LINE 群組、傳單印出來貼里辦公處布告欄、
     純文字版直接複製貼上。不必問過本站，也不必註明是誰做的以外的任何事。
   </p>
+  <p class="lede">
+    每個知識點的長輩圖都做了三種版型：<strong>A 警示版</strong>先講會被罰什麼、
+    <strong>B 溫馨版</strong>是早安圖的長相、<strong>C 對話版</strong>做成 LINE 一問一答。
+    內容一字不差，差在誰會願意點開。哪種有效我們沒有資料，你挑順眼的那張轉出去就是了。
+  </p>
 
   <nav class="jump" aria-label="依主題跳至">
     <span>依主題：</span>
@@ -43,7 +48,7 @@ const totalFiles = MEDIA.reduce((a, m) => a + m.formats.filter((f) => f !== 'tex
       <caption>提供的尺寸與用途</caption>
       <thead><tr><th scope="col">格式</th><th scope="col">尺寸</th><th scope="col">用途</th></tr></thead>
       <tbody>
-        <tr><th scope="row">長輩圖</th><td>1080×1080</td><td>LINE 群組轉發，一張一個知識點</td></tr>
+        <tr><th scope="row">長輩圖（三種版型）</th><td>1080×1080</td><td>LINE 群組轉發，一張一個知識點，同內容三種講法自己挑</td></tr>
         <tr><th scope="row">懶人包長圖</th><td>1080×1350</td><td>IG 貼文、社群輪播</td></tr>
         <tr><th scope="row">可列印傳單</th><td>A4（794×1123）</td><td>里辦公處、社區布告欄，附 QR code</td></tr>
         <tr><th scope="row">問答卡片</th><td>純文字</td><td>直接複製貼 LINE 或簡訊</td></tr>
@@ -59,11 +64,11 @@ const totalFiles = MEDIA.reduce((a, m) => a + m.formats.filter((f) => f !== 'tex
         {g.items.map((m) => (
           <li>
             <a href={`/media/${m.slug}/`}>
-              <img src={`/media/${m.slug}-square.png`} alt={m.alt} width="1080" height="1080" loading="lazy" />
+              <img src={`/media/${m.slug}-square-a.png`} alt={m.alt} width="1080" height="1080" loading="lazy" />
               <span class="cap">
                 <strong>{m.headline}</strong>
                 <span class="s">{m.sub}</span>
-                <span class="f">{m.formats.map((f) => FORMAT_LABEL[f].split(' ')[0]).join('、')}</span>
+                <span class="f">{[...new Set(m.formats.map((f) => FORMAT_LABEL[f].split(' ')[0]))].join('、')}</span>
               </span>
             </a>
           </li>
