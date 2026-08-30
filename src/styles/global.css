@@ -1,0 +1,176 @@
+@import "./tokens.css";
+
+/* ===========================================================================
+   全站基底。手機優先、單欄、零 JS。
+   無障礙依據：網站無障礙規範 110.07，目標 AA（建站規格 §11）。
+   =========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-size: 100%;                 /* 尊重使用者瀏覽器字級設定，不寫死 px */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--lh-body);
+  text-wrap: pretty;
+}
+
+/* --- 標題階層：一頁一個 H1，不跳級（§9.2）-------------------------------- */
+h1, h2, h3, h4 {
+  font-family: var(--font-sans);
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+  margin-block: 2em 0.6em;
+}
+h1 { font-size: var(--text-3xl); margin-block-start: 0; letter-spacing: -0.01em; }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+h4 { font-size: var(--text-base); }
+
+p, ul, ol, dl { margin-block: 0 1em; }
+
+/* --- 連結：不用藍色，靠底線與朱色區辨 ------------------------------------ */
+a {
+  color: var(--stamp);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+a:hover { text-decoration-thickness: 2px; }
+
+/* --- 焦點狀態必須可見（§11）。--rule 對比僅 1.34:1，不可用於此 ----------- */
+:focus-visible {
+  outline: 3px solid var(--stamp);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* --- 版面 ---------------------------------------------------------------- */
+.wrap {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+.wrap--wide { max-width: 60rem; }
+
+/* --- 表格：數字一律進表格（§9.1 第 3 條），真 table + th + scope --------- */
+/* 窄螢幕改為橫向捲動，而不是把欄位壓到斷字。容器可鍵盤聚焦以符合 AA。 */
+.table-scroll { overflow-x: auto; }
+.table-scroll table { min-width: 26rem; }
+.table-scroll:focus-visible { outline: 3px solid var(--stamp); outline-offset: 2px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  margin-block: 1em 1.5em;
+}
+th, td {
+  padding: 0.6em 0.75em;
+  text-align: start;
+  border-block-end: 1px solid var(--rule);
+  vertical-align: top;
+}
+th[scope="row"] { text-wrap: nowrap; }
+@supports not (text-wrap: nowrap) { th[scope="row"] { white-space: nowrap; } }
+thead th { background: var(--alt); font-weight: 600; }
+td.num, th.num { text-align: end; font-variant-numeric: tabular-nums; }
+
+/* --- 法條原文：襯線＋灰底＋朱線，語意區隔不是裝飾（§7、T4）-------------- */
+.statute {
+  font-family: var(--font-serif);
+  background: var(--alt);
+  border-inline-start: 4px solid var(--stamp);
+  padding: 1.25em 1.25em 1.25em 1.5em;
+  margin-block: 1.5em;
+  line-height: 1.9;
+}
+.statute p { margin-block: 0 0.8em; }
+.statute p:last-child { margin-block-end: 0; }
+
+/* --- 提示框：石板青 ------------------------------------------------------ */
+.note {
+  background: var(--mint);
+  border-inline-start: 4px solid var(--slate);
+  padding: 1em 1.25em;
+  margin-block: 1.5em;
+}
+
+/* --- 本頁重點：H1 正下方三行事實句（§9.3）------------------------------- */
+.keypoints {
+  border-block: 2px solid var(--ink);
+  padding-block: 1em;
+  margin-block: 1.5em 2em;
+  list-style: none;
+  padding-inline-start: 0;
+}
+.keypoints li {
+  padding-inline-start: 1.4em;
+  position: relative;
+  margin-block-end: 0.5em;
+}
+.keypoints li:last-child { margin-block-end: 0; }
+.keypoints li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.62em;
+  width: 0.7em; height: 0.7em;
+  border: 1.5px solid var(--stamp);
+}
+
+/* --- 數字強調（工具頁結論）---------------------------------------------- */
+.figure {
+  font-size: var(--text-2xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--stamp);
+}
+
+/* --- 資料來源與更新日 ---------------------------------------------------- */
+.provenance {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  border-block-start: 1px solid var(--rule);
+  padding-block-start: 1em;
+  margin-block-start: 2.5em;
+}
+.provenance a { color: var(--muted); }
+
+/* --- 跳至主要內容 -------------------------------------------------------- */
+.skip {
+  position: absolute;
+  inset-inline-start: -9999px;
+  background: var(--ground);
+  color: var(--ink);
+  padding: 0.75em 1em;
+  z-index: 10;
+}
+.skip:focus { inset-inline-start: 0; inset-block-start: 0; }
+
+/* --- 識別記號：方框加一橫，取自公文用印（§7）---------------------------- */
+.mark {
+  display: inline-block;
+  width: 1em; height: 1em;
+  border: 2px solid currentColor;
+  position: relative;
+  vertical-align: -0.1em;
+}
+.mark::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0.15em;
+  inset-block-start: calc(50% - 1px);
+  border-block-start: 2px solid currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

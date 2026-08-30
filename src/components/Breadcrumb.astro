@@ -1,0 +1,23 @@
+---
+export interface Props { crumbs: { name: string; href: string }[] }
+const { crumbs } = Astro.props;
+---
+<nav class="crumbs wrap wrap--wide" aria-label="麵包屑">
+  <ol>
+    <li><a href="/">首頁</a></li>
+    {crumbs.map((c, i) => (
+      <li>
+        {i === crumbs.length - 1
+          ? <span aria-current="page">{c.name}</span>
+          : <a href={c.href}>{c.name}</a>}
+      </li>
+    ))}
+  </ol>
+</nav>
+<style>
+  .crumbs { padding-block: 0.75rem 0; font-size: var(--text-xs); }
+  .crumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4em; }
+  .crumbs li + li::before { content: "›"; color: var(--muted); margin-inline-end: 0.4em; }
+  .crumbs a { color: var(--ink-2); }
+  .crumbs [aria-current="page"] { color: var(--muted); }
+</style>

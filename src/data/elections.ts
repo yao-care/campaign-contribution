@@ -1,0 +1,162 @@
+/**
+ * 11 種選舉類別的制度事實。
+ *
+ * 全部欄位可對照 src/data/law.json 的第 12、17、18 條原文複核，
+ * 已於 2026-08-30 逐條核對無誤。第 12 條**只有四款**，11 個頁面是為了
+ * 接住職位名稱的搜尋，內容依四款歸類，不是十一套規則（建站規格 §5.3）。
+ */
+
+/**
+ * 本屆地方公職人員選舉的起算日。
+ *
+ * 來源為監察院 115/02/09 公告的兩份「申請開立政治獻金專戶許可注意事項」，
+ * 不是由任期屆滿日自行推算——建站規格 §5.3 推算出的第 4 款組 8/25 與公告不符，
+ * 公告載明為 8/20（依第 12 條第 1 項第 4 款「及第 3 項」，第 3 項會把起始日
+ * 提前到選舉公告發布之日）。凡公告有載明的日期，一律以公告為準。
+ */
+export const LOCAL_CYCLE = {
+  voteDay: '2026-11-28',        // 115 年 11 月 28 日
+  /** 第 12 條第 3 款組：直轄市長、直轄市議員、縣(市)長、縣(市)議員、鄉(鎮、市)長、直轄市山地原住民區長 */
+  startClause3: '2026-04-25',   // 監察院公告：115 年 4 月 25 日
+  /** 第 12 條第 4 款組：鄉(鎮、市)民代表、直轄市山地原住民區民代表、村(里)長 */
+  startClause4: '2026-08-20',   // 監察院公告：115 年 8 月 20 日
+  /** 專戶設立申請受理起日（第 4 款組），公告載明自 115 年 8 月 17 日起 */
+  accountOpenClause4: '2026-08-17',
+  source: 'https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855',
+  sourceNote: '監察院 115/02/09「申請開立政治獻金專戶許可注意事項」',
+} as const;
+
+/** 直轄市山地原住民區共 6 區，名單取自監察院前揭公告 */
+export const INDIGENOUS_DISTRICTS = [
+  { county: '新北市', district: '烏來區' },
+  { county: '桃園市', district: '復興區' },
+  { county: '臺中市', district: '和平區' },
+  { county: '高雄市', district: '茂林區' },
+  { county: '高雄市', district: '桃源區' },
+  { county: '高雄市', district: '那瑪夏區' },
+] as const;
+
+/** 辦理縣(市)長、縣(市)議員、鄉(鎮、市)長及鄉(鎮、市)民代表選舉的 13 縣，取自前揭公告 */
+export const TOWNSHIP_COUNTIES = [
+  '宜蘭縣', '新竹縣', '苗栗縣', '彰化縣', '南投縣', '雲林縣', '嘉義縣',
+  '花蓮縣', '臺東縣', '屏東縣', '澎湖縣', '金門縣', '連江縣',
+] as const;
+
+/** 縣(市)長、縣(市)議員選舉區中，以「市」為名的 3 市 */
+export const PROVINCIAL_CITIES = ['基隆市', '新竹市', '嘉義市'] as const;
+
+export interface Election {
+  slug: string;
+  position: string;
+  /** 第 12 條第幾款 */
+  clause12: 1 | 2 | 3 | 4;
+  /** 任期屆滿前幾個月起算 */
+  startOffsetMonths: 12 | 10 | 8 | 4;
+  /** 本屆起算日；null 表示不在本屆地方選舉、須待各該選舉公告 */
+  startDate: string | null;
+  /** 收受期間截止日（投票日前一日）；null 同上 */
+  endDate: string | null;
+  /** 第 18 條第 2 項：政黨對其所推薦同一（組）擬參選人的金錢捐贈上限（元） */
+  partyDonationCap: number;
+  /** 第 18 條第 2 項第幾款 */
+  clause18: 1 | 2 | 3 | 4 | 5 | 6;
+  /** 是否為本屆地方公職人員選舉改選職位 */
+  inLocalCycle: boolean;
+}
+
+const LOCAL_END = '2026-11-27';   // 投票日前一日，兩份公告均載明
+
+export const ELECTIONS: Election[] = [
+  { slug: 'president', position: '總統、副總統',
+    clause12: 1, startOffsetMonths: 12, startDate: null, endDate: null,
+    partyDonationCap: 25_000_000, clause18: 1, inLocalCycle: false },
+
+  { slug: 'legislator', position: '立法委員（區域及原住民）',
+    clause12: 2, startOffsetMonths: 10, startDate: null, endDate: null,
+    partyDonationCap: 2_000_000, clause18: 2, inLocalCycle: false },
+
+  { slug: 'municipality-mayor', position: '直轄市長',
+    clause12: 3, startOffsetMonths: 8, startDate: LOCAL_CYCLE.startClause3, endDate: LOCAL_END,
+    partyDonationCap: 3_000_000, clause18: 3, inLocalCycle: true },
+
+  { slug: 'county-mayor', position: '縣（市）長',
+    clause12: 3, startOffsetMonths: 8, startDate: LOCAL_CYCLE.startClause3, endDate: LOCAL_END,
+    partyDonationCap: 3_000_000, clause18: 3, inLocalCycle: true },
+
+  { slug: 'municipality-councilor', position: '直轄市議員',
+    clause12: 3, startOffsetMonths: 8, startDate: LOCAL_CYCLE.startClause3, endDate: LOCAL_END,
+    partyDonationCap: 500_000, clause18: 4, inLocalCycle: true },
+
+  { slug: 'county-councilor', position: '縣（市）議員',
+    clause12: 3, startOffsetMonths: 8, startDate: LOCAL_CYCLE.startClause3, endDate: LOCAL_END,
+    partyDonationCap: 500_000, clause18: 4, inLocalCycle: true },
+
+  { slug: 'township-mayor', position: '鄉（鎮、市）長',
+    clause12: 3, startOffsetMonths: 8, startDate: LOCAL_CYCLE.startClause3, endDate: LOCAL_END,
+    partyDonationCap: 300_000, clause18: 5, inLocalCycle: true },
+
+  { slug: 'indigenous-district-chief', position: '直轄市山地原住民區長',
+    clause12: 3, startOffsetMonths: 8, startDate: LOCAL_CYCLE.startClause3, endDate: LOCAL_END,
+    partyDonationCap: 300_000, clause18: 5, inLocalCycle: true },
+
+  { slug: 'township-rep', position: '鄉（鎮、市）民代表',
+    clause12: 4, startOffsetMonths: 4, startDate: LOCAL_CYCLE.startClause4, endDate: LOCAL_END,
+    partyDonationCap: 100_000, clause18: 6, inLocalCycle: true },
+
+  { slug: 'indigenous-district-rep', position: '直轄市山地原住民區民代表',
+    clause12: 4, startOffsetMonths: 4, startDate: LOCAL_CYCLE.startClause4, endDate: LOCAL_END,
+    partyDonationCap: 100_000, clause18: 6, inLocalCycle: true },
+
+  { slug: 'village-chief', position: '村（里）長',
+    clause12: 4, startOffsetMonths: 4, startDate: LOCAL_CYCLE.startClause4, endDate: LOCAL_END,
+    partyDonationCap: 100_000, clause18: 6, inLocalCycle: true },
+];
+
+/** 第 18 條第 1 項：對同一（組）擬參選人每年捐贈總額上限（元） */
+export const CANDIDATE_CAPS = {
+  individual: 100_000,
+  business: 1_000_000,
+  civicGroup: 500_000,
+} as const;
+
+/** 第 18 條第 3 項：對不同擬參選人每年捐贈總額合計上限（元） */
+export const CANDIDATE_CAPS_AGGREGATE = {
+  individual: 300_000,
+  business: 2_000_000,
+  civicGroup: 1_000_000,
+} as const;
+
+/** 第 17 條第 1 項：對同一政黨、政治團體每年捐贈總額上限（元） */
+export const PARTY_CAPS = {
+  individual: 300_000,
+  business: 3_000_000,
+  civicGroup: 2_000_000,
+} as const;
+
+/** 第 17 條第 3 項：對不同政黨、政治團體每年捐贈總額合計上限（元） */
+export const PARTY_CAPS_AGGREGATE = {
+  individual: 600_000,
+  business: 6_000_000,
+  civicGroup: 4_000_000,
+} as const;
+
+export const DONOR_LABEL = {
+  individual: '個人',
+  business: '營利事業',
+  civicGroup: '人民團體',
+} as const;
+
+export type DonorType = keyof typeof DONOR_LABEL;
+
+/** 第 19 條：列舉扣除額 */
+export const DEDUCTION = {
+  individual: { ratio: 0.20, ratioBase: '綜合所得總額', cap: 200_000 },
+  business:   { ratio: 0.10, ratioBase: '所得額',       cap: 500_000 },
+} as const;
+
+export const twd = (n: number) => `新臺幣 ${n.toLocaleString('zh-TW')} 元`;
+
+export const rocDate = (iso: string) => {
+  const d = new Date(iso + 'T00:00:00+08:00');
+  return `民國 ${d.getFullYear() - 1911} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+};

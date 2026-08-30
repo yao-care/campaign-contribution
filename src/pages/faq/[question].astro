@@ -1,0 +1,76 @@
+---
+import { REVIEWER } from '../../site.mjs';
+/** FAQ 頁。H1 即完整問句（§9.1 第 1 條），問法變體寫在同一頁（§12 第 2 點）。 */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import Statute from '../../components/Statute.astro';
+import { FAQS } from '../../data/faq';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return FAQS.map((f) => ({ params: { question: f.slug }, props: { f } }));
+}
+const { f } = Astro.props;
+const firstArticle = f.basis[0]?.match(/第 (\d+) 條/)?.[1];
+const sameTopic = FAQS.filter((x) => x.topic === f.topic && x.slug !== f.slug).slice(0, 3);
+---
+<BaseLayout
+  title={`${f.q}｜政治獻金指南`}
+  description={f.a}
+  crumbs={[{ name: '常見問答', href: '/faq/' }, { name: f.q, href: `/faq/${f.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    inLanguage: 'zh-Hant-TW',
+    mainEntity: [{
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.detail ? `${f.a} ${f.detail}` : f.a },
+    }],
+  }]}
+>
+  <h1>{f.q}</h1>
+
+  <KeyPoints points={[
+    f.a,
+    `法條依據：${f.basis.join('、')}。`,
+    f.detail ?? `本題屬「${f.topic}」類問題，可對照條文原文核對。`,
+  ]} />
+
+  <p class="lede">{f.a}</p>
+
+  {f.detail && (<><h2>補充說明</h2><p>{f.detail}</p></>)}
+
+  <h2>法條依據</h2>
+  <p>
+    {f.basis.map((b, i) => {
+      const n = b.match(/第 (\d+) 條/)?.[1];
+      return <>{i > 0 && '、'}{n ? <a href={`/law/${n}/`}>政治獻金法{b}</a> : b}</>;
+    })}
+  </p>
+
+  {firstArticle && <Statute article={firstArticle} />}
+
+  {f.variants.length > 0 && (
+    <>
+      <h2>其他問法</h2>
+      <p class="variants">
+        這一題也常被問成：{f.variants.map((v) => `「${v}」`).join('、')}。答案相同。
+      </p>
+    </>
+  )}
+
+  <NextQuestions items={[
+    ...f.related,
+    ...sameTopic.map((x) => ({ q: x.q, href: `/faq/${x.slug}/` })),
+  ].slice(0, 5)} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .variants { font-size: var(--text-sm); color: var(--muted); }
+</style>

@@ -1,0 +1,121 @@
+---
+/**
+ * T1 首頁。三個入口 + 選舉倒數 + 最多人查的問題。
+ * 刻意不做一鍋端的法規總覽（§6 T1）。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../site.mjs';
+import lawData from '../data/law.json';
+
+/** 本屆地方公職人員選舉投票日 115 年 11 月 28 日（§5.3） */
+const VOTE_DAY = new Date('2026-11-28T00:00:00+08:00');
+const today = new Date();
+const daysLeft = Math.ceil((VOTE_DAY.getTime() - today.getTime()) / 86_400_000);
+
+const entries = [
+  { href: '/donors/', h: '我要捐款', d: '先確認自己能不能捐、能捐多少、事後能不能抵稅。' },
+  { href: '/elections/', h: '我要參選', d: '什麼時候開始可以收、專戶怎麼開、什麼時候要申報。' },
+  { href: '/villages/', h: '查我的村里', d: '全國 7,734 個村里，查你這一里的村里長起算日與捐贈上限。' },
+];
+
+const entries2 = [
+  { href: '/regions/', h: '查行政區', d: '22 縣市、368 鄉鎮市區這次改選哪些職位。' },
+  { href: '/law/', h: '查法條', d: '政治獻金法 36 條，逐條原文與白話拆解。' },
+  { href: '/tools/', h: '用工具算', d: '資格、上限、起算日、抵稅、申報、罰則六個工具。' },
+];
+
+const popular = [
+  { q: '村里長什麼時候可以開始收政治獻金？', href: '/elections/village-chief/' },
+  { q: '個人一年最多可以捐多少給同一位擬參選人？', href: '/tools/limit/individual-to-candidate/' },
+  { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/law/7/' },
+  { q: '政治獻金可以抵稅嗎？可以抵多少？', href: '/tools/deduction/individual/' },
+  { q: '沒有開專戶就收政治獻金會怎樣？', href: '/tools/penalty/26/' },
+];
+---
+<BaseLayout
+  title={`${SITE.name}｜我能不能捐、能捐多少、什麼時候開始`}
+  description="政治獻金法 36 條的可查詢版本。依身分與選舉類別，查捐贈資格、金額上限、收受起算日與申報期限。法條原文取自全國法規資料庫。"
+>
+  <h1>政治獻金，先查再捐</h1>
+  <p class="lede">
+    政治獻金法有 36 條。本站把它拆成「我這個身分、這場選舉，能不能捐、能捐多少、
+    什麼時候開始、事後怎麼報」四個問題，每個答案都附上條文原文。
+  </p>
+
+  <section class="countdown" aria-labelledby="cd-h">
+    <h2 id="cd-h">本屆地方公職人員選舉</h2>
+    <p><strong class="figure">115 年 11 月 28 日</strong></p>
+    <p class="cd-sub">投票日｜距今 {daysLeft} 天（本頁靜態產出，每日重新建置）</p>
+  </section>
+
+  <nav class="entries" aria-label="三條動線">
+    {entries.map((e) => (
+      <a class="entry" href={e.href}>
+        <h2>{e.h}</h2>
+        <p>{e.d}</p>
+      </a>
+    ))}
+  </nav>
+
+  <nav class="entries entries--sub" aria-label="其他入口">
+    {entries2.map((e) => (
+      <a class="entry entry--sub" href={e.href}>
+        <h2>{e.h}</h2>
+        <p>{e.d}</p>
+      </a>
+    ))}
+  </nav>
+
+  <section aria-labelledby="pop-h">
+    <h2 id="pop-h">最多人查的問題</h2>
+    <ul class="popular">
+      {popular.map((p) => <li><a href={p.href}>{p.q}</a></li>)}
+    </ul>
+  </section>
+
+  <footer class="provenance">
+    <p>
+      法條原文取自
+      <a href={lawData.source} rel="noopener">全國法規資料庫．政治獻金法</a>，
+      共 {lawData.count} 條，抓取日 {lawData.fetchedAt.slice(0, 10)}。
+    </p>
+  </footer>
+</BaseLayout>
+
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .countdown {
+    border: 2px solid var(--slate);
+    padding: 1.25em;
+    margin-block: 2rem;
+  }
+  .countdown h2 {
+    font-size: var(--text-xs);
+    letter-spacing: 0.15em;
+    color: var(--slate);
+    margin-block: 0 0.4em;
+  }
+  .countdown p { margin: 0; }
+  .cd-sub { font-size: var(--text-xs); color: var(--muted); margin-block-start: 0.5em; }
+
+  .entries { display: grid; gap: 1rem; margin-block: 2.5rem; }
+  .entry {
+    display: block;
+    border: 1px solid var(--rule);
+    border-inline-start: 4px solid var(--stamp);
+    padding: 1.25em;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .entry:hover { background: var(--alt); }
+  .entry h2 { margin-block: 0 0.3em; font-size: var(--text-lg); color: var(--stamp); }
+  .entries--sub { margin-block: 1rem 2.5rem; }
+  .entry--sub { border-inline-start-color: var(--slate); }
+  .entry--sub h2 { color: var(--slate); font-size: var(--text-base); }
+  .entry p { margin: 0; font-size: var(--text-sm); color: var(--ink-2); }
+
+  .popular { list-style: none; padding: 0; margin: 0; }
+  .popular li { border-block-end: 1px solid var(--rule); }
+  .popular a { display: block; padding-block: 0.8em; text-decoration: none; }
+  .popular a:hover { text-decoration: underline; }
+</style>

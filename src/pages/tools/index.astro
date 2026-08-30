@@ -1,0 +1,60 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import lawData from '../../data/law.json';
+
+const tools = [
+  { href: '/tools/can-i-donate/', h: '我可以捐嗎？', d: '逐題檢核第 7 條 11 款排除對象，判斷你的身分是否得捐贈。', basis: '第 7、8 條' },
+  { href: '/tools/timeline/', h: '什麼時候可以開始收？', d: '11 種職位的收受起算日與截止日。', basis: '第 12 條' },
+  { href: '/tools/limit/', h: '可以捐多少？', d: '三種捐贈者對兩種受贈對象，加上政黨對推薦候選人 6 級，共 12 組上限。', basis: '第 17、18 條' },
+  { href: '/tools/deduction/', h: '可以抵多少稅？', d: '個人與營利事業的列舉扣除額上限。', basis: '第 19 條' },
+  { href: '/tools/deadline/', h: '什麼時候要申報？', d: '政黨、政治團體與擬參選人的申報期限與會計師簽證門檻。', basis: '第 21 條' },
+  { href: '/tools/penalty/', h: '違反了會怎樣？', d: '第 25 至 32 條的刑責與罰鍰對照。', basis: '第 25–32 條' },
+];
+---
+<BaseLayout
+  title="政治獻金查詢工具：資格、上限、起算日、申報、罰則"
+  description="六個工具回答政治獻金最常見的問題：能不能捐、能捐多少、什麼時候開始收、能抵多少稅、什麼時候要申報、違反了會怎樣。全部附法條依據。"
+  crumbs={[{ name: '工具', href: '/tools/' }]}
+>
+  <h1>政治獻金查詢工具</h1>
+
+  <KeyPoints points={[
+    '六個工具涵蓋捐贈資格、金額上限、收受起算日、抵稅、申報期限與罰則。',
+    '所有計算結果都有預先產生的靜態頁面，答案在 HTML 裡，不需要執行 JavaScript。',
+    '每個結果都標示法條依據，可直接對照條文原文。',
+  ]} />
+
+  <p class="lede">
+    每個工具都對應政治獻金法的特定條文。計算在瀏覽器端完成，不會傳送任何資料；
+    常見組合另有預先產生的靜態結果頁，可直接連結與引用。
+  </p>
+
+  <nav class="tools" aria-label="工具清單">
+    {tools.map((t) => (
+      <a class="tool" href={t.href}>
+        <h2>{t.h}</h2>
+        <p>{t.d}</p>
+        <p class="basis">{t.basis}</p>
+      </a>
+    ))}
+  </nav>
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .tools { display: grid; gap: 1rem; margin-block: 2rem; }
+  .tool {
+    display: block; border: 1px solid var(--rule);
+    border-inline-start: 4px solid var(--slate);
+    padding: 1.25em; text-decoration: none; color: var(--ink);
+  }
+  .tool:hover { background: var(--alt); }
+  .tool h2 { margin-block: 0 .3em; font-size: var(--text-lg); color: var(--slate); }
+  .tool p { margin: 0; font-size: var(--text-sm); color: var(--ink-2); }
+  .basis { margin-block-start: .5em !important; font-size: var(--text-xs) !important; color: var(--muted) !important; }
+</style>

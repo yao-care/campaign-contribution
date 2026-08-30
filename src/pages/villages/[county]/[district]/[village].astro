@@ -1,0 +1,161 @@
+---
+import { REVIEWER } from '../../../../site.mjs';
+/**
+ * T2 村里頁。
+ *
+ * 建站規格 §5.6：四個差異化欄位（戶籍人口、本屆應選名額、上屆當選得票、起算日）
+ * 必須備齊才上線，缺任一就 noindex，寧可少幾百頁，不要讓薄頁進索引。
+ * 目前四欄只有起算日備齊，其餘三欄待中選會選舉公告與人口資料來源，
+ * 因此全部 noindex，且 villageUrls() 依 complete 旗標將其排除於 sitemap 之外。
+ */
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../../components/KeyPoints.astro';
+import Provenance from '../../../../components/Provenance.astro';
+import NextQuestions from '../../../../components/NextQuestions.astro';
+import villagesData from '../../../../data/villages.json';
+import { LOCAL_CYCLE, rocDate, CANDIDATE_CAPS, CANDIDATE_CAPS_AGGREGATE, DONOR_LABEL, twd } from '../../../../data/elections';
+import lawData from '../../../../data/law.json';
+
+export function getStaticPaths() {
+  const byDistrict = new Map<string, string[]>();
+  for (const v of villagesData.villages) {
+    const k = `${v.county}/${v.district}`;
+    if (!byDistrict.has(k)) byDistrict.set(k, []);
+    byDistrict.get(k)!.push(v.village);
+  }
+  return villagesData.villages.map((v) => {
+    const siblings = byDistrict.get(`${v.county}/${v.district}`)!;
+    const i = siblings.indexOf(v.village);
+    return {
+      params: { county: v.county, district: v.district, village: v.village },
+      props: {
+        v,
+        siblingCount: siblings.length,
+        // 只取前後各若干個，避免大區把頁面撐爆
+        nearby: [...siblings.slice(Math.max(0, i - 6), i), ...siblings.slice(i + 1, i + 7)],
+      },
+    };
+  });
+}
+
+const { v, siblingCount, nearby } = Astro.props;
+const full = `${v.county}${v.district}${v.village}`;
+const title = `${v.village}長選舉｜可收獻金起算日與捐贈上限`;
+const start = rocDate(LOCAL_CYCLE.startClause4);
+const end = rocDate('2026-11-27');
+---
+<BaseLayout
+  title={title}
+  description={`${full}的村（里）長擬參選人，自 ${start} 起至 ${end} 止可收受政治獻金。個人對同一位擬參選人每年上限新臺幣 10 萬元。`}
+  crumbs={[
+    { name: '行政區', href: '/regions/' },
+    { name: v.county, href: `/regions/${v.county}/` },
+    { name: v.district, href: `/regions/${v.county}/${v.district}/` },
+    { name: v.village, href: `/villages/${v.county}/${v.district}/${v.village}/` },
+  ]}
+  noindex={!v.complete}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'Place', name: full,
+    containedInPlace: {
+      '@type': 'Place', name: `${v.county}${v.district}`,
+      containedInPlace: { '@type': 'Place', name: v.county },
+    },
+  }]}
+>
+  <h1>{full}的政治獻金規則</h1>
+
+  <KeyPoints points={[
+    `${full}的村（里）長擬參選人自 ${start} 起可以收受政治獻金。`,
+    `收受期間至 ${end} 止，即投票日 ${rocDate(LOCAL_CYCLE.voteDay)} 的前一日。`,
+    `個人對同一位村（里）長擬參選人每年捐贈上限為 ${twd(CANDIDATE_CAPS.individual)}。`,
+  ]} />
+
+  <dl class="stats">
+    <div><dt>收受起算日</dt><dd>{start}</dd></div>
+    <div><dt>收受截止日</dt><dd>{end}</dd></div>
+    <div><dt>所屬鄉鎮市區</dt><dd>{v.district}</dd></div>
+    <div><dt>同區村里數</dt><dd>{siblingCount}</dd></div>
+  </dl>
+
+  <p class="note pending">
+    本屆應選名額、上屆當選人得票與戶籍人口三項資料尚未取得，本頁暫不開放索引。
+    應選名額與選舉區劃分須待中央選舉委員會選舉公告發布。
+  </p>
+
+  <h2>{v.village}的村（里）長什麼時候可以開始收政治獻金？</h2>
+  <p>
+    {start}。依政治獻金法第 12 條第 1 項第 4 款及第 3 項，村（里）長擬參選人的收受期間
+    至次屆選舉投票日前一日止；監察院 115 年 2 月 9 日公告載明本屆為 {start} 起至 {end} 止。
+    專戶設立申請自 {rocDate(LOCAL_CYCLE.accountOpenClause4)} 起受理。
+  </p>
+  <p>
+    收受政治獻金前，必須先向金融機構開立專戶並報經監察院許可。專戶戶名格式為
+    「115 年{v.county}{v.district}{v.village}長擬參選人○○○政治獻金專戶」。
+    未經許可就收受，依第 26 條處 3 年以下有期徒刑。
+  </p>
+
+  <h2>在{v.village}，誰可以捐？可以捐多少？</h2>
+  <p>
+    得捐贈者以個人、政黨、人民團體及營利事業為限，且不得屬於第 7 條第 1 項所列 11 款排除對象。
+    金額上限與全國一致，不因村里而不同。
+  </p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>對村（里）長擬參選人的年度捐贈上限</caption>
+      <thead>
+        <tr><th scope="col">捐贈者</th><th scope="col" class="num">對同一位</th><th scope="col" class="num">對不同人合計</th></tr>
+      </thead>
+      <tbody>
+        {(Object.keys(DONOR_LABEL) as (keyof typeof DONOR_LABEL)[]).map((k) => (
+          <tr>
+            <th scope="row">{DONOR_LABEL[k]}</th>
+            <td class="num">{CANDIDATE_CAPS[k].toLocaleString('zh-TW')} 元</td>
+            <td class="num">{CANDIDATE_CAPS_AGGREGATE[k].toLocaleString('zh-TW')} 元</td>
+          </tr>
+        ))}
+        <tr>
+          <th scope="row">政黨（對其所推薦者）</th>
+          <td class="num">100,000 元</td>
+          <td class="num">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  {nearby.length > 0 && (
+    <>
+      <h2>{v.district}的其他村里</h2>
+      <ul class="nearby">
+        {nearby.map((n) => (
+          <li><a href={`/villages/${v.county}/${v.district}/${n}/`}>{n}</a></li>
+        ))}
+      </ul>
+      <p><a href={`/regions/${v.county}/${v.district}/`}>查看{v.district}全部 {siblingCount} 個村里</a></p>
+    </>
+  )}
+
+  <NextQuestions items={[
+    { q: '村里長政治獻金的完整規則是什麼？', href: '/elections/village-chief/' },
+    { q: '政治獻金專戶要怎麼申請？', href: '/forms/account-application/' },
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: `${v.district}這次選什麼？`, href: `/regions/${v.county}/${v.district}/` },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: LOCAL_CYCLE.source },
+      { label: `內政部戶政司 ODRP001（期別 ${villagesData.period}）`, href: villagesData.source },
+    ]} />
+</BaseLayout>
+<style>
+  .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); margin-block:1.5rem; }
+  .stats > div { background:var(--ground); padding:.9em 1em; }
+  .stats dt { font-size:var(--text-xs); color:var(--muted); margin:0; }
+  .stats dd { margin:.2em 0 0; font-weight:700; font-variant-numeric:tabular-nums; color:var(--slate); font-size:var(--text-sm); }
+  .pending { border-inline-start-color: var(--stamp); }
+  .nearby { list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(8rem,1fr)); gap:.25rem 1rem; }
+  .nearby li { border-block-end:1px solid var(--rule); }
+  .nearby a { display:block; padding-block:.55em; font-size:var(--text-sm); text-decoration:none; }
+  table caption { text-align:start; font-size:var(--text-xs); color:var(--muted); padding-block-end:.5em; }
+</style>

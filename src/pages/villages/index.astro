@@ -1,0 +1,117 @@
+---
+/**
+ * 村里查詢入口。7,734 個村里頁分散在四層路徑底下，
+ * 沒有這一頁的話，使用者只能從「行政區」猜到村里在哪。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import { REVIEWER } from '../../site.mjs';
+import { counties, districtCount, villageCount, isMunicipality } from '../../data/geo';
+import { LOCAL_CYCLE, rocDate } from '../../data/elections';
+import villagesData from '../../data/villages.json';
+import lawData from '../../data/law.json';
+
+const muni = counties.filter((c) => isMunicipality(c.name));
+const rest = counties.filter((c) => !isMunicipality(c.name));
+---
+<BaseLayout
+  title="村里長選舉政治獻金查詢：全國 7,734 個村里"
+  description={`全國 ${villageCount.toLocaleString('zh-TW')} 個村里的村（里）長政治獻金規則。選擇縣市與鄉鎮市區，即可查到該村里的收受起算日與捐贈上限。`}
+  crumbs={[{ name: '村里查詢', href: '/villages/' }]}
+>
+  <h1>村里長選舉的政治獻金怎麼查？</h1>
+
+  <KeyPoints points={[
+    `本站收錄全國 ${villageCount.toLocaleString('zh-TW')} 個村里，分屬 ${counties.length} 個縣市、${districtCount} 個鄉鎮市區。`,
+    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起至 ${rocDate('2026-11-27')} 止可收受政治獻金。`,
+    `個人對同一位村（里）長擬參選人每年捐贈上限為新臺幣 10 萬元。`,
+  ]} />
+
+  <p class="lede">
+    村里頁的網址結構是「縣市 › 鄉鎮市區 › 村里」三層。
+    請先選縣市，再選鄉鎮市區，該區的村里清單就在頁面下半部。
+  </p>
+
+  <section class="howto" aria-labelledby="howto-h">
+    <h2 id="howto-h">三步驟找到你的村里</h2>
+    <ol>
+      <li>從下方選擇你的<strong>縣市</strong>。</li>
+      <li>在縣市頁選擇你的<strong>鄉鎮市區</strong>。</li>
+      <li>在鄉鎮市區頁的「轄下的村里」清單中點選你的<strong>村里</strong>。</li>
+    </ol>
+    <p class="eg">
+      例如：<a href="/regions/新北市/">新北市</a> ›
+      <a href="/regions/新北市/板橋區/">板橋區</a> ›
+      <a href="/villages/新北市/板橋區/留侯里/">留侯里</a>
+    </p>
+  </section>
+
+  <p class="note pending">
+    村里頁目前只有收受起算日與所屬行政區兩項資料齊備。本屆應選名額、上屆當選得票與戶籍人口
+    三項尚未取得，依本站的編輯原則，資料不齊的村里頁一律不開放搜尋索引，但仍可正常瀏覽。
+  </p>
+
+  <h2>直轄市</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>6 個直轄市的村里數</caption>
+      <thead><tr><th scope="col">縣市</th><th scope="col" class="num">鄉鎮市區</th><th scope="col" class="num">村里</th></tr></thead>
+      <tbody>{muni.map((c) => (
+        <tr>
+          <th scope="row"><a href={`/regions/${c.slug}/`}>{c.name}</a></th>
+          <td class="num">{c.districtCount}</td>
+          <td class="num">{c.villageCount.toLocaleString('zh-TW')}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>縣與市</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>16 個縣市的村里數</caption>
+      <thead><tr><th scope="col">縣市</th><th scope="col" class="num">鄉鎮市區</th><th scope="col" class="num">村里</th></tr></thead>
+      <tbody>{rest.map((c) => (
+        <tr>
+          <th scope="row"><a href={`/regions/${c.slug}/`}>{c.name}</a></th>
+          <td class="num">{c.districtCount}</td>
+          <td class="num">{c.villageCount.toLocaleString('zh-TW')}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>村里頁上有什麼？</h2>
+  <ul>
+    <li>該村里的村（里）長擬參選人可收受政治獻金的起算日與截止日。</li>
+    <li>專戶戶名的正確格式，例如「115 年新北市板橋區留侯里里長擬參選人○○○政治獻金專戶」。</li>
+    <li>誰可以捐、可以捐多少——個人、營利事業、人民團體與政黨的年度上限。</li>
+    <li>同一鄉鎮市區其他村里的連結，方便鄰里之間橫向查閱。</li>
+  </ul>
+
+  <NextQuestions items={[
+    { q: '村里長什麼時候可以開始收政治獻金？', href: '/tools/timeline/village-chief/' },
+    { q: '村里長政治獻金的完整規則是什麼？', href: '/elections/village-chief/' },
+    { q: '政治獻金專戶要怎麼申請？', href: '/forms/account-application/' },
+    { q: '我要選村里長，第一次收政治獻金該做什麼？', href: '/guides/first-time-candidate/' },
+    { q: '全國村里資料可以下載嗎？', href: '/downloads/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: LOCAL_CYCLE.source },
+      { label: `內政部戶政司 ODRP001（期別 ${villagesData.period}）`, href: villagesData.source },
+    ]} />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .howto { border: 2px solid var(--slate); padding: 1.25em; margin-block: 2rem; }
+  .howto h2 { margin-block: 0 .6em; font-size: var(--text-lg); color: var(--slate); }
+  .howto ol { margin-block-end: 1em; }
+  .eg { margin: 0; font-size: var(--text-sm); }
+  .pending { border-inline-start-color: var(--stamp); }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

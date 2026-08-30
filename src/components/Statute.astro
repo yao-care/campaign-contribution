@@ -1,0 +1,28 @@
+---
+/**
+ * 法條原文區塊。內容只能來自 src/data/law.json（scripts/fetch-law.mjs 的輸出）。
+ * 建站規格 §12 第 1 條紅線：禁止由模型改寫或憑記憶填寫。此元件不接受自由文字 props。
+ */
+import lawData from '../data/law.json';
+
+export interface Props { article: number | string }
+const { article } = Astro.props;
+
+const entry = lawData.articles.find((a) => a.article === String(article));
+if (!entry) throw new Error(`law.json 查無第 ${article} 條，請先執行 npm run fetch:law`);
+
+const lines = entry.text.split('\n');
+---
+<blockquote class="statute" cite={lawData.source}>
+  <p class="statute-label">政治獻金法第 {entry.article} 條（原文）</p>
+  {lines.map((l) => <p>{l}</p>)}
+</blockquote>
+<style>
+  .statute-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--stamp);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+</style>

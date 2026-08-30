@@ -1,0 +1,42 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import Statute from '../../../components/Statute.astro';
+import { ELECTIONS, rocDate, LOCAL_CYCLE } from '../../../data/elections';
+import lawData from '../../../data/law.json';
+---
+<BaseLayout
+  title="政治獻金什麼時候可以開始收？11 種職位起算日一覽"
+  description={`政治獻金法第 12 條分四款規定收受期間。本屆地方公職人員選舉中，前 8 個月組自 ${rocDate(LOCAL_CYCLE.startClause3)} 起，前 4 個月組自 ${rocDate(LOCAL_CYCLE.startClause4)} 起。`}
+  crumbs={[{ name: '工具', href: '/tools/' }, { name: '起算日查詢', href: '/tools/timeline/' }]}
+>
+  <h1>政治獻金什麼時候可以開始收？</h1>
+  <KeyPoints points={[
+    `本屆地方公職人員選舉，任期屆滿前 8 個月組自 ${rocDate(LOCAL_CYCLE.startClause3)} 起算。`,
+    `任期屆滿前 4 個月組自 ${rocDate(LOCAL_CYCLE.startClause4)} 起算，含村（里）長。`,
+    `全部至投票日前一日 ${rocDate('2026-11-27')} 止。`,
+  ]} />
+  <p class="lede">選擇職位查看該職位的起算日、截止日與計算方式。</p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>11 種職位的收受起算日</caption>
+      <thead><tr><th scope="col">職位</th><th scope="col">第 12 條</th><th scope="col">起算日</th><th scope="col">截止日</th></tr></thead>
+      <tbody>
+        {ELECTIONS.map((e) => (
+          <tr>
+            <th scope="row"><a href={`/tools/timeline/${e.slug}/`}>{e.position}</a></th>
+            <td>第 {e.clause12} 款</td>
+            <td>{e.startDate ? rocDate(e.startDate) : `任期屆滿前 ${e.startOffsetMonths} 個月`}</td>
+            <td>{e.endDate ? rocDate(e.endDate) : '投票日前一日'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <Statute article="12" />
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>.lede{font-size:var(--text-lg);color:var(--ink-2)}table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

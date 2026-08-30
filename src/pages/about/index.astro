@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { SITE, REVIEWER } from '../../site.mjs';
+import lawData from '../../data/law.json';
+import villagesData from '../../data/villages.json';
+import partyData from '../../data/parties.json';
+---
+<BaseLayout
+  title="關於政治獻金指南"
+  description="本站把政治獻金法 36 條轉成可查詢的答案。法條原文取自全國法規資料庫，不改寫、不憑記憶填寫。不使用 Cookie、不設置追蹤程式。"
+  crumbs={[{ name: '關於本站', href: '/about/' }]}
+>
+  <h1>關於政治獻金指南</h1>
+  <KeyPoints points={[
+    `本站涵蓋政治獻金法全部 ${lawData.count} 條條文，以及 ${villagesData.count.toLocaleString('zh-TW')} 個村里與 ${partyData.count} 個政黨的制度事實頁。`,
+    '所有法條原文取自全國法規資料庫，由程式抓取後原樣呈現，不由人工或模型改寫。',
+    '本站不使用 Cookie、不設置任何前端追蹤程式、不蒐集個人資料。',
+  ]} />
+
+  <h2>這個站要解決什麼問題？</h2>
+  <p>
+    政治獻金法有 36 條。對想捐款的人、想參選的人，真正要問的其實是四件事：
+    我這個身分能不能捐、能捐多少、什麼時候可以開始收、事後怎麼申報。
+    本站把條文重新組織成這四個問題的答案，每個答案都附上條文原文，讓讀者可以自行核對。
+  </p>
+
+  <h2>資料從哪裡來？</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>資料來源與取得時間</caption>
+      <thead><tr><th scope="col">資料</th><th scope="col">來源</th><th scope="col">狀態</th></tr></thead>
+      <tbody>
+        <tr>
+          <th scope="row">政治獻金法全文 {lawData.count} 條</th>
+          <td><a href={lawData.source} rel="noopener">全國法規資料庫</a></td>
+          <td>{lawData.fetchedAt.slice(0, 10)} 抓取</td>
+        </tr>
+        <tr>
+          <th scope="row">村里清單 {villagesData.count.toLocaleString('zh-TW')} 筆</th>
+          <td><a href={villagesData.source} rel="noopener">內政部戶政司 ODRP001</a></td>
+          <td>期別 {villagesData.period}</td>
+        </tr>
+        <tr>
+          <th scope="row">現存政黨 {partyData.count} 個</th>
+          <td><a href={partyData.source} rel="noopener">內政部政黨資訊網</a></td>
+          <td>{partyData.fetchedAt.slice(0, 10)} 抓取</td>
+        </tr>
+        <tr>
+          <th scope="row">書表與起算日公告</th>
+          <td><a href="https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855" rel="noopener">監察院陽光法令主題網</a></td>
+          <td>115/02/09 公告</td>
+        </tr>
+        <tr>
+          <th scope="row">應選名額與選舉區</th>
+          <td>中央選舉委員會</td>
+          <td>待選舉公告發布</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>本站不做什麼？</h2>
+  <ul>
+    <li>不對任何政黨或候選人作評論、比較，也不呈現政治獻金金額排行。政黨頁只有制度事實欄位。</li>
+    <li>不轉載監察院的申報公開資料，只提供連結導覽。</li>
+    <li>不蒐集個人資料。工具頁的計算全部在你的瀏覽器內完成，不會傳送到任何伺服器。</li>
+    <li>不提供法律意見。白話說明是本站的詮釋，法律效果以條文原文與主管機關見解為準。</li>
+  </ul>
+
+  <h2>隱私</h2>
+  <p>
+    本站不使用 Cookie、不設置 Google Analytics 或任何第三方追蹤程式、不嵌入外部字型或腳本。
+    因此本站沒有 Cookie 同意彈窗，也不需要蒐集個人資料的隱私政策。
+    伺服器日誌僅用於分析爬蟲行為與流量來源。
+  </p>
+
+  <h2>委辦資訊</h2>
+  <p>
+    依預算法第 62 條之 1，政府機關編列預算於網路媒體辦理宣導，應明確標示為廣告並揭示辦理機關，
+    不得置入性行銷。本站頁尾標示辦理機關為{SITE.agency}，計畫名稱為{SITE.program}。
+  </p>
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

@@ -1,0 +1,103 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import NextQuestions from '../../../components/NextQuestions.astro';
+import { counties, positionsFor, isMunicipality, dataPeriod } from '../../../data/geo';
+import { ELECTIONS, LOCAL_CYCLE, rocDate, CANDIDATE_CAPS, twd } from '../../../data/elections';
+import lawData from '../../../data/law.json';
+
+export function getStaticPaths() {
+  return counties.map((c) => ({ params: { county: c.slug }, props: { c } }));
+}
+const { c } = Astro.props;
+const posSlugs = positionsFor(c.name);
+const positions = ELECTIONS.filter((e) => posSlugs.includes(e.slug));
+const title = `${c.name}這次選什麼？選舉與政治獻金規則`;
+---
+<BaseLayout
+  title={title}
+  description={`${c.name}轄下 ${c.districtCount} 個鄉鎮市區、${c.villageCount.toLocaleString('zh-TW')} 個村里。本屆改選 ${positions.length} 種職位，各職位的政治獻金收受起算日與捐贈上限。`}
+  crumbs={[{ name: '行政區', href: '/regions/' }, { name: c.name, href: `/regions/${c.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'Place', name: c.name,
+    containedInPlace: { '@type': 'Country', name: '中華民國臺灣' },
+  }]}
+>
+  <h1>{c.name}這次選什麼？</h1>
+
+  <KeyPoints points={[
+    `${c.name}轄下有 ${c.districtCount} 個${isMunicipality(c.name) ? '區' : '鄉鎮市區'}、${c.villageCount.toLocaleString('zh-TW')} 個村里。`,
+    `本屆地方公職人員選舉，${c.name}改選 ${positions.length} 種職位。`,
+    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起可收受政治獻金，其餘職位自 ${rocDate(LOCAL_CYCLE.startClause3)} 起。`,
+  ]} />
+
+  <dl class="stats">
+    <div><dt>鄉鎮市區</dt><dd>{c.districtCount}</dd></div>
+    <div><dt>村里</dt><dd>{c.villageCount.toLocaleString('zh-TW')}</dd></div>
+    <div><dt>改選職位</dt><dd>{positions.length}</dd></div>
+    <div><dt>投票日</dt><dd>{rocDate(LOCAL_CYCLE.voteDay)}</dd></div>
+  </dl>
+
+  <h2>{c.name}本屆要選哪些職位？各自什麼時候可以開始收政治獻金？</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>{c.name}本屆改選職位與收受起算日</caption>
+      <thead><tr><th scope="col">職位</th><th scope="col">起算日</th><th scope="col">截止日</th><th scope="col" class="num">政黨捐贈上限</th></tr></thead>
+      <tbody>{positions.map((e) => (
+        <tr>
+          <th scope="row"><a href={`/elections/${e.slug}/`}>{e.position}</a></th>
+          <td>{e.startDate ? rocDate(e.startDate) : '待公告'}</td>
+          <td>{e.endDate ? rocDate(e.endDate) : '待公告'}</td>
+          <td class="num">{e.partyDonationCap.toLocaleString('zh-TW')} 元</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+  <p>
+    不論哪一種職位，個人對同一（組）擬參選人每年捐贈上限都是 {twd(CANDIDATE_CAPS.individual)}，
+    營利事業 {twd(CANDIDATE_CAPS.business)}，人民團體 {twd(CANDIDATE_CAPS.civicGroup)}。
+  </p>
+
+  <h2>{c.name}轄下的鄉鎮市區</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>{c.districtCount} 個{isMunicipality(c.name) ? '區' : '鄉鎮市區'}</caption>
+      <thead><tr><th scope="col">鄉鎮市區</th><th scope="col" class="num">村里數</th></tr></thead>
+      <tbody>{c.districts.map((d) => (
+        <tr>
+          <th scope="row"><a href={`/regions/${c.slug}/${d.slug}/`}>{d.name}</a></th>
+          <td class="num">{d.villageCount}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">
+    應選名額與選舉區劃分須待中央選舉委員會選舉公告發布後確定，本頁尚未呈現。
+    行政區與村里資料取自內政部戶政司 ODRP001，期別 {dataPeriod}。
+  </p>
+
+  <NextQuestions items={[
+    { q: '村里長什麼時候可以開始收政治獻金？', href: '/tools/timeline/village-chief/' },
+    { q: '個人一年最多可以捐多少給同一位擬參選人？', href: '/tools/limit/individual-to-candidate/' },
+    { q: '政治獻金專戶要怎麼申請？', href: '/forms/account-application/' },
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: '其他縣市這次選什麼？', href: '/regions/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: LOCAL_CYCLE.source },
+      { label: '內政部戶政司開放資料 ODRP001', href: 'https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001' },
+    ]} />
+</BaseLayout>
+<style>
+  .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); margin-block:1.5rem; }
+  .stats > div { background: var(--ground); padding:.9em 1em; }
+  .stats dt { font-size: var(--text-xs); color: var(--muted); margin:0; }
+  .stats dd { margin:.2em 0 0; font-weight:700; font-variant-numeric:tabular-nums; color:var(--slate); }
+  table caption { text-align:start; font-size:var(--text-xs); color:var(--muted); padding-block-end:.5em; }
+</style>

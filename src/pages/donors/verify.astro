@@ -1,0 +1,101 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import Statute from '../../components/Statute.astro';
+import { DONORS } from '../../data/donors';
+import lawData from '../../data/law.json';
+
+const mustSurrender = DONORS.filter((d) => d.mustSurrender);
+const mustReturn = DONORS.filter((d) => !d.mustSurrender);
+const agencies = [...new Set(DONORS.flatMap((d) => d.verifyAgency))];
+---
+<BaseLayout
+  title="收到不該收的政治獻金怎麼辦？查證、返還與繳庫"
+  description="政治獻金法第 15 條規定收受方的查證義務。違反第 7 條第 1 項第 7 至 9 款者不得返還，應繳庫；其餘款次應於申報截止日前返還捐贈人。"
+  crumbs={[{ name: '不得捐贈者', href: '/donors/' }, { name: '查證與處理', href: '/donors/verify/' }]}
+>
+  <h1>收到不該收的政治獻金怎麼辦？</h1>
+
+  <KeyPoints points={[
+    '違反第 7 條第 1 項第 7 至 9 款（外國、大陸地區、香港澳門）的政治獻金不得返還捐贈人，應繳交受理申報機關辦理繳庫。',
+    '其餘款次的違規獻金，應於該次申報截止日前返還捐贈人；無法返還者繳庫。',
+    '已依第 7 條第 4 項盡查證義務者，就相關違反行為不予處罰，這是收受方最重要的免責事由。',
+  ]} />
+
+  <p class="lede">
+    收受政治獻金的一方有查證義務。查證做了、留下紀錄，即使事後發現對方是不得捐贈者，也不會被處罰；
+    沒查證而收下，罰的是收受方。
+  </p>
+
+  <h2>發現收到違規獻金，該返還還是繳庫？</h2>
+  <p>看違反的是第 7 條第 1 項哪一款。這兩條路徑的法律效果不同，不能互換。</p>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>違規獻金的兩種處理路徑（第 15 條）</caption>
+      <thead>
+        <tr><th scope="col">情形</th><th scope="col">處理</th><th scope="col">期限</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">違反第 7 條第 1 項第 {mustSurrender.map((d) => d.clause).join('、')} 款</th>
+          <td>不得返還捐贈人，應繳交受理申報機關辦理繳庫</td>
+          <td>依第 15 條所定期限</td>
+        </tr>
+        <tr>
+          <th scope="row">違反第 7 條第 1 項第 {mustReturn.map((d) => d.clause).join('、')} 款</th>
+          <td>返還捐贈人；無法返還者繳庫</td>
+          <td>該次申報截止日前</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>不處理會怎樣？</h2>
+  <p>
+    未依限繳庫且屬第 7 至 9 款者，依第 25 條處 5 年以下有期徒刑；為擬參選人收受或募集的代理人、受雇人亦同。
+    未依法定方式返還，或未依限繳交辦理繳庫者，依第 30 條處新臺幣 6 萬元以上 120 萬元以下罰鍰，違規獻金並得沒入。
+    但已依第 7 條第 4 項盡查證義務者，不予處罰。
+  </p>
+
+  <h2>要向哪些機關查證？</h2>
+  <p>依第 7 條第 4 項，下列機關應建置相關資料供查詢：{agencies.join('、')}。</p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>各款對應的查證機關</caption>
+      <thead><tr><th scope="col">款</th><th scope="col">對象</th><th scope="col">查證機關</th></tr></thead>
+      <tbody>
+        {DONORS.map((d) => (
+          <tr>
+            <th scope="row"><a href={`/donors/${d.slug}/`}>第 {d.clause} 款</a></th>
+            <td>{d.target}</td>
+            <td>{d.verifyAgency.join('、')}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>查證要留什麼紀錄？</h2>
+  <p>
+    法未明定格式，但免責的前提是能證明「已盡查證義務」。實務上應保留查詢的時間、對象、
+    向哪個機關查詢、查詢結果，並與該筆獻金的收據、帳簿記載相互對應。
+    收支憑證與證明文件依第 22 條第 2 項應保管 5 年。
+  </p>
+
+  <Statute article="15" />
+
+  <NextQuestions items={[
+    { q: '11 款不得捐贈者分別是誰？', href: '/donors/' },
+    { q: '未依限繳庫的刑責是什麼？', href: '/tools/penalty/25/' },
+    { q: '未依法定方式返還的罰鍰是多少？', href: '/tools/penalty/30/' },
+    { q: '收支帳簿與憑證要保存多久？', href: '/forms/ledger/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>.lede{font-size:var(--text-lg);color:var(--ink-2)}table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

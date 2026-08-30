@@ -1,0 +1,182 @@
+---
+/**
+ * 全站唯一版型。手機優先、單欄、零 JS。
+ * 每頁固定三區塊（§9.3）由頁面自行組裝 KeyPoints / Provenance / NextQuestions。
+ */
+import { SITE } from '../site.mjs';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { NAV, FOOTER } from '../data/nav';
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description: string;
+  /** 麵包屑，不含首頁；最後一項即當前頁 */
+  crumbs?: { name: string; href: string }[];
+  noindex?: boolean;
+  /** 額外的 JSON-LD，由各模板提供（Legislation / FAQPage / Place …） */
+  jsonld?: Record<string, unknown>[];
+}
+
+const { title, description, crumbs = [], noindex = false, jsonld = [] } = Astro.props;
+const canonical = new URL(Astro.url.pathname, SITE.origin).href;
+
+const orgAndSite = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.origin,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.name,
+    url: SITE.origin,
+    inLanguage: 'zh-Hant-TW',
+  },
+];
+
+const breadcrumbLd = crumbs.length
+  ? [{
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [{ name: '首頁', href: '/' }, ...crumbs].map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: c.name,
+        item: new URL(c.href, SITE.origin).href,
+      })),
+    }]
+  : [];
+---
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_TW" />
+    {[...orgAndSite, ...breadcrumbLd, ...jsonld].map((o) => (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify(o)} />
+    ))}
+  </head>
+  <body>
+    <a class="skip" href="#main">跳至主要內容</a>
+
+    <header class="site-head">
+      <div class="wrap wrap--wide">
+        <a class="brand" href="/">
+          <span class="mark" aria-hidden="true"></span>
+          <span>{SITE.name}</span>
+        </a>
+        <nav class="mainnav" aria-label="主要導覽">
+          <ul>
+            {NAV.map((n) => (
+              <li>
+                <a href={n.href} aria-current={Astro.url.pathname.startsWith(n.href) ? 'true' : undefined}>{n.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    {crumbs.length > 0 && <Breadcrumb crumbs={crumbs} />}
+
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap wrap--wide">
+        <nav class="footnav" aria-label="網站地圖">
+          {FOOTER.map((g) => (
+            <div>
+              <h2>{g.h}</h2>
+              <ul>{g.items.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul>
+            </div>
+          ))}
+        </nav>
+        <!-- 預算法第 62 條之 1：須明確標示為廣告並揭示辦理機關（建站規格 §12 第 5 點） -->
+        <p class="disclosure">
+          廣告｜辦理機關：{SITE.agency}｜計畫名稱：{SITE.program}
+        </p>
+        <p class="disclosure">
+          本站不使用 Cookie、不設置任何前端追蹤程式，不蒐集個人資料。
+          法條原文取自全國法規資料庫，白話說明為本站詮釋，非法律意見。
+        </p>
+      </div>
+    </footer>
+
+    <style>
+      .site-head {
+        border-block-end: 1px solid var(--rule);
+        padding-block: 1rem 0;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6em;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: var(--text-lg);
+      }
+      .brand .mark { color: var(--stamp); }
+      /* 主要導覽：純 CSS、零 JS。窄螢幕自動換行，不藏進漢堡選單裡。 */
+      .mainnav { margin-block-start: .75rem; }
+      .mainnav ul {
+        list-style: none; margin: 0; padding: 0;
+        display: flex; flex-wrap: wrap; gap: 0 1.1rem;
+      }
+      .mainnav a {
+        display: block;
+        padding-block: .55em;
+        font-size: var(--text-sm);
+        color: var(--ink-2);
+        text-decoration: none;
+        border-block-end: 3px solid transparent;
+      }
+      .mainnav a:hover { color: var(--ink); text-decoration: underline; }
+      .mainnav a[aria-current] {
+        color: var(--stamp);
+        font-weight: 700;
+        border-block-end-color: var(--stamp);
+      }
+
+      main { padding-block: 2rem 4rem; }
+      .site-foot {
+        border-block-start: 1px solid var(--rule);
+        background: var(--alt);
+        padding-block: 2rem 3rem;
+        font-size: var(--text-xs);
+        color: var(--muted);
+      }
+      .footnav {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+        gap: 1.5rem 2rem;
+        margin-block-end: 2rem;
+      }
+      .footnav h2 {
+        font-size: var(--text-xs);
+        letter-spacing: .12em;
+        color: var(--ink-2);
+        margin-block: 0 .6em;
+      }
+      .footnav ul { list-style: none; margin: 0; padding: 0; }
+      .footnav li { margin-block-end: .45em; }
+      .footnav a { color: var(--ink-2); text-decoration: none; }
+      .footnav a:hover { text-decoration: underline; }
+      .disclosure { margin-block: 0 0.75em; max-width: 44rem; }
+    </style>
+  </body>
+</html>

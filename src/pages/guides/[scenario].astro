@@ -1,0 +1,63 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import { GUIDES } from '../../data/guides';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return GUIDES.map((g) => ({ params: { scenario: g.slug }, props: { g } }));
+}
+const { g } = Astro.props;
+const others = GUIDES.filter((x) => x.slug !== g.slug).slice(0, 3);
+---
+<BaseLayout
+  title={`${g.scenario}｜政治獻金指南`}
+  description={g.conclusion}
+  crumbs={[{ name: '情境指南', href: '/guides/' }, { name: g.scenario, href: `/guides/${g.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'Article',
+    headline: g.scenario, description: g.conclusion, inLanguage: 'zh-Hant-TW',
+    articleSection: '情境指南',
+  }]}
+>
+  <h1>{g.scenario}</h1>
+  <KeyPoints points={g.keypoints} />
+  <p class="lede">{g.conclusion}</p>
+
+  {g.steps.map((s, i) => (
+    <section>
+      <h2>{s.h}</h2>
+      <p>{s.body}</p>
+      {s.links && (
+        <ul class="inline-links">
+          {s.links.map((l) => <li><a href={l.href}>{l.q}</a></li>)}
+        </ul>
+      )}
+    </section>
+  ))}
+
+  <h2>最常踩到的坑</h2>
+  <ul class="pitfalls">
+    {g.pitfalls.map((p) => <li>{p}</li>)}
+  </ul>
+
+  <NextQuestions items={[
+    ...others.map((o) => ({ q: o.scenario, href: `/guides/${o.slug}/` })),
+    { q: '常見問答', href: '/faq/' },
+    { q: '查詢工具', href: '/tools/' },
+  ].slice(0, 5)} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: 'https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855' },
+    ]} />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .inline-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-size: var(--text-sm); }
+  .pitfalls li { margin-block-end: .7em; }
+</style>

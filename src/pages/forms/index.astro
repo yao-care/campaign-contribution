@@ -1,0 +1,46 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { FORMS } from '../../data/forms';
+import lawData from '../../data/law.json';
+const totalForms = FORMS.reduce((a, f) => a + f.officialForms.length, 0);
+---
+<BaseLayout
+  title="政治獻金書表與流程：專戶、收據、帳簿、申報"
+  description="從開專戶到申報結案，政治獻金法規定的 9 種書表與流程。書表名稱與下載連結取自監察院陽光法令主題網。"
+  crumbs={[{ name: '書表與流程', href: '/forms/' }]}
+>
+  <h1>政治獻金書表與流程</h1>
+  <KeyPoints points={[
+    '收受政治獻金前必須先開立專戶並報經受理申報機關許可，未經許可就收受者處 3 年以下有期徒刑。',
+    '收受後 15 日內應存入專戶，並開立收據；收支帳簿須按日逐筆記載。',
+    `本頁列出 9 種書表與流程，並連結監察院提供的 ${totalForms} 份官方書表。`,
+  ]} />
+  <p class="lede">
+    依照時序：開專戶 → 收受並開立收據 → 記帳 → 製作會計報告書 → 查核簽證 → 申報 →
+    處理賸餘或違規獻金。每一步都有對應的條文與罰則。
+  </p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>9 種書表與流程</caption>
+      <thead><tr><th scope="col">書表／流程</th><th scope="col">依據</th><th scope="col" class="num">官方書表</th></tr></thead>
+      <tbody>
+        {FORMS.map((f) => (
+          <tr>
+            <th scope="row"><a href={`/forms/${f.slug}/`}>{f.title}</a></th>
+            <td>{f.basis}</td>
+            <td class="num">{f.officialForms.length || '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網．書表下載', href: 'https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855' },
+    ]} />
+</BaseLayout>
+<style>.lede{font-size:var(--text-lg);color:var(--ink-2)}table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

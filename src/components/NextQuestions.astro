@@ -1,0 +1,19 @@
+---
+/** 接下來會問什麼（§9.3）。頁尾 3–5 條後續問題連結，撐起主題內鏈網。 */
+export interface Props { items: { q: string; href: string }[] }
+const { items } = Astro.props;
+---
+<section class="next" aria-labelledby="next-h">
+  <h2 id="next-h">接下來會問什麼</h2>
+  <ul>
+    {items.map((i) => <li><a href={i.href}>{i.q}</a></li>)}
+  </ul>
+</section>
+<style>
+  .next { border-block-start: 2px solid var(--ink); margin-block-start: 3rem; padding-block-start: 1rem; }
+  .next h2 { font-size: var(--text-lg); margin-block: 0 0.75em; }
+  .next ul { list-style: none; padding: 0; margin: 0; }
+  .next li { border-block-end: 1px solid var(--rule); }
+  .next a { display: block; padding-block: 0.75em; text-decoration: none; }
+  .next a:hover { text-decoration: underline; }
+</style>

@@ -1,0 +1,24 @@
+---
+/**
+ * 資料來源與更新日（§9.3）。法規內容沒有日期與署名不會被 AI 引擎引用（§9.1 第 5 條）。
+ */
+export interface Props {
+  updated: Date;
+  reviewer: string;
+  sources: { label: string; href: string }[];
+}
+const { updated, reviewer, sources } = Astro.props;
+const iso = updated.toISOString().slice(0, 10);
+const roc = `民國 ${updated.getFullYear() - 1911} 年 ${updated.getMonth() + 1} 月 ${updated.getDate()} 日`;
+---
+<footer class="provenance">
+  <p>
+    最後更新：<time datetime={iso}>{iso}（{roc}）</time>｜審閱：{reviewer}
+  </p>
+  <p>
+    資料來源：
+    {sources.map((s, i) => (
+      <>{i > 0 && <span>、</span>}<a href={s.href} rel="noopener">{s.label}</a></>
+    ))}
+  </p>
+</footer>

@@ -1,0 +1,70 @@
+---
+import { REVIEWER } from '../../site.mjs';
+/** 名詞頁。§9.2：名詞頁用 <dl>。 */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import { GLOSSARY } from '../../data/glossary';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return GLOSSARY.map((t) => ({ params: { term: t.slug }, props: { t } }));
+}
+const { t } = Astro.props;
+const others = GLOSSARY.filter((x) => x.slug !== t.slug).slice(0, 4);
+const firstArticle = t.basis[0]?.match(/第 (\d+) 條/)?.[1];
+---
+<BaseLayout
+  title={`${t.term}是什麼？政治獻金法名詞解釋`}
+  description={t.definition}
+  crumbs={[{ name: '名詞解釋', href: '/glossary/' }, { name: t.term, href: `/glossary/${t.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTerm',
+    name: t.term,
+    description: t.definition,
+    inLanguage: 'zh-Hant-TW',
+    alternateName: t.aliases.length ? t.aliases : undefined,
+    inDefinedTermSet: { '@type': 'DefinedTermSet', name: '政治獻金法名詞', url: `${Astro.site}glossary/` },
+  }]}
+>
+  <h1>{t.term}是什麼？</h1>
+
+  <KeyPoints points={[
+    t.definition,
+    `法條依據：${t.basis.join('、')}。`,
+    t.caveat ?? t.detail ?? `本詞出自政治獻金法${t.basis[0]}。`,
+  ]} />
+
+  <dl class="def">
+    <dt>定義</dt>
+    <dd>{t.definition}</dd>
+    <dt>法條依據</dt>
+    <dd>
+      {t.basis.map((b, i) => {
+        const n = b.match(/第 (\d+) 條/)?.[1];
+        return <>{i > 0 && '、'}{n ? <a href={`/law/${n}/`}>{b}</a> : b}</>;
+      })}
+    </dd>
+    {t.aliases.length > 0 && (<><dt>別稱</dt><dd>{t.aliases.join('、')}</dd></>)}
+  </dl>
+
+  {t.detail && (<><h2>補充說明</h2><p>{t.detail}</p></>)}
+  {t.caveat && (<><h2>容易搞錯的地方</h2><p class="note">{t.caveat}</p></>)}
+
+  <NextQuestions items={[
+    ...(firstArticle ? [{ q: `政治獻金法第 ${firstArticle} 條的完整條文是什麼？`, href: `/law/${firstArticle}/` }] : []),
+    ...others.slice(0, 3).map((o) => ({ q: `${o.term}是什麼？`, href: `/glossary/${o.slug}/` })),
+    { q: '所有名詞一覽', href: '/glossary/' },
+  ].slice(0, 5)} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .def { border-block: 2px solid var(--ink); padding-block: 1em; margin-block: 1.5rem 2rem; }
+  .def dt { font-size: var(--text-xs); letter-spacing: .12em; color: var(--muted); margin-block-start: .8em; }
+  .def dt:first-child { margin-block-start: 0; }
+  .def dd { margin: .2em 0 0; }
+</style>

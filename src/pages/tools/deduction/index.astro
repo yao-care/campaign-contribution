@@ -1,0 +1,40 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import Statute from '../../../components/Statute.astro';
+import { DEDUCTION_ENTITIES } from '../../../data/deductions';
+import lawData from '../../../data/law.json';
+---
+<BaseLayout
+  title="政治獻金可以抵稅嗎？個人與營利事業扣除額上限"
+  description="個人捐贈政治獻金可列舉扣除，上限為綜合所得總額的 20% 且不超過 20 萬元；營利事業可列為費用或損失，上限為所得額的 10% 且不超過 50 萬元。"
+  crumbs={[{ name: '工具', href: '/tools/' }, { name: '抵稅試算', href: '/tools/deduction/' }]}
+>
+  <h1>政治獻金可以抵稅嗎？</h1>
+  <KeyPoints points={[
+    '可以。個人可作為列舉扣除額，上限為當年度綜合所得總額的 20%，且總額不超過新臺幣 20 萬元。',
+    '營利事業可作為當年度費用或損失，上限為所得額的 10%，且總額不超過新臺幣 50 萬元。',
+    '未取得受贈收據，或屬第 19 條第 3 項五款情形之一者，一律不得扣除。',
+  ]} />
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>列舉扣除額上限（第 19 條）</caption>
+      <thead><tr><th scope="col">身分</th><th scope="col">比例上限</th><th scope="col" class="num">金額上限</th></tr></thead>
+      <tbody>
+        {DEDUCTION_ENTITIES.map((e) => (
+          <tr>
+            <th scope="row"><a href={`/tools/deduction/${e.slug}/`}>{e.entity}</a></th>
+            <td>{e.d.ratioBase}的 {e.d.ratio * 100}%</td>
+            <td class="num">{e.d.cap.toLocaleString('zh-TW')} 元</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <Statute article="19" />
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

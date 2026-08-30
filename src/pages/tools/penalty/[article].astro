@@ -1,0 +1,84 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import NextQuestions from '../../../components/NextQuestions.astro';
+import Statute from '../../../components/Statute.astro';
+import { PENALTIES } from '../../../data/penalties';
+import lawData from '../../../data/law.json';
+
+export function getStaticPaths() {
+  return PENALTIES.map((p) => ({ params: { article: p.article }, props: { p } }));
+}
+const { p } = Astro.props;
+
+const title = `違反政治獻金法第 ${p.article} 條會怎樣？罰則與構成要件｜政治獻金指南`;
+const conclusion = `${p.sanction}適用對象為${p.who}`;
+---
+<BaseLayout
+  title={title}
+  description={`政治獻金法第 ${p.article} 條罰則：${p.trigger}${p.sanction}`}
+  crumbs={[
+    { name: '工具', href: '/tools/' },
+    { name: '罰則對照', href: '/tools/penalty/' },
+    { name: `第 ${p.article} 條`, href: `/tools/penalty/${p.article}/` },
+  ]}
+  jsonld={[{
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    inLanguage: 'zh-Hant-TW',
+    about: { '@type': 'Legislation', name: `政治獻金法第 ${p.article} 條` },
+  }]}
+>
+  <h1>違反政治獻金法第 {p.article} 條會怎樣？</h1>
+
+  <KeyPoints points={[
+    `政治獻金法第 ${p.article} 條的法律效果是：${p.sanction}`,
+    `構成要件：${p.trigger}`,
+    `這是${p.kind}責任，適用對象為${p.who}`,
+  ]} />
+
+  <p class="figure-line"><span class="figure">{p.kind}</span></p>
+  <p class="lede">{p.sanction}</p>
+
+  <h2>什麼行為會構成第 {p.article} 條？</h2>
+  <p>{p.trigger}</p>
+  <p>本條處罰的是違反{p.violates.join('、')}的行為。</p>
+
+  <h2>誰會被罰？</h2>
+  <p>{p.who}</p>
+
+  {p.relief && (
+    <>
+      <h2>有沒有不罰或減輕的情形？</h2>
+      <p class="note">{p.relief}</p>
+    </>
+  )}
+
+  <Statute article={p.article} />
+
+  <h2>誰來處罰？多久內可以罰？</h2>
+  <p>
+    行政罰由監察院處罰，裁處權時效為 5 年（第 33 條）。處罰確定後，受理申報機關應公告於政府公報並公開於電腦網路。
+    刑事責任則依刑事訴訟程序由檢察機關偵辦。
+  </p>
+
+  <NextQuestions items={[
+    { q: '政治獻金專戶要怎麼申請？', href: '/forms/account-application/' },
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: '收到不該收的政治獻金該怎麼處理？', href: '/donors/verify/' },
+    { q: '其他條文的罰則分別是什麼？', href: '/tools/penalty/' },
+  ]} />
+
+  <Provenance
+    updated={new Date(lawData.fetchedAt)}
+    reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]}
+  />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .figure-line { margin-block: 1rem 0.5rem; }
+</style>

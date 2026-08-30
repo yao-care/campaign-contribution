@@ -1,0 +1,94 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import NextQuestions from '../../../components/NextQuestions.astro';
+import Statute from '../../../components/Statute.astro';
+import { LIMITS } from '../../../data/limits';
+import lawData from '../../../data/law.json';
+
+export function getStaticPaths() {
+  return LIMITS.map((l) => ({ params: { combo: l.slug }, props: { l } }));
+}
+const { l } = Astro.props;
+const isParty = l.donor === '政黨';
+const article = l.basis.includes('17') ? '17' : '18';
+const title = `${l.donor}一年最多可以捐多少給${l.recipient}？｜政治獻金指南`;
+const conclusion = `${l.donor}對同一${isParty ? '（組）候選人' : l.recipient}每年捐贈總額，不得超過新臺幣 ${l.same.toLocaleString('zh-TW')} 元。`;
+---
+<BaseLayout
+  title={title}
+  description={`${conclusion}${l.aggregate ? `對不同${l.recipient}每年合計不得超過新臺幣 ${l.aggregate.toLocaleString('zh-TW')} 元。` : ''}依政治獻金法${l.basis}。`}
+  crumbs={[
+    { name: '工具', href: '/tools/' },
+    { name: '上限試算', href: '/tools/limit/' },
+    { name: `${l.donor}→${l.recipient}`, href: `/tools/limit/${l.slug}/` },
+  ]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'WebPage', name: title, inLanguage: 'zh-Hant-TW',
+    about: { '@type': 'Legislation', name: `政治獻金法第 ${article} 條` },
+  }]}
+>
+  <h1>{l.donor}一年最多可以捐多少給{l.recipient}？</h1>
+
+  <KeyPoints points={[
+    conclusion,
+    l.aggregate
+      ? `對不同${l.recipient}每年捐贈總額合計，不得超過新臺幣 ${l.aggregate.toLocaleString('zh-TW')} 元。`
+      : `本上限限於金錢捐贈，且限於政黨對其所推薦的候選人（${l.basis}）。`,
+    `法條依據為政治獻金法${l.basis}。`,
+  ]} />
+
+  <p class="answer-label">對同一{isParty ? '（組）候選人' : l.recipient}，每年上限</p>
+  <p><span class="figure">{l.same.toLocaleString('zh-TW')} 元</span></p>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>{l.donor}對{l.recipient}的年度捐贈上限</caption>
+      <tbody>
+        <tr><th scope="row">對同一{isParty ? '（組）候選人' : '對象'}</th><td class="num">{l.same.toLocaleString('zh-TW')} 元</td></tr>
+        <tr>
+          <th scope="row">對不同對象合計</th>
+          <td class="num">{l.aggregate ? `${l.aggregate.toLocaleString('zh-TW')} 元` : '法無合計規定'}</td>
+        </tr>
+        <tr><th scope="row">法條依據</th><td>{l.basis}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>這個上限怎麼算？</h2>
+  <p>
+    以年度為單位計算，不是以單筆計算。{l.aggregate
+      ? `對同一${l.recipient}一年累計不得超過 ${l.same.toLocaleString('zh-TW')} 元；同時，對不同${l.recipient}的捐贈全部加總，一年也不得超過 ${l.aggregate.toLocaleString('zh-TW')} 元。兩個上限同時適用，取較嚴格者。`
+      : `政黨對其所推薦的同一（組）候選人，金錢捐贈一年不得超過 ${l.same.toLocaleString('zh-TW')} 元。`}
+  </p>
+
+  <h2>超過上限會怎樣？</h2>
+  <p>
+    依第 29 條，違反捐贈上限規定捐贈政治獻金者，按其違反規定的捐贈金額處 2 倍以下罰鍰。
+    收受方若未依第 15 條查證並處理違規獻金，另依第 30 條處新臺幣 6 萬元以上 120 萬元以下罰鍰。
+    此外，違反捐贈上限的捐贈不得列為列舉扣除額（第 19 條第 3 項第 2 款）。
+  </p>
+
+  <h2>還有哪些限制？</h2>
+  <ul>
+    {l.notes.map((n) => <li>{n}</li>)}
+  </ul>
+
+  <Statute article={article} />
+
+  <NextQuestions items={[
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: '捐了政治獻金可以抵稅嗎？可以抵多少？', href: '/tools/deduction/individual/' },
+    { q: '其他身分的捐贈上限是多少？', href: '/tools/limit/' },
+    { q: '捐贈後對方沒開收據會怎樣？', href: '/forms/receipt/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .answer-label { font-size: var(--text-xs); letter-spacing: .15em; color: var(--muted); margin-block: 1.5rem 0.2rem; }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

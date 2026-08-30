@@ -1,0 +1,649 @@
+{
+  "source": "https://party.moi.gov.tw/",
+  "listUrl": "https://party.moi.gov.tw/PartyMain.aspx?n=16100&sms=13073&gs=P01&page=1&PageSize=200",
+  "status": "現存政黨（gs=P01）",
+  "fetchedAt": "2026-08-30T04:14:39.688Z",
+  "count": 80,
+  "parties": [
+    {
+      "no": 1,
+      "name": "中國國民黨",
+      "leader": "鄭麗文",
+      "id": "13073",
+      "slug": "中國國民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 2,
+      "name": "中國青年黨",
+      "leader": "林意珊",
+      "id": "13073",
+      "slug": "中國青年黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 10,
+      "name": "中國民眾黨",
+      "leader": "王明智",
+      "id": "13073",
+      "slug": "中國民眾黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 15,
+      "name": "勞動黨",
+      "leader": "吳榮元",
+      "id": "13073",
+      "slug": "勞動黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 16,
+      "name": "民主進步黨",
+      "leader": "賴清德",
+      "id": "13073",
+      "slug": "民主進步黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 73,
+      "name": "公民黨",
+      "leader": "錢漢清",
+      "id": "13073",
+      "slug": "公民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 74,
+      "name": "新黨",
+      "leader": "吳成典",
+      "id": "13073",
+      "slug": "新黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 79,
+      "name": "台灣綠黨",
+      "leader": "甘崇緯",
+      "id": "13073",
+      "slug": "台灣綠黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 80,
+      "name": "家庭基本收入",
+      "leader": "黃建源",
+      "id": "13073",
+      "slug": "家庭基本收入",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 90,
+      "name": "親民黨",
+      "leader": "宋楚瑜",
+      "id": "13073",
+      "slug": "親民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 95,
+      "name": "台聯黨",
+      "leader": "周倪安",
+      "id": "13073",
+      "slug": "台聯黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 98,
+      "name": "中華民族致公黨",
+      "leader": "陳玉山",
+      "id": "13073",
+      "slug": "中華民族致公黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 101,
+      "name": "台灣工黨",
+      "leader": "晏揚清",
+      "id": "13073",
+      "slug": "台灣工黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 106,
+      "name": "無黨團結聯盟",
+      "leader": "林炳坤",
+      "id": "13073",
+      "slug": "無黨團結聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 113,
+      "name": "中華統一促進黨（115年8月7日內政部向憲法法庭聲請違憲解散）",
+      "leader": "陳福誠",
+      "id": "13073",
+      "slug": "中華統一促進黨（115年8月7日內政部向憲法法庭聲請違憲解散）",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 127,
+      "name": "台灣國民黨",
+      "leader": "甘乃迪代理",
+      "id": "13073",
+      "slug": "台灣國民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 151,
+      "name": "中華婦女黨",
+      "leader": "涂明慧",
+      "id": "13073",
+      "slug": "中華婦女黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 153,
+      "name": "人民最大黨",
+      "leader": "許榮淑",
+      "id": "13073",
+      "slug": "人民最大黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 188,
+      "name": "正黨",
+      "leader": "林麗容",
+      "id": "13073",
+      "slug": "正黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 191,
+      "name": "中華聯合黨",
+      "leader": "徐照雄",
+      "id": "13073",
+      "slug": "中華聯合黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 195,
+      "name": "永久和平自然法",
+      "leader": "黃千明",
+      "id": "13073",
+      "slug": "永久和平自然法",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 198,
+      "name": "中華政黨聯盟",
+      "leader": "韓雲潔",
+      "id": "13073",
+      "slug": "中華政黨聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 199,
+      "name": "人民民主黨",
+      "leader": "賴宗育",
+      "id": "13073",
+      "slug": "人民民主黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 203,
+      "name": "三勢團結促進聯盟",
+      "leader": "梅峯",
+      "id": "13073",
+      "slug": "三勢團結促進聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 211,
+      "name": "台灣照生黨",
+      "leader": "徐金菊",
+      "id": "13073",
+      "slug": "台灣照生黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 219,
+      "name": "台灣進步黨",
+      "leader": "林國華",
+      "id": "13073",
+      "slug": "台灣進步黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 224,
+      "name": "台灣整復師聯盟工黨",
+      "leader": "陳秋隆",
+      "id": "13073",
+      "slug": "台灣整復師聯盟工黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 236,
+      "name": "新生黨",
+      "leader": "許水樹",
+      "id": "13073",
+      "slug": "新生黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 240,
+      "name": "司法正義黨",
+      "leader": "洪參民",
+      "id": "13073",
+      "slug": "司法正義黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 250,
+      "name": "中國國家社會主義勞工黨",
+      "leader": "項豪",
+      "id": "13073",
+      "slug": "中國國家社會主義勞工黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 257,
+      "name": "天宙和平統一家庭黨",
+      "leader": "林聖峰",
+      "id": "13073",
+      "slug": "天宙和平統一家庭黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 264,
+      "name": "經濟黨",
+      "leader": "張采明",
+      "id": "13073",
+      "slug": "經濟黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 267,
+      "name": "時代力量",
+      "leader": "王婉諭",
+      "id": "13073",
+      "slug": "時代力量",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 269,
+      "name": "社會民主黨",
+      "leader": "徐雍",
+      "id": "13073",
+      "slug": "社會民主黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 293,
+      "name": "興中同盟會",
+      "leader": "李鎔任",
+      "id": "13073",
+      "slug": "興中同盟會",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 295,
+      "name": "全國人民黨",
+      "leader": "陳漢光",
+      "id": "13073",
+      "slug": "全國人民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 303,
+      "name": "台灣基進",
+      "leader": "王興煥",
+      "id": "13073",
+      "slug": "台灣基進",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 306,
+      "name": "台灣動物保護黨",
+      "leader": "華珮君",
+      "id": "13073",
+      "slug": "台灣動物保護黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 307,
+      "name": "中華文化復興在理黨",
+      "leader": "蘭梁筱娟",
+      "id": "13073",
+      "slug": "中華文化復興在理黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 310,
+      "name": "青年陽光黨",
+      "leader": "高鼎宸",
+      "id": "13073",
+      "slug": "青年陽光黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 315,
+      "name": "臺灣人民共產黨",
+      "leader": "林德旺",
+      "id": "13073",
+      "slug": "臺灣人民共產黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 316,
+      "name": "中國和平統一黨",
+      "leader": "張茂鈺",
+      "id": "13073",
+      "slug": "中國和平統一黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 320,
+      "name": "龍黨",
+      "leader": "朱紀瑋",
+      "id": "13073",
+      "slug": "龍黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 321,
+      "name": "台灣學習黨",
+      "leader": "蔡勝弘",
+      "id": "13073",
+      "slug": "台灣學習黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 338,
+      "name": "左翼聯盟",
+      "leader": "顏坤泉",
+      "id": "13073",
+      "slug": "左翼聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 339,
+      "name": "中華愛國同心黨",
+      "leader": "顧希君",
+      "id": "13073",
+      "slug": "中華愛國同心黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 340,
+      "name": "台灣經濟發展黨",
+      "leader": "顏久曜",
+      "id": "13073",
+      "slug": "台灣經濟發展黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 342,
+      "name": "合一行動聯盟",
+      "leader": "彭迦智",
+      "id": "13073",
+      "slug": "合一行動聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 343,
+      "name": "天一黨",
+      "leader": "賴光會",
+      "id": "13073",
+      "slug": "天一黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 348,
+      "name": "喜樂島聯盟",
+      "leader": "蕭曉玲",
+      "id": "13073",
+      "slug": "喜樂島聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 350,
+      "name": "台灣民眾黨",
+      "leader": "黃國昌",
+      "id": "13073",
+      "slug": "台灣民眾黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 353,
+      "name": "統一聯盟黨",
+      "leader": "王永",
+      "id": "13073",
+      "slug": "統一聯盟黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 355,
+      "name": "台澎黨",
+      "leader": "鄭自才",
+      "id": "13073",
+      "slug": "台澎黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 357,
+      "name": "小民參政歐巴桑聯盟",
+      "leader": "林詩涵",
+      "id": "13073",
+      "slug": "小民參政歐巴桑聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 366,
+      "name": "臺灣SoR無法黨",
+      "leader": "蕭文乾",
+      "id": "13073",
+      "slug": "臺灣SoR無法黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 367,
+      "name": "夏潮聯合會",
+      "leader": "陳福裕",
+      "id": "13073",
+      "slug": "夏潮聯合會",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 370,
+      "name": "台灣新住民黨",
+      "leader": "范美蓉",
+      "id": "13073",
+      "slug": "台灣新住民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 371,
+      "name": "前進黨",
+      "leader": "楊悟空",
+      "id": "13073",
+      "slug": "前進黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 372,
+      "name": "台灣澎友黨",
+      "leader": "莊吉雄",
+      "id": "13073",
+      "slug": "台灣澎友黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 374,
+      "name": "中華文化共和黨",
+      "leader": "許佑宇",
+      "id": "13073",
+      "slug": "中華文化共和黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 375,
+      "name": "正神名黨",
+      "leader": "許榮德",
+      "id": "13073",
+      "slug": "正神名黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 376,
+      "name": "更生黨",
+      "leader": "吳軾子",
+      "id": "13073",
+      "slug": "更生黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 379,
+      "name": "台灣麻將最大黨",
+      "leader": "郭璽",
+      "id": "13073",
+      "slug": "台灣麻將最大黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 380,
+      "name": "民主監督聯盟",
+      "leader": "黃正忠",
+      "id": "13073",
+      "slug": "民主監督聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 381,
+      "name": "中華保台反共復國黨",
+      "leader": "程凱力",
+      "id": "13073",
+      "slug": "中華保台反共復國黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 382,
+      "name": "司法改革黨",
+      "leader": "張靜",
+      "id": "13073",
+      "slug": "司法改革黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 383,
+      "name": "原民黨",
+      "leader": "陳連順",
+      "id": "13073",
+      "slug": "原民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 385,
+      "name": "嘉意公益黨",
+      "leader": "陳張成",
+      "id": "13073",
+      "slug": "嘉意公益黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 386,
+      "name": "中小企業團結聯盟",
+      "leader": "李知行",
+      "id": "13073",
+      "slug": "中小企業團結聯盟",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 387,
+      "name": "太易聯盟黨",
+      "leader": "梁志祥",
+      "id": "13073",
+      "slug": "太易聯盟黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 388,
+      "name": "中華梅花黨",
+      "leader": "蔡宥祥",
+      "id": "13073",
+      "slug": "中華梅花黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 389,
+      "name": "美麗無限黨",
+      "leader": "紀皖珍",
+      "id": "13073",
+      "slug": "美麗無限黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 390,
+      "name": "民生黨",
+      "leader": "張穆庭",
+      "id": "13073",
+      "slug": "民生黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 391,
+      "name": "愛民黨",
+      "leader": "陳膺涵",
+      "id": "13073",
+      "slug": "愛民黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 392,
+      "name": "商工統一促進會",
+      "leader": "曾建祥",
+      "id": "13073",
+      "slug": "商工統一促進會",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 393,
+      "name": "永續和平黨",
+      "leader": "劉永士",
+      "id": "13073",
+      "slug": "永續和平黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 394,
+      "name": "台美黨",
+      "leader": "廖金漳",
+      "id": "13073",
+      "slug": "台美黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 395,
+      "name": "台灣民主黨",
+      "leader": "杜玉印",
+      "id": "13073",
+      "slug": "台灣民主黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 396,
+      "name": "藝術黨",
+      "leader": "李德珍",
+      "id": "13073",
+      "slug": "藝術黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    },
+    {
+      "no": 397,
+      "name": "全民健康黨",
+      "leader": "簡明廉",
+      "id": "13073",
+      "slug": "全民健康黨",
+      "detailUrl": "https://party.moi.gov.tw/PartyMainContent.aspx?n=16100&sms=13073&s=13073"
+    }
+  ]
+}

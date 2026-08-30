@@ -1,0 +1,110 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import NextQuestions from '../../../components/NextQuestions.astro';
+import Statute from '../../../components/Statute.astro';
+import { DEDUCTION_ENTITIES } from '../../../data/deductions';
+import lawData from '../../../data/law.json';
+
+export function getStaticPaths() {
+  return DEDUCTION_ENTITIES.map((e) => ({ params: { entity: e.slug }, props: { e } }));
+}
+const { e } = Astro.props;
+const pct = `${e.d.ratio * 100}%`;
+const title = `${e.entity}捐政治獻金可以抵多少稅？｜政治獻金指南`;
+const conclusion = `${e.entity}對政黨、政治團體及擬參選人的捐贈，可作為當年度${e.itemName}，但不得超過當年度${e.d.ratioBase}的 ${pct}，且總額不得超過新臺幣 ${e.d.cap.toLocaleString('zh-TW')} 元。`;
+---
+<BaseLayout
+  title={title}
+  description={conclusion}
+  crumbs={[
+    { name: '工具', href: '/tools/' },
+    { name: '抵稅試算', href: '/tools/deduction/' },
+    { name: e.entity, href: `/tools/deduction/${e.slug}/` },
+  ]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'WebPage', name: title, inLanguage: 'zh-Hant-TW',
+    about: { '@type': 'Legislation', name: '政治獻金法第 19 條' },
+  }]}
+>
+  <h1>{e.entity}捐政治獻金可以抵多少稅？</h1>
+
+  <KeyPoints points={[
+    `${e.entity}的政治獻金捐贈可作為當年度${e.itemName}，上限為${e.d.ratioBase}的 ${pct}。`,
+    `不論${e.d.ratioBase}多高，可扣除總額不得超過新臺幣 ${e.d.cap.toLocaleString('zh-TW')} 元。`,
+    '未取得受贈收據、或屬第 19 條第 3 項五款情形之一者，不得扣除。',
+  ]} />
+
+  <p class="answer-label">可扣除上限</p>
+  <p><span class="figure">{e.d.cap.toLocaleString('zh-TW')} 元</span></p>
+  <p class="lede">{conclusion}</p>
+
+  <h2>怎麼算？</h2>
+  <p>
+    兩個上限同時適用，取較低者。先算{e.d.ratioBase}的 {pct}，
+    若這個金額超過新臺幣 {e.d.cap.toLocaleString('zh-TW')} 元，則以 {e.d.cap.toLocaleString('zh-TW')} 元為準。
+  </p>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>{e.d.ratioBase}與可扣除金額對照</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="num">{e.d.ratioBase}</th>
+          <th scope="col" class="num">{pct} 計算值</th>
+          <th scope="col" class="num">實際可扣除</th>
+        </tr>
+      </thead>
+      <tbody>
+        {[500_000, 1_000_000, 2_000_000, 5_000_000, 10_000_000].map((base) => {
+          const raw = Math.floor(base * e.d.ratio);
+          return (
+            <tr>
+              <td class="num">{base.toLocaleString('zh-TW')} 元</td>
+              <td class="num">{raw.toLocaleString('zh-TW')} 元</td>
+              <td class="num">{Math.min(raw, e.d.cap).toLocaleString('zh-TW')} 元</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+  <p class="note">
+    上表為依第 19 條規定的機械計算，僅供理解上限結構之用，不構成稅務意見。
+    實際申報請依財政部規定辦理。
+  </p>
+
+  <h2>哪些情況不能扣除？</h2>
+  <p>第 19 條第 3 項列了五種情形，符合任一即不得扣除：</p>
+  <ol>
+    <li>未取得第 11 條第 1 項前段規定的受贈收據。</li>
+    <li>違反第 7 條第 1 項（不得捐贈者）、第 9 條第 1 項（行求期約不當利益）、第 12 條（收受期間）、第 14 條（他人名義、匿名、現金方式）、第 17 條或第 18 條（金額上限）規定的捐贈。</li>
+    <li>捐贈的政治獻金經受贈方依第 15 條規定返還，或繳交受理申報機關辦理繳庫。</li>
+    <li>對未依法登記為候選人、或登記後候選人資格經撤銷者的捐贈。但擬參選人收受政治獻金後死亡者，不在此限。</li>
+    <li>對政黨的捐贈，而該政黨於該年度全國不分區及僑居國外國民立法委員選舉、區域及原住民立法委員選舉推薦候選人的得票率均未達 1%。該年度未辦理選舉者，以上次選舉得票率為準；新成立的政黨，以下次選舉得票率為準。</li>
+  </ol>
+
+  <p class="note">
+    另須注意：擬參選人以賸餘政治獻金供第 23 條第 1 項各款用途使用者，其支出憑證應載明專戶名稱，
+    於申報所得稅時不得作為當年度列舉扣除額（第 23 條第 3 項）。
+  </p>
+
+  <Statute article="19" />
+
+  <NextQuestions items={[
+    { q: '捐贈上限是多少？超過會怎樣？', href: '/tools/limit/' },
+    { q: '對方沒開收據，我還能抵稅嗎？', href: '/forms/receipt/' },
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: '什麼是政治團體？跟政黨差在哪？', href: '/glossary/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .answer-label { font-size: var(--text-xs); letter-spacing: .15em; color: var(--muted); margin-block: 1.5rem .2rem; }
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

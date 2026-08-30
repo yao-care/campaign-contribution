@@ -1,0 +1,72 @@
+---
+import { REVIEWER } from '../site.mjs';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KeyPoints from '../components/KeyPoints.astro';
+import Provenance from '../components/Provenance.astro';
+import { ELECTIONS, LOCAL_CYCLE, rocDate } from '../data/elections';
+import { DEADLINES } from '../data/deadlines';
+import lawData from '../data/law.json';
+
+const today = new Date();
+const days = (iso: string) => Math.ceil((new Date(iso + 'T00:00:00+08:00').getTime() - today.getTime()) / 86_400_000);
+const MILESTONES = [
+  { d: LOCAL_CYCLE.accountOpenClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：專戶設立申請受理起日', b: '監察院公告' },
+  { d: LOCAL_CYCLE.startClause3, n: '市長、議員、鄉鎮市長、山地原住民區長：可開始收受政治獻金', b: '第 12 條第 1 項第 3 款' },
+  { d: LOCAL_CYCLE.startClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：可開始收受政治獻金', b: '第 12 條第 1 項第 4 款及第 3 項' },
+  { d: '2026-11-27', n: '所有職位：收受政治獻金截止日（投票日前一日）', b: '第 12 條' },
+  { d: LOCAL_CYCLE.voteDay, n: '投票日', b: '中央選舉委員會' },
+  { d: '2027-02-06', n: '擬參選人收受達 1,000 萬元者：會計師查核簽證期限（投票日後 70 日）', b: '第 21 條第 1 項' },
+  { d: DEADLINES.find((x) => x.slug === 'candidate')!.thisCycle!, n: '擬參選人：會計報告書申報期限（投票日後 3 個月）', b: '第 21 條第 1 項第 2 款' },
+].map((m) => ({ ...m, left: days(m.d) })).sort((a, b) => a.d.localeCompare(b.d));
+
+const next = MILESTONES.find((m) => m.left >= 0);
+---
+<BaseLayout
+  title="政治獻金重要日期倒數：起算、截止、申報"
+  description={`本屆地方公職人員選舉投票日為 ${rocDate(LOCAL_CYCLE.voteDay)}。本頁列出政治獻金的收受起算日、截止日、會計師簽證與申報期限。`}
+  crumbs={[{ name: '重要日期', href: '/countdown/' }]}
+>
+  <h1>政治獻金重要日期</h1>
+  <KeyPoints points={[
+    `本屆地方公職人員選舉投票日為 ${rocDate(LOCAL_CYCLE.voteDay)}。`,
+    `收受政治獻金的截止日為 ${rocDate('2026-11-27')}，即投票日前一日。`,
+    `擬參選人的申報期限為 ${rocDate(DEADLINES.find((x) => x.slug === 'candidate')!.thisCycle!)}。`,
+  ]} />
+  {next && (
+    <section class="next-up">
+      <h2>下一個期限</h2>
+      <p><span class="figure">{rocDate(next.d)}</span></p>
+      <p class="nx">{next.n}｜距今 {next.left} 天</p>
+    </section>
+  )}
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>本屆時程（本頁靜態產出，每日重新建置）</caption>
+      <thead><tr><th scope="col">日期</th><th scope="col">事項</th><th scope="col">依據</th></tr></thead>
+      <tbody>{MILESTONES.map((m) => (
+        <tr class={m.left < 0 ? 'past' : ''}>
+          <th scope="row">{rocDate(m.d)}</th>
+          <td>{m.n}</td>
+          <td>{m.b}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+  <p class="note">
+    表中日期以監察院公告與政治獻金法條文為準。總統、副總統與立法委員不在本屆地方公職人員選舉之列，
+    其收受期間依第 12 條第 1、2 款計算，日期待該次選舉確定。
+  </p>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: LOCAL_CYCLE.source },
+    ]} />
+</BaseLayout>
+<style>
+  .next-up { border:2px solid var(--slate); padding:1.25em; margin-block:2rem; }
+  .next-up h2 { font-size:var(--text-xs); letter-spacing:.15em; color:var(--slate); margin-block:0 .4em; }
+  .next-up p { margin:0; }
+  .nx { font-size:var(--text-xs); color:var(--muted); margin-block-start:.5em !important; }
+  tr.past th, tr.past td { color: var(--muted); text-decoration: line-through; }
+  table caption { text-align:start; font-size:var(--text-xs); color:var(--muted); padding-block-end:.5em; }
+</style>

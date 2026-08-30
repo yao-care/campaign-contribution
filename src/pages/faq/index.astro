@@ -1,0 +1,55 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { FAQS } from '../../data/faq';
+import lawData from '../../data/law.json';
+const TOPICS = ['資格', '金額', '時間', '程序', '稅務', '罰則', '名詞'] as const;
+---
+<BaseLayout
+  title={`政治獻金常見問答：${FAQS.length} 題`}
+  description={`能不能捐、能捐多少、什麼時候開始、怎麼申報、能抵多少稅、違反會怎樣——${FAQS.length} 題政治獻金常見問答，每題附法條依據。`}
+  crumbs={[{ name: '常見問答', href: '/faq/' }]}
+  jsonld={[{
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    inLanguage: 'zh-Hant-TW',
+    mainEntity: FAQS.map((f) => ({
+      '@type': 'Question', name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  }]}
+>
+  <h1>政治獻金常見問答</h1>
+  <KeyPoints points={[
+    `本頁收錄 ${FAQS.length} 題常見問答，分為資格、金額、時間、程序、稅務、罰則與名詞七類。`,
+    '每題的第一句就是答案，並標明法條依據，可直接對照條文原文。',
+    '問法變體寫在同一題裡面，不另開頁面。',
+  ]} />
+  {TOPICS.map((t) => {
+    const items = FAQS.filter((f) => f.topic === t);
+    return (
+      <section aria-labelledby={`t-${t}`}>
+        <h2 id={`t-${t}`}>{t}（{items.length} 題）</h2>
+        <ul class="qs">
+          {items.map((f) => (
+            <li>
+              <a href={`/faq/${f.slug}/`}>{f.q}</a>
+              <span class="a">{f.a}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  })}
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .qs { list-style: none; padding: 0; margin: 0; }
+  .qs li { border-block-end: 1px solid var(--rule); padding-block: .8em; }
+  .qs a { font-weight: 600; text-decoration: none; }
+  .qs a:hover { text-decoration: underline; }
+  .a { display: block; font-size: var(--text-xs); color: var(--muted); margin-block-start: .3em; }
+</style>

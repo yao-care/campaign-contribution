@@ -1,0 +1,117 @@
+---
+import { REVIEWER } from '../../site.mjs';
+/**
+ * T7 政黨頁。
+ *
+ * 建站規格 §6 T7：只有制度事實欄位，沒有金額排行、沒有敘述性段落，
+ * 並在頁面明說不做評論、不做比較。版型限制比編輯守則可靠——
+ * 沒有那個欄位，就寫不出那種內容。本檔刻意不提供任何自由文字欄位。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import partyData from '../../data/parties.json';
+import { PARTY_CAPS, PARTY_CAPS_AGGREGATE, DONOR_LABEL, twd } from '../../data/elections';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return partyData.parties.map((p) => ({ params: { party: p.slug }, props: { p } }));
+}
+const { p } = Astro.props;
+const title = `${p.name}政治獻金怎麼捐｜上限與申報規則`;
+---
+<BaseLayout
+  title={title}
+  description={`捐贈政治獻金給${p.name}的規則：個人每年上限新臺幣 30 萬元，營利事業 300 萬元，人民團體 200 萬元。政黨應於每年度結束後 5 個月內申報會計報告書。`}
+  crumbs={[{ name: '政黨', href: '/parties/' }, { name: p.name, href: `/parties/${p.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'Organization',
+    name: p.name, identifier: String(p.no), inLanguage: 'zh-Hant-TW',
+    sameAs: p.detailUrl ? [p.detailUrl] : undefined,
+  }]}
+>
+  <h1>捐政治獻金給{p.name}的規則</h1>
+
+  <KeyPoints points={[
+    `個人對同一政黨每年捐贈總額不得超過 ${twd(PARTY_CAPS.individual)}。`,
+    `${p.name}為內政部政黨資訊網登錄的現存政黨，政黨編號 ${p.no}。`,
+    '政黨應於每年度結束後 5 個月內申報會計報告書，並應委託會計師查核簽證。',
+  ]} />
+
+  <p class="disclaimer">
+    本頁只呈現法定的制度事實與登錄資料。本站不對任何政黨作評論、不作比較、
+    不呈現政治獻金金額排行。所有政黨頁使用同一組欄位。
+  </p>
+
+  <h2>{p.name}的登錄資料</h2>
+  <dl class="facts">
+    <div><dt>政黨名稱</dt><dd>{p.name}</dd></div>
+    <div><dt>政黨編號</dt><dd>{p.no}</dd></div>
+    <div><dt>負責人</dt><dd>{p.leader ?? '—'}</dd></div>
+    <div><dt>登錄狀態</dt><dd>現存政黨</dd></div>
+  </dl>
+  {p.detailUrl && (
+    <p><a href={p.detailUrl} rel="noopener">在內政部政黨資訊網查看{p.name}的完整登錄資料</a></p>
+  )}
+
+  <h2>可以捐多少給{p.name}？</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>對同一政黨、政治團體的年度捐贈上限（第 17 條）</caption>
+      <thead>
+        <tr><th scope="col">捐贈者</th><th scope="col" class="num">對同一政黨</th><th scope="col" class="num">對不同政黨合計</th></tr>
+      </thead>
+      <tbody>
+        {(Object.keys(DONOR_LABEL) as (keyof typeof DONOR_LABEL)[]).map((k) => (
+          <tr>
+            <th scope="row">{DONOR_LABEL[k]}</th>
+            <td class="num">{PARTY_CAPS[k].toLocaleString('zh-TW')} 元</td>
+            <td class="num">{PARTY_CAPS_AGGREGATE[k].toLocaleString('zh-TW')} 元</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p>
+    上限對所有政黨一致，不因政黨規模或得票率而不同。捐贈前仍須確認自己不屬於
+    第 7 條第 1 項所列 11 款不得捐贈者；其他政黨與同一種選舉的擬參選人不得捐贈。
+  </p>
+
+  <h2>捐給{p.name}可以抵稅嗎？</h2>
+  <p>
+    個人得列為當年度列舉扣除額，上限為綜合所得總額的 20% 且不超過新臺幣 20 萬元；
+    營利事業得列為當年度費用或損失，上限為所得額的 10% 且不超過新臺幣 50 萬元。
+    但依第 19 條第 3 項第 5 款，若該政黨於該年度立法委員選舉推薦候選人的得票率均未達 1%，
+    對其捐贈不得扣除。得票率屬選舉結果事實，請以中央選舉委員會公告為準。
+  </p>
+
+  <h2>{p.name}有哪些申報義務？</h2>
+  <p>
+    政黨應設收支帳簿按日逐筆記載，並製作會計報告書，記載收入 5 項、支出 8 項、餘絀，
+    以及超過新臺幣 3 萬元收支對象的詳細資料。會計報告書由負責人或代表人簽名或蓋章，
+    應委託會計師查核簽證，並於每年度結束後 5 個月內向監察院申報。
+  </p>
+
+  <NextQuestions items={[
+    { q: '個人捐給政黨一年最多多少？', href: '/tools/limit/individual-to-party/' },
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: '政黨的政治獻金什麼時候要申報？', href: '/tools/deadline/party/' },
+    { q: '政黨與政治團體差在哪？', href: '/glossary/political-group/' },
+    { q: '其他政黨', href: '/parties/' },
+  ]} />
+
+  <Provenance updated={new Date(partyData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '內政部政黨資訊網', href: partyData.source },
+    ]} />
+</BaseLayout>
+<style>
+  .disclaimer { font-size: var(--text-xs); color: var(--muted); border: 1px dashed var(--rule); padding: 1em 1.25em; }
+  .facts { border-block: 2px solid var(--ink); padding-block: 1em; margin-block: 1.5rem; }
+  .facts > div { display: flex; gap: 1rem; padding-block: .4em; }
+  .facts dt { flex: 0 0 8rem; color: var(--muted); font-size: var(--text-sm); margin: 0; }
+  .facts dd { margin: 0; font-weight: 600; }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

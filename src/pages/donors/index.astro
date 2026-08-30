@@ -1,0 +1,70 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import Statute from '../../components/Statute.astro';
+import { DONORS, MAJOR_MEMBER_TESTS } from '../../data/donors';
+import lawData from '../../data/law.json';
+---
+<BaseLayout
+  title="誰不得捐贈政治獻金？第 7 條 11 款完整清單"
+  description="政治獻金法第 7 條第 1 項列了 11 款不得捐贈政治獻金者，包括公營事業、政府承包商、虧損企業、宗教團體、外國與大陸港澳對象等。本頁逐款說明與查證機關。"
+  crumbs={[{ name: '不得捐贈者', href: '/donors/' }]}
+>
+  <h1>誰不得捐贈政治獻金？</h1>
+
+  <KeyPoints points={[
+    '得捐贈者以個人、政黨、人民團體及營利事業為限，且不得屬於第 7 條第 1 項所列 11 款。',
+    '第 7 至 9 款（外國、大陸地區、香港澳門）的違規獻金不得返還捐贈人，必須繳庫。',
+    '受贈方已依第 7 條第 4 項盡查證義務者，就相關違反行為不予處罰。',
+  ]} />
+
+  <p class="lede">
+    政治獻金法第 7 條先劃出得捐贈者的範圍——個人、政黨、人民團體及營利事業——
+    再用 11 款把特定對象排除在外。以下逐款列出，點進去可看判斷方式與查證機關。
+  </p>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>第 7 條第 1 項 11 款不得捐贈者</caption>
+      <thead>
+        <tr><th scope="col">款</th><th scope="col">對象</th><th scope="col">查證機關</th><th scope="col">違規處理</th></tr>
+      </thead>
+      <tbody>
+        {DONORS.map((d) => (
+          <tr>
+            <th scope="row"><a href={`/donors/${d.slug}/`}>第 {d.clause} 款</a></th>
+            <td>{d.target}</td>
+            <td>{d.verifyAgency.join('、')}</td>
+            <td>{d.mustSurrender ? '不得返還，應繳庫' : '應返還捐贈人'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>什麼是「主要成員」？</h2>
+  <p>第 7、8、9 款都用到「主要成員」的概念。第 7 條第 3 項定義了三種情形，符合任何一種就算：</p>
+  <ol>{MAJOR_MEMBER_TESTS.map((t) => <li>{t}</li>)}</ol>
+
+  <h2>收受方有查證義務嗎？</h2>
+  <p>
+    有。第 7 條第 4 項規定各機關應建置資料供查詢，第 15 條則規定收受方的查證與處理義務。
+    已盡查證義務者，就違反相關規定的行為不予處罰——這是收受方最重要的免責事由。
+  </p>
+
+  <Statute article="7" />
+
+  <NextQuestions items={[
+    { q: '收到不該收的政治獻金該怎麼處理？', href: '/donors/verify/' },
+    { q: '我可以捐嗎？逐題檢核', href: '/tools/can-i-donate/' },
+    { q: '可以捐的話，一年最多可以捐多少？', href: '/tools/limit/' },
+    { q: '違法捐贈的罰則是什麼？', href: '/tools/penalty/29/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>.lede{font-size:var(--text-lg);color:var(--ink-2)}table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

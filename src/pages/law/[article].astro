@@ -1,0 +1,88 @@
+---
+/**
+ * T4 法條頁。
+ *
+ * 路徑來自 law.json（36 條，抓取而來），不是來自 content collection——
+ * 這樣 36 條一定齊全，且原文永遠是抓來的。人工撰寫的白話說明若尚未就位，
+ * 該頁仍可上線但標 noindex，避免薄頁進索引（§8.2 第 3 點）。
+ */
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Statute from '../../components/Statute.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import lawData from '../../data/law.json';
+
+export async function getStaticPaths() {
+  const editorial = await getCollection('law');
+  return lawData.articles.map((a) => ({
+    params: { article: a.article },
+    props: { entry: a, doc: editorial.find((e) => String(e.data.article) === a.article) ?? null },
+  }));
+}
+
+const { entry, doc } = Astro.props;
+const rendered = doc ? await render(doc) : null;
+
+const title = doc
+  ? `政治獻金法第 ${entry.article} 條：${doc.data.title}`
+  : `政治獻金法第 ${entry.article} 條 條文原文`;
+const description = doc?.data.conclusion
+  ?? `政治獻金法第 ${entry.article} 條條文原文，取自全國法規資料庫。`;
+
+const jsonld = [{
+  '@context': 'https://schema.org',
+  '@type': 'Legislation',
+  name: `政治獻金法第 ${entry.article} 條`,
+  legislationIdentifier: `政治獻金法 §${entry.article}`,
+  legislationJurisdiction: 'TW',
+  legislationType: '法律',
+  inLanguage: 'zh-Hant-TW',
+  isPartOf: { '@type': 'Legislation', name: '政治獻金法', url: lawData.source },
+  ...(doc ? { abstract: doc.data.conclusion } : {}),
+}];
+---
+<BaseLayout
+  title={title}
+  description={description}
+  crumbs={[
+    { name: '政治獻金法', href: '/law/' },
+    { name: `第 ${entry.article} 條`, href: `/law/${entry.article}/` },
+  ]}
+  noindex={!doc || doc.data.noindex}
+  jsonld={jsonld}
+>
+  <h1>{title}</h1>
+
+  {entry.repealed && <p class="note">本條已刪除，保留條號供對照。</p>}
+
+  {doc && <KeyPoints points={doc.data.keypoints} />}
+  {doc && <p class="lede">{doc.data.conclusion}</p>}
+
+  <Statute article={entry.article} />
+
+  {rendered ? <rendered.Content /> : (
+    <p class="pending">
+      本條的白話拆解尚未經人工撰寫與審閱，本頁目前僅呈現條文原文，且不開放索引。
+    </p>
+  )}
+
+  {doc && <NextQuestions items={doc.data.nextQuestions} />}
+
+  <Provenance
+    updated={doc ? doc.data.updated : new Date(lawData.fetchedAt)}
+    reviewer={doc ? doc.data.reviewer : '尚未審閱'}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]}
+  />
+</BaseLayout>
+
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .pending {
+    font-size: var(--text-sm);
+    color: var(--muted);
+    border: 1px dashed var(--rule);
+    padding: 1em 1.25em;
+  }
+</style>

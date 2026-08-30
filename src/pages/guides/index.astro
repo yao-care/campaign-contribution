@@ -1,0 +1,41 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { GUIDES } from '../../data/guides';
+import lawData from '../../data/law.json';
+const label = { donor: '捐款人', candidate: '擬參選人與團隊', public: '一般民眾' };
+---
+<BaseLayout
+  title="政治獻金情境指南：從捐款到申報的完整流程"
+  description="五個情境把散在 36 條法條裡的義務串成一條時間線：想捐給候選人、想捐給政黨、第一次選村里長、擔任競選財務、收到可疑捐款。"
+  crumbs={[{ name: '情境指南', href: '/guides/' }]}
+>
+  <h1>政治獻金情境指南</h1>
+  <KeyPoints points={[
+    '五個情境涵蓋捐款人與擬參選人兩種角色，把法條義務串成時間線。',
+    '每個情境都標出最常踩到的坑，以及對應的罰則條號。',
+    '所有步驟都連結到條文原文與官方書表，可逐項核對。',
+  ]} />
+  <nav class="guides" aria-label="情境清單">
+    {GUIDES.map((g) => (
+      <a class="guide" href={`/guides/${g.slug}/`}>
+        <span class="aud">{label[g.audience]}</span>
+        <h2>{g.scenario}</h2>
+        <p>{g.conclusion}</p>
+      </a>
+    ))}
+  </nav>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .guides { display: grid; gap: 1rem; margin-block: 2rem; }
+  .guide { display:block; border:1px solid var(--rule); border-inline-start:4px solid var(--stamp);
+           padding:1.25em; text-decoration:none; color:var(--ink); }
+  .guide:hover { background: var(--alt); }
+  .aud { font-size: var(--text-xs); color: var(--muted); letter-spacing: .1em; }
+  .guide h2 { margin-block:.3em .4em; font-size: var(--text-lg); color: var(--stamp); }
+  .guide p { margin:0; font-size: var(--text-sm); color: var(--ink-2); }
+</style>

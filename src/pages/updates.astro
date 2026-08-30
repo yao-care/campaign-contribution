@@ -1,0 +1,59 @@
+---
+import { REVIEWER } from '../site.mjs';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KeyPoints from '../components/KeyPoints.astro';
+import Provenance from '../components/Provenance.astro';
+import lawData from '../data/law.json';
+import villagesData from '../data/villages.json';
+import partyData from '../data/parties.json';
+import { LOCAL_CYCLE } from '../data/elections';
+
+const ENTRIES = [
+  { d: lawData.fetchedAt.slice(0, 10), t: `政治獻金法全文抓取，共 ${lawData.count} 條`,
+    b: `內容指紋 ${lawData.digest}。第 16 條為刪除條文，有效條文 ${lawData.count - 1} 條。條文一經修正即可由指紋偵測，並觸發白話說明重新審閱。` },
+  { d: partyData.fetchedAt.slice(0, 10), t: `政黨清單更新，現存政黨 ${partyData.count} 個`,
+    b: '取自內政部政黨資訊網。該站表格由瀏覽器端產生，抓取程序需渲染後解析。' },
+  { d: villagesData.fetchedAt.slice(0, 10), t: `村里清單更新，共 ${villagesData.count.toLocaleString('zh-TW')} 筆（期別 ${villagesData.period}）`,
+    b: '取自內政部戶政司 ODRP001。較新的期別目前回傳查無資料，故採用最新可用期別。村里頁的戶籍人口欄位尚無資料來源。' },
+  { d: '2026-02-09', t: '監察院公告本屆專戶申請注意事項與收受起算日',
+    b: '第 12 條第 3 款組自 115 年 4 月 25 日起、第 4 款組自 115 年 8 月 20 日起，均至 115 年 11 月 27 日止。第 4 款組的專戶設立申請自 115 年 8 月 17 日起受理。' },
+];
+---
+<BaseLayout
+  title="資料更新紀錄"
+  description="本站各項資料的抓取時間、期別與變動說明。法條內容附內容指紋，一經修正即可偵測。"
+  crumbs={[{ name: '更新紀錄', href: '/updates/' }]}
+>
+  <h1>資料更新紀錄</h1>
+  <KeyPoints points={[
+    `法條原文最後抓取日為 ${lawData.fetchedAt.slice(0, 10)}，指紋 ${lawData.digest}。`,
+    `村里資料採用內政部戶政司 ODRP001 期別 ${villagesData.period}，共 ${villagesData.count.toLocaleString('zh-TW')} 筆。`,
+    `本屆收受起算日以監察院 115 年 2 月 9 日公告為準，非由任期屆滿日推算。`,
+  ]} />
+  <ol class="log">
+    {ENTRIES.sort((a, b) => b.d.localeCompare(a.d)).map((e) => (
+      <li>
+        <time datetime={e.d}>{e.d}</time>
+        <h2>{e.t}</h2>
+        <p>{e.b}</p>
+      </li>
+    ))}
+  </ol>
+  <p class="note">
+    尚待更新的項目：本屆各行政區應選名額與選舉區劃分（待中央選舉委員會選舉公告）、
+    村里戶籍人口（尚無可用開放資料集）、機關提供的宣導素材。
+  </p>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: LOCAL_CYCLE.source },
+      { label: '內政部政黨資訊網', href: partyData.source },
+    ]} />
+</BaseLayout>
+<style>
+  .log { list-style:none; padding:0; }
+  .log li { border-inline-start:3px solid var(--rule); padding:0 0 1.5rem 1.25rem; }
+  .log time { font-size:var(--text-xs); color:var(--muted); font-variant-numeric:tabular-nums; }
+  .log h2 { margin-block:.2em .4em; font-size:var(--text-lg); }
+  .log p { margin:0; font-size:var(--text-sm); color:var(--ink-2); }
+</style>

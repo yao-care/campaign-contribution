@@ -1,0 +1,105 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import NextQuestions from '../../../components/NextQuestions.astro';
+import Statute from '../../../components/Statute.astro';
+import { ELECTIONS, LOCAL_CYCLE, rocDate } from '../../../data/elections';
+import lawData from '../../../data/law.json';
+
+export function getStaticPaths() {
+  return ELECTIONS.map((e) => ({ params: { position: e.slug }, props: { e } }));
+}
+const { e } = Astro.props;
+const CL = ['', '第 1 款', '第 2 款', '第 3 款', '第 4 款'][e.clause12];
+const start = e.startDate ? rocDate(e.startDate) : null;
+const end = e.endDate ? rocDate(e.endDate) : null;
+
+const answer = e.inLocalCycle
+  ? `${start}`
+  : '待該次選舉的任期屆滿日與投票日確定';
+const title = `${e.position}什麼時候可以開始收政治獻金？｜政治獻金指南`;
+---
+<BaseLayout
+  title={title}
+  description={e.inLocalCycle
+    ? `${e.position}擬參選人自 ${start} 起至 ${end} 止可收受政治獻金，依政治獻金法第 12 條${CL}，為任期屆滿前 ${e.startOffsetMonths} 個月。`
+    : `${e.position}擬參選人自任期屆滿前 ${e.startOffsetMonths} 個月起至投票日前一日止可收受政治獻金，依政治獻金法第 12 條${CL}。`}
+  crumbs={[
+    { name: '工具', href: '/tools/' },
+    { name: '起算日查詢', href: '/tools/timeline/' },
+    { name: e.position, href: `/tools/timeline/${e.slug}/` },
+  ]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'WebPage', name: title, inLanguage: 'zh-Hant-TW',
+    about: { '@type': 'Legislation', name: '政治獻金法第 12 條' },
+  }]}
+>
+  <h1>{e.position}什麼時候可以開始收政治獻金？</h1>
+
+  <KeyPoints points={[
+    e.inLocalCycle
+      ? `${e.position}擬參選人自 ${start} 起可以收受政治獻金。`
+      : `${e.position}擬參選人自任期屆滿前 ${e.startOffsetMonths} 個月起可以收受政治獻金。`,
+    e.inLocalCycle
+      ? `收受期間至 ${end} 止，即投票日 ${rocDate(LOCAL_CYCLE.voteDay)} 的前一日。`
+      : '收受期間至該次選舉投票日前一日止。',
+    `依據為政治獻金法第 12 條${CL}，任期屆滿前 ${e.startOffsetMonths} 個月。`,
+  ]} />
+
+  <p class="answer-label">答案</p>
+  <p><span class="figure">{answer}</span></p>
+
+  {e.inLocalCycle && (
+    <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+      <table>
+        <caption>{e.position}本屆收受期間</caption>
+        <tbody>
+          <tr><th scope="row">起算日</th><td>{start}</td></tr>
+          <tr><th scope="row">截止日</th><td>{end}（投票日前一日）</td></tr>
+          <tr><th scope="row">投票日</th><td>{rocDate(LOCAL_CYCLE.voteDay)}</td></tr>
+          <tr><th scope="row">公告依據</th><td>{LOCAL_CYCLE.sourceNote}</td></tr>
+          <tr><th scope="row">法條依據</th><td>第 12 條{CL}（任期屆滿前 {e.startOffsetMonths} 個月）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  <h2>這個日期是怎麼算出來的？</h2>
+  <p>
+    {e.inLocalCycle
+      ? `政治獻金法第 12 條${CL}規定，${e.position}擬參選人自各該公職人員任期屆滿前 ${e.startOffsetMonths} 個月起，至次屆選舉投票日前一日止，得收受政治獻金。本屆的確切日期以監察院公告為準：自 ${start} 起至 ${end} 止。第 12 條第 3 項另定，若依前項算出的起始日落在選舉公告發布日之後，收受期間改自選舉公告發布之日起算——第 4 款組的起算日即因此提前。`
+      : `政治獻金法第 12 條${CL}規定，${e.position}擬參選人自任期屆滿前 ${e.startOffsetMonths} 個月起收受政治獻金，至次屆選舉投票日前一日止。本屆地方公職人員選舉不含此職位，因此確切日期須待該次選舉的任期屆滿日與投票日確定。`}
+  </p>
+
+  <h2>有沒有例外？</h2>
+  <p>
+    有三種。第一，重行選舉、補選，以及總統解散立法院後辦理的立法委員選舉，收受期間改為自選舉公告發布之日起至投票日前一日止。
+    第二，辦理各該公職人員第一屆選舉時，任期屆滿日與次屆投票日改以當屆就職日及選舉投票日認定。
+    第三，若依前述算出的起始日落在選舉公告發布日之後，收受期間改自選舉公告發布之日起算。
+  </p>
+
+  <h2>在起算日之前就收了會怎樣？</h2>
+  <p>
+    違反第 12 條收受政治獻金者，依第 27 條按收受金額處 2 倍罰鍰，違法收受的政治獻金並沒入之。
+    此外，收受政治獻金前必須先經受理申報機關許可設立專戶；未經許可就收受，依第 26 條處 3 年以下有期徒刑，
+    得併科新臺幣 20 萬元以上 100 萬元以下罰金。
+  </p>
+
+  <Statute article="12" />
+
+  <NextQuestions items={[
+    { q: '政治獻金專戶要怎麼申請？', href: '/forms/account-application/' },
+    { q: `${e.position}的完整政治獻金規則是什麼？`, href: `/elections/${e.slug}/` },
+    { q: '個人一年最多可以捐多少給同一位擬參選人？', href: '/tools/limit/individual-to-candidate/' },
+    { q: '政治獻金什麼時候要申報？', href: '/tools/deadline/candidate/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .answer-label { font-size: var(--text-xs); letter-spacing: .15em; color: var(--muted); margin-block: 1.5rem 0.2rem; }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

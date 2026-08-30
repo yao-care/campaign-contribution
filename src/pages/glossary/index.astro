@@ -1,0 +1,39 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { GLOSSARY } from '../../data/glossary';
+import lawData from '../../data/law.json';
+const defined = GLOSSARY.filter((t) => t.basis.some((b) => b.includes('第 2 條')));
+---
+<BaseLayout
+  title="政治獻金法名詞解釋：37 個關鍵用詞"
+  description="政治獻金、擬參選人、專戶、主要成員、賸餘政治獻金等 37 個政治獻金法關鍵名詞的定義與法條依據。"
+  crumbs={[{ name: '名詞解釋', href: '/glossary/' }]}
+>
+  <h1>政治獻金法名詞解釋</h1>
+  <KeyPoints points={[
+    `本頁收錄 ${GLOSSARY.length} 個政治獻金法的關鍵名詞，每則都標明法條依據。`,
+    `其中 ${defined.length} 個是第 2 條明文定義的用詞，其餘為條文中反覆出現、影響判斷的概念。`,
+    '黨費、會費或義工的服務不屬於政治獻金，是最常被搞錯的一條。',
+  ]} />
+  <p class="lede">依筆畫無關的主題順序排列。每則的定義獨立成句，可單獨引用。</p>
+  <dl class="list">
+    {GLOSSARY.map((t) => (
+      <>
+        <dt><a href={`/glossary/${t.slug}/`}>{t.term}</a>{t.aliases.length > 0 && <span class="al">（{t.aliases.join('、')}）</span>}</dt>
+        <dd>{t.definition}<span class="b">{t.basis.join('、')}</span></dd>
+      </>
+    ))}
+  </dl>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .list dt { font-weight: 700; margin-block-start: 1.5em; }
+  .list dd { margin: .3em 0 0; font-size: var(--text-sm); color: var(--ink-2); }
+  .al { font-weight: 400; color: var(--muted); font-size: var(--text-xs); }
+  .b { display: block; font-size: var(--text-xs); color: var(--muted); margin-block-start: .3em; }
+</style>

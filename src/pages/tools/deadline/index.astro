@@ -1,0 +1,41 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import Statute from '../../../components/Statute.astro';
+import { DEADLINES } from '../../../data/deadlines';
+import { rocDate } from '../../../data/elections';
+import lawData from '../../../data/law.json';
+---
+<BaseLayout
+  title="政治獻金什麼時候要申報？期限與會計師簽證門檻"
+  description="政黨與政治團體於每年度結束後 5 個月內申報；擬參選人於投票日後 3 個月內申報。收受達 1,000 萬元者應於投票日後 70 日內委託會計師查核簽證。"
+  crumbs={[{ name: '工具', href: '/tools/' }, { name: '申報期限', href: '/tools/deadline/' }]}
+>
+  <h1>政治獻金什麼時候要申報？</h1>
+  <KeyPoints points={[
+    '政黨與政治團體應於每年度結束後 5 個月內向監察院申報會計報告書。',
+    '擬參選人應於選舉投票日後 3 個月內申報；本屆即民國 116 年 2 月 28 日。',
+    '擬參選人收受金額達新臺幣 1,000 萬元者，應於投票日後 70 日內委託會計師查核簽證。',
+  ]} />
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>三種身分的申報期限</caption>
+      <thead><tr><th scope="col">身分</th><th scope="col">申報期限</th><th scope="col">會計師簽證</th></tr></thead>
+      <tbody>
+        {DEADLINES.map((d) => (
+          <tr>
+            <th scope="row"><a href={`/tools/deadline/${d.slug}/`}>{d.entity}</a></th>
+            <td>{d.rule}{d.thisCycle && `（本屆 ${rocDate(d.thisCycle)}）`}</td>
+            <td>{d.auditRule}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <Statute article="21" />
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}td{font-size:var(--text-xs)}</style>

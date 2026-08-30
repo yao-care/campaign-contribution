@@ -1,0 +1,66 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import { counties, districtCount, villageCount, dataPeriod, isMunicipality } from '../../data/geo';
+import { LOCAL_CYCLE, rocDate } from '../../data/elections';
+import lawData from '../../data/law.json';
+const muni = counties.filter((c) => isMunicipality(c.name));
+const rest = counties.filter((c) => !isMunicipality(c.name));
+---
+<BaseLayout
+  title="各縣市這次選什麼？政治獻金規則與行政區索引"
+  description={`全國 ${counties.length} 個縣市、${districtCount} 個鄉鎮市區、${villageCount.toLocaleString('zh-TW')} 個村里的選舉與政治獻金規則索引。`}
+  crumbs={[{ name: '行政區', href: '/regions/' }]}
+>
+  <h1>各縣市這次選什麼？</h1>
+  <KeyPoints points={[
+    `全國共 ${counties.length} 個縣市、${districtCount} 個鄉鎮市區、${villageCount.toLocaleString('zh-TW')} 個村里。`,
+    `本屆地方公職人員選舉投票日為 ${rocDate(LOCAL_CYCLE.voteDay)}。`,
+    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起可收受政治獻金，其餘地方公職自 ${rocDate(LOCAL_CYCLE.startClause3)} 起。`,
+  ]} />
+  <p class="lede">選擇縣市，查看轄下鄉鎮市區、本次改選職位與各職位的收受起算日。</p>
+
+  <h2>直轄市</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>6 個直轄市</caption>
+      <thead><tr><th scope="col">縣市</th><th scope="col" class="num">鄉鎮市區</th><th scope="col" class="num">村里</th></tr></thead>
+      <tbody>{muni.map((c) => (
+        <tr>
+          <th scope="row"><a href={`/regions/${c.slug}/`}>{c.name}</a></th>
+          <td class="num">{c.districtCount}</td>
+          <td class="num">{c.villageCount.toLocaleString('zh-TW')}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>縣與市</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>16 個縣市</caption>
+      <thead><tr><th scope="col">縣市</th><th scope="col" class="num">鄉鎮市區</th><th scope="col" class="num">村里</th></tr></thead>
+      <tbody>{rest.map((c) => (
+        <tr>
+          <th scope="row"><a href={`/regions/${c.slug}/`}>{c.name}</a></th>
+          <td class="num">{c.districtCount}</td>
+          <td class="num">{c.villageCount.toLocaleString('zh-TW')}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">
+    行政區與村里資料取自內政部戶政司開放資料 ODRP001，期別 {dataPeriod}。
+    本屆各行政區的應選名額與選舉區劃分須待中央選舉委員會選舉公告發布後確定。
+  </p>
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '內政部戶政司開放資料 ODRP001', href: 'https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001' },
+    ]} />
+</BaseLayout>
+<style>.lede{font-size:var(--text-lg);color:var(--ink-2)}table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

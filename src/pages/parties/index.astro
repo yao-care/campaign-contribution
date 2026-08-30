@@ -1,0 +1,47 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import partyData from '../../data/parties.json';
+import { PARTY_CAPS, twd } from '../../data/elections';
+import lawData from '../../data/law.json';
+---
+<BaseLayout
+  title={`現存政黨 ${partyData.count} 個｜政治獻金捐贈規則`}
+  description={`內政部政黨資訊網登錄的現存政黨共 ${partyData.count} 個。捐贈政治獻金給政黨的規則對所有政黨一致：個人每年上限新臺幣 30 萬元。`}
+  crumbs={[{ name: '政黨', href: '/parties/' }]}
+>
+  <h1>現存政黨與政治獻金規則</h1>
+  <KeyPoints points={[
+    `依內政部政黨資訊網，現存政黨共 ${partyData.count} 個。`,
+    `捐贈上限對所有政黨一致：個人每年 ${twd(PARTY_CAPS.individual)}、營利事業 ${twd(PARTY_CAPS.business)}、人民團體 ${twd(PARTY_CAPS.civicGroup)}。`,
+    '政黨應於每年度結束後 5 個月內申報會計報告書，並一律應委託會計師查核簽證。',
+  ]} />
+  <p class="disclaimer">
+    本站不對任何政黨作評論、不作比較、不呈現政治獻金金額排行。
+    所有政黨頁使用同一組欄位，內容為法定制度事實與內政部登錄資料。
+  </p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>現存政黨（依政黨編號排序）</caption>
+      <thead><tr><th scope="col" class="num">編號</th><th scope="col">政黨名稱</th><th scope="col">負責人</th></tr></thead>
+      <tbody>{partyData.parties.map((p) => (
+        <tr>
+          <td class="num">{p.no}</td>
+          <th scope="row"><a href={`/parties/${p.slug}/`}>{p.name}</a></th>
+          <td>{p.leader ?? '—'}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+  <Provenance updated={new Date(partyData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '內政部政黨資訊網', href: partyData.source },
+    ]} />
+</BaseLayout>
+<style>
+  .disclaimer { font-size: var(--text-xs); color: var(--muted); border: 1px dashed var(--rule); padding: 1em 1.25em; }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

@@ -1,0 +1,87 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import NextQuestions from '../../../components/NextQuestions.astro';
+import Statute from '../../../components/Statute.astro';
+import { DEADLINES } from '../../../data/deadlines';
+import { rocDate, LOCAL_CYCLE } from '../../../data/elections';
+import lawData from '../../../data/law.json';
+
+export function getStaticPaths() {
+  return DEADLINES.map((d) => ({ params: { entity: d.slug }, props: { d } }));
+}
+const { d } = Astro.props;
+const title = `${d.entity}的政治獻金什麼時候要申報？｜政治獻金指南`;
+---
+<BaseLayout
+  title={title}
+  description={`${d.entity}應於${d.rule}${d.auditRule}依政治獻金法${d.basis}。`}
+  crumbs={[
+    { name: '工具', href: '/tools/' },
+    { name: '申報期限', href: '/tools/deadline/' },
+    { name: d.entity, href: `/tools/deadline/${d.slug}/` },
+  ]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'WebPage', name: title, inLanguage: 'zh-Hant-TW',
+    about: { '@type': 'Legislation', name: '政治獻金法第 21 條' },
+  }]}
+>
+  <h1>{d.entity}的政治獻金什麼時候要申報？</h1>
+
+  <KeyPoints points={[
+    `${d.entity}應於${d.rule}`,
+    d.thisCycle
+      ? `本屆投票日為 ${rocDate(LOCAL_CYCLE.voteDay)}，申報期限即 ${rocDate(d.thisCycle)}。`
+      : '申報期限以年度為單位計算，與選舉投票日無關。',
+    `會計師查核簽證：${d.auditRule}`,
+  ]} />
+
+  <p class="answer-label">申報期限</p>
+  <p><span class="figure">{d.thisCycle ? rocDate(d.thisCycle) : '年度結束後 5 個月內'}</span></p>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>{d.entity}的申報義務</caption>
+      <tbody>
+        <tr><th scope="row">申報期限</th><td>{d.rule}</td></tr>
+        {d.thisCycle && <tr><th scope="row">本屆具體日期</th><td>{rocDate(d.thisCycle)}</td></tr>}
+        <tr><th scope="row">會計師查核簽證</th><td>{d.auditRule}</td></tr>
+        {d.auditDate && <tr><th scope="row">簽證期限（本屆）</th><td>{rocDate(d.auditDate)}</td></tr>}
+        <tr><th scope="row">法條依據</th><td>{d.basis}</td></tr>
+        <tr><th scope="row">受理申報機關</th><td>監察院（第 4 條）；村里長等選舉得委託直轄市、縣市選舉委員會辦理</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>逾期不申報會怎樣？</h2>
+  <p>
+    依第 30 條第 1 項第 3 款，不申報、不依法定方式申報或故意為不實申報者，
+    處新臺幣 6 萬元以上 120 萬元以下罰鍰，並得限期命其申報；屆期仍不申報者，得按次處罰。
+  </p>
+
+  {d.extras.map((e) => (<><h2>{e.q}</h2><p>{e.a}</p></>))}
+
+  <h2>申報後會公開嗎？</h2>
+  <p>
+    會。受理申報機關應於受理申報截止後 6 個月內彙整會計報告書供人查閱，並公開於電腦網路（第 21 條第 4 項）。
+    查閱資格、程序、公開內容與檔案格式，由受理申報機關另定辦法。
+  </p>
+
+  <Statute article="21" />
+
+  <NextQuestions items={[
+    { q: '會計報告書要記載哪些項目？', href: '/forms/accounting-report-candidate/' },
+    { q: '收支帳簿要怎麼記？', href: '/forms/ledger/' },
+    { q: '賸餘的政治獻金可以怎麼用？', href: '/forms/surplus/' },
+    { q: '不申報的罰則是什麼？', href: '/tools/penalty/30/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .answer-label { font-size: var(--text-xs); letter-spacing: .15em; color: var(--muted); margin-block: 1.5rem .2rem; }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

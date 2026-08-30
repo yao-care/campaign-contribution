@@ -1,0 +1,107 @@
+---
+import { REVIEWER } from '../../site.mjs';
+/**
+ * 書表頁。依 §9.4：不要用 HowTo（複合式結果已停止顯示），改用 Article + 有序步驟。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import { FORMS } from '../../data/forms';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return FORMS.map((f) => ({ params: { form: f.slug }, props: { f } }));
+}
+const { f } = Astro.props;
+const article = f.basis.match(/第 (\d+) 條/)?.[1];
+---
+<BaseLayout
+  title={`${f.title}怎麼辦理？流程、書表與罰則｜政治獻金指南`}
+  description={f.conclusion}
+  crumbs={[{ name: '書表與流程', href: '/forms/' }, { name: f.title, href: `/forms/${f.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `${f.title}怎麼辦理？`,
+    description: f.conclusion,
+    inLanguage: 'zh-Hant-TW',
+    about: { '@type': 'Legislation', name: `政治獻金法${f.basis}` },
+    articleSection: '書表與流程',
+  }]}
+>
+  <h1>{f.title}怎麼辦理？</h1>
+
+  <KeyPoints points={[
+    f.conclusion,
+    `法條依據為政治獻金法${f.basis}。`,
+    f.officialForms.length
+      ? `監察院提供 ${f.officialForms.length} 份對應書表可下載。`
+      : '本項無獨立表單，依條文規定的格式與項目辦理。',
+  ]} />
+
+  <p class="lede">{f.conclusion}</p>
+
+  <h2>辦理步驟</h2>
+  <ol class="steps">
+    {f.steps.map((s) => <li>{s}</li>)}
+  </ol>
+
+  {f.items && f.items.map((g) => (
+    <>
+      <h2>{g.group}</h2>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+        <table>
+          <caption>{f.title}的{g.group}</caption>
+          <thead><tr><th scope="col">項次</th><th scope="col">項目</th></tr></thead>
+          <tbody>
+            {g.entries.map((x, i) => (
+              <tr><th scope="row">{i + 1}</th><td>{x}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  ))}
+
+  {f.officialForms.length > 0 && (
+    <>
+      <h2>官方書表下載</h2>
+      <p>以下為監察院陽光法令主題網提供的書表，連結指向監察院網站。</p>
+      <ul class="dl">
+        {f.officialForms.map((o) => (
+          <li>{o.href ? <a href={o.href} rel="noopener">{o.name}</a> : o.name}</li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  <h2>沒辦好會怎樣？</h2>
+  <p>{f.penalty}</p>
+
+  {f.faq.map((q) => (<><h2>{q.q}</h2><p>{q.a}</p></>))}
+
+  <NextQuestions items={[
+    { q: '其他書表與流程有哪些？', href: '/forms/' },
+    { q: '政治獻金什麼時候要申報？', href: '/tools/deadline/' },
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: '違反規定的罰則是什麼？', href: '/tools/penalty/30/' },
+  ]} />
+
+  <Provenance
+    updated={new Date(lawData.fetchedAt)}
+    reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網．書表下載', href: 'https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855' },
+    ]}
+  />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .steps li { margin-block-end: .8em; }
+  .dl { list-style: none; padding: 0; }
+  .dl li { border-block-end: 1px solid var(--rule); }
+  .dl li a, .dl li { display: block; padding-block: .7em; }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

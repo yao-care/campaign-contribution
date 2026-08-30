@@ -1,0 +1,112 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+/**
+ * T3 鄉鎮市區索引。這 368 頁是爬蟲進入 7,734 個村里頁的入口，沒有它村里頁會是孤島。
+ * 依 §8.2：本頁列村里時只給名稱，不複述村里頁的規則段落，兩層不重疊。
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import NextQuestions from '../../../components/NextQuestions.astro';
+import { counties, positionsFor, isIndigenousDistrict, dataPeriod } from '../../../data/geo';
+import { ELECTIONS, LOCAL_CYCLE, rocDate } from '../../../data/elections';
+import lawData from '../../../data/law.json';
+
+export function getStaticPaths() {
+  return counties.flatMap((c) =>
+    c.districts.map((d) => ({ params: { county: c.slug, district: d.slug }, props: { c, d } })));
+}
+const { c, d } = Astro.props;
+
+/** 該區實際改選的職位：縣市層職位，再依是否為山地原住民區調整 */
+const countyPositions = positionsFor(c.name);
+const isIndig = isIndigenousDistrict(c.name, d.name);
+const posSlugs = countyPositions.filter((s) => {
+  if (s === 'indigenous-district-chief' || s === 'indigenous-district-rep') return isIndig;
+  if (s === 'township-mayor' || s === 'township-rep') return /[鄉鎮市]$/.test(d.name);
+  return true;
+});
+const positions = ELECTIONS.filter((e) => posSlugs.includes(e.slug));
+const title = `${d.name}這次選什麼？${c.name}選舉與政治獻金規則`;
+---
+<BaseLayout
+  title={title}
+  description={`${c.name}${d.name}有 ${d.villageCount} 個村里，本屆改選 ${positions.length} 種職位。村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起可收受政治獻金。`}
+  crumbs={[
+    { name: '行政區', href: '/regions/' },
+    { name: c.name, href: `/regions/${c.slug}/` },
+    { name: d.name, href: `/regions/${c.slug}/${d.slug}/` },
+  ]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'Place', name: `${c.name}${d.name}`,
+    containedInPlace: { '@type': 'Place', name: c.name },
+  }]}
+>
+  <h1>{c.name}{d.name}這次選什麼？</h1>
+
+  <KeyPoints points={[
+    `${c.name}${d.name}轄下有 ${d.villageCount} 個村里。`,
+    `本屆改選 ${positions.length} 種職位：${positions.map((e) => e.position).join('、')}。`,
+    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起至 ${rocDate('2026-11-27')} 止可收受政治獻金。`,
+  ]} />
+
+  <dl class="stats">
+    <div><dt>村里數</dt><dd>{d.villageCount}</dd></div>
+    <div><dt>改選職位</dt><dd>{positions.length}</dd></div>
+    <div><dt>村里長起算日</dt><dd>{rocDate(LOCAL_CYCLE.startClause4)}</dd></div>
+    <div><dt>投票日</dt><dd>{rocDate(LOCAL_CYCLE.voteDay)}</dd></div>
+  </dl>
+
+  <h2>{d.name}本屆要選哪些職位？</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>{c.name}{d.name}本屆改選職位與收受起算日</caption>
+      <thead><tr><th scope="col">職位</th><th scope="col">起算日</th><th scope="col">截止日</th></tr></thead>
+      <tbody>{positions.map((e) => (
+        <tr>
+          <th scope="row"><a href={`/elections/${e.slug}/`}>{e.position}</a></th>
+          <td>{e.startDate ? rocDate(e.startDate) : '待公告'}</td>
+          <td>{e.endDate ? rocDate(e.endDate) : '待公告'}</td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+  {isIndig && <p class="note">{d.name}為直轄市山地原住民區，除市長、市議員外，另選舉區長與區民代表。</p>}
+
+  <h2>{d.name}轄下的村里</h2>
+  <ul class="villages">
+    {d.villages.map((v) => (
+      <li><a href={`/villages/${c.slug}/${d.slug}/${v.slug}/`}>{v.name}</a></li>
+    ))}
+  </ul>
+
+  <p class="note">
+    應選名額與選舉區劃分須待中央選舉委員會選舉公告發布後確定。
+    村里清單取自內政部戶政司 ODRP001，期別 {dataPeriod}。
+  </p>
+
+  <NextQuestions items={[
+    { q: '村里長什麼時候可以開始收政治獻金？', href: '/tools/timeline/village-chief/' },
+    { q: '村里長擬參選人的完整規則是什麼？', href: '/elections/village-chief/' },
+    { q: '政治獻金專戶要怎麼申請？', href: '/forms/account-application/' },
+    { q: `${c.name}其他鄉鎮市區`, href: `/regions/${c.slug}/` },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: LOCAL_CYCLE.source },
+      { label: '內政部戶政司開放資料 ODRP001', href: 'https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001' },
+    ]} />
+</BaseLayout>
+<style>
+  .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); margin-block:1.5rem; }
+  .stats > div { background:var(--ground); padding:.9em 1em; }
+  .stats dt { font-size:var(--text-xs); color:var(--muted); margin:0; }
+  .stats dd { margin:.2em 0 0; font-weight:700; font-variant-numeric:tabular-nums; color:var(--slate); font-size:var(--text-sm); }
+  .villages { list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(9rem,1fr)); gap:.25rem 1rem; }
+  .villages li { border-block-end:1px solid var(--rule); }
+  .villages a { display:block; padding-block:.6em; font-size:var(--text-sm); text-decoration:none; }
+  .villages a:hover { text-decoration:underline; }
+  table caption { text-align:start; font-size:var(--text-xs); color:var(--muted); padding-block-end:.5em; }
+</style>

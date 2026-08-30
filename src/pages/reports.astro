@@ -1,0 +1,60 @@
+---
+import { REVIEWER } from '../site.mjs';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KeyPoints from '../components/KeyPoints.astro';
+import Provenance from '../components/Provenance.astro';
+import lawData from '../data/law.json';
+---
+<BaseLayout
+  title="政治獻金申報公開資料怎麼查"
+  description="監察院應於受理申報截止後 6 個月內彙整會計報告書供人查閱並公開於網路。本頁說明查閱管道與程序，不轉載申報資料本身。"
+  crumbs={[{ name: '申報資料查詢', href: '/reports/' }]}
+>
+  <h1>政治獻金申報公開資料怎麼查</h1>
+  <KeyPoints points={[
+    '受理申報機關應於受理申報截止後 6 個月內彙整會計報告書供人查閱，並公開於電腦網路。',
+    '查閱資格、程序、公開內容與檔案格式，由受理申報機關另定辦法。',
+    '本站只提供查閱管道的導覽，不轉載申報資料本身。',
+  ]} />
+  <p class="lede">
+    政治獻金的申報資料由監察院公開。本站不轉載這些資料，也不製作金額排行或比較，
+    以下提供官方查閱管道與程序說明。
+  </p>
+
+  <h2>去哪裡查？</h2>
+  <ul class="links">
+    <li><a href="https://ardata.cy.gov.tw/" rel="noopener">監察院政治獻金公開查閱平臺</a>：申報資料查閱</li>
+    <li><a href="https://sunshine.cy.gov.tw/PAQuery.aspx?n=21&sms=0" rel="noopener">監察院陽光法令主題網．政治獻金專戶公告資料</a>：已許可設立的專戶清單</li>
+    <li><a href="https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855" rel="noopener">監察院陽光法令主題網．書表下載</a>：政治獻金查閱申請表與委任書</li>
+  </ul>
+
+  <h2>查閱要準備什麼？</h2>
+  <p>
+    監察院提供政治獻金查閱申請表；委託他人代為查閱者，另需查閱委任書，
+    委任人為自然人與為法人或團體的格式不同。詳細的資格與程序依受理申報機關所定辦法辦理。
+  </p>
+
+  <h2>什麼時候會公開？</h2>
+  <p>
+    依第 21 條第 4 項，受理申報機關應於受理申報截止後 6 個月內彙整會計報告書供人查閱，
+    並公開於電腦網路。本屆擬參選人的申報期限為民國 116 年 2 月 28 日，
+    公開時程依此推算，實際日期以監察院公告為準。
+  </p>
+
+  <h2>違規處罰也會公開嗎？</h2>
+  <p>
+    會。依第 33 條第 3 項，依本法所處的行政罰於確定後，
+    監察院應刊登政府公報或新聞紙，並公開於電腦網路。
+  </p>
+
+  <p class="note">
+    各屆各場次選舉的申報資料索引頁，須待監察院公開清單確定後建立，目前不做推測性列表。
+  </p>
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院政治獻金公開查閱平臺', href: 'https://ardata.cy.gov.tw/' },
+    ]} />
+</BaseLayout>
+<style>.lede{font-size:var(--text-lg);color:var(--ink-2)}.links{list-style:none;padding:0}.links li{border-block-end:1px solid var(--rule);padding-block:.7em}</style>

@@ -1,0 +1,90 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import Statute from '../../components/Statute.astro';
+import { DONORS, MAJOR_MEMBER_TESTS } from '../../data/donors';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return DONORS.map((d) => ({ params: { type: d.slug }, props: { d } }));
+}
+const { d } = Astro.props;
+const needsMajorMember = [7, 8, 9].includes(d.clause);
+const title = `${d.target}可以捐政治獻金嗎？｜政治獻金指南`;
+const conclusion = `不可以。${d.target}屬於政治獻金法第 7 條第 1 項第 ${d.clause} 款所列不得捐贈者，政黨、政治團體及擬參選人不得收受其政治獻金。`;
+---
+<BaseLayout
+  title={title}
+  description={conclusion}
+  crumbs={[{ name: '不得捐贈者', href: '/donors/' }, { name: d.target, href: `/donors/${d.slug}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'WebPage', name: title, inLanguage: 'zh-Hant-TW',
+    about: { '@type': 'Legislation', name: '政治獻金法第 7 條' },
+  }]}
+>
+  <h1>{d.target}可以捐政治獻金嗎？</h1>
+
+  <KeyPoints points={[
+    `不可以。這是政治獻金法第 7 條第 1 項第 ${d.clause} 款所列的不得捐贈者。`,
+    `查證機關為${d.verifyAgency.join('、')}，各該機關應建置資料供受贈方查詢。`,
+    d.mustSurrender
+      ? '違反本款收受的政治獻金不得返還捐贈人，應繳交受理申報機關辦理繳庫（第 15 條）。'
+      : '受贈方應於收受後查證；查證後發現違反者，應於申報截止日前返還捐贈人（第 15 條）。',
+  ]} />
+
+  <p class="lede">{conclusion}</p>
+
+  <h2>這一款的範圍是什麼？</h2>
+  <p>{d.scope}</p>
+  {d.exception && <p class="note">例外：{d.exception}</p>}
+
+  <h2>怎麼判斷是不是屬於這一款？</h2>
+  <ol>
+    {d.tests.map((t) => <li>{t}</li>)}
+  </ol>
+
+  {needsMajorMember && (
+    <>
+      <h2>什麼叫「主要成員」？</h2>
+      <p>第 7 條第 3 項定義了三種情形，符合任何一種就算主要成員：</p>
+      <ol>
+        {MAJOR_MEMBER_TESTS.map((t) => <li>{t}</li>)}
+      </ol>
+    </>
+  )}
+
+  <h2>要向哪個機關查證？</h2>
+  <p>
+    {d.verifyAgency.join('、')}。依第 7 條第 4 項，各機關應建置相關資料供查詢；
+    收受方已盡查證義務者，就相關違反行為不予處罰。
+  </p>
+
+  <h2>如果收到了怎麼辦？</h2>
+  <p>
+    {d.mustSurrender
+      ? `本款屬第 7 條第 1 項第 7 至 9 款，收受後不得返還捐贈人，應依第 15 條規定繳交受理申報機關辦理繳庫。未依限繳庫者，依第 25 條處 5 年以下有期徒刑；已盡查證義務者不予處罰。`
+      : `依第 15 條，應於收受後查證；發現屬不得捐贈者，應於該次申報截止日前返還捐贈人。無法返還者，繳交受理申報機關辦理繳庫。未依法定方式返還或繳庫者，依第 30 條處新臺幣 6 萬元以上 120 萬元以下罰鍰。`}
+  </p>
+
+  <h2>捐贈方會被罰嗎？</h2>
+  <p>
+    會。違反第 7 條第 1 項規定捐贈政治獻金者，依第 29 條第 2 項按其違反規定的捐贈金額處 2 倍以下罰鍰。
+    此外，這筆捐贈也不得列為所得稅的列舉扣除額（第 19 條第 3 項第 2 款）。
+  </p>
+
+  <Statute article="7" />
+
+  <NextQuestions items={[
+    { q: '其他 10 款不得捐贈者分別是誰？', href: '/donors/' },
+    { q: '收到不該收的政治獻金該怎麼處理？', href: '/donors/verify/' },
+    { q: '可以捐的話，一年最多可以捐多少？', href: '/tools/limit/' },
+    { q: '違法捐贈的罰則是什麼？', href: '/tools/penalty/29/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>.lede{font-size:var(--text-lg);color:var(--ink-2)}</style>

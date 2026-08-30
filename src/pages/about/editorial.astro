@@ -1,0 +1,70 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import lawData from '../../data/law.json';
+---
+<BaseLayout
+  title="編輯與審閱原則"
+  description="法條原文一律以抓取結果為準，禁止改寫或憑記憶填寫；白話說明與原文並列且字體不同；每頁標更新日期與審閱者；資料不齊的頁面不開放索引。"
+  crumbs={[{ name: '關於本站', href: '/about/' }, { name: '編輯與審閱原則', href: '/about/editorial/' }]}
+>
+  <h1>編輯與審閱原則</h1>
+  <KeyPoints points={[
+    '法條原文由程式抓取後原樣呈現，任何人與任何模型都不得改寫或憑記憶填寫。',
+    '原文使用襯線體、白話說明使用黑體，讀者可以分辨哪一句是法律、哪一句是本站詮釋。',
+    '四個差異化欄位未備齊的村里頁一律標示 noindex，不進入搜尋索引。',
+  ]} />
+
+  <h2>法條原文怎麼處理？</h2>
+  <p>
+    全站的條文原文只有一個來源：<a href={lawData.source} rel="noopener">全國法規資料庫</a>，
+    由 <code>scripts/fetch-law.mjs</code> 抓取後存成單一 JSON 檔，頁面在建置期讀取。
+    渲染原文的元件不接受任何自由文字參數，因此結構上不可能出現手打或改寫的條文。
+    抓取結果附有內容指紋，法條一經修正即可偵測，並觸發所有白話說明的重新審閱。
+  </p>
+  <p>
+    目前的抓取結果為 {lawData.count} 條，指紋 <code>{lawData.digest}</code>，
+    抓取日 {lawData.fetchedAt.slice(0, 10)}。
+  </p>
+
+  <h2>白話說明怎麼寫？</h2>
+  <ul>
+    <li>與原文並列呈現，且字體不同——原文用襯線體加灰底朱線，說明用黑體。</li>
+    <li>每個 H2 寫成完整問句，問句下方第一段就是答案，40 到 60 字，獨立成句。</li>
+    <li>數字一律進表格，不寫成句子。表格使用真正的 <code>table</code> 與 <code>th</code>。</li>
+    <li>每頁頂部三行「本頁重點」，每行是可單獨成立的事實句，含具體數字或日期。</li>
+    <li>問法的變體寫在同一頁裡面，不為了覆蓋關鍵字而製造重複頁面。</li>
+  </ul>
+
+  <h2>數字怎麼複核？</h2>
+  <p>
+    所有金額、期限與款次都集中在資料模組中，並在建置前對照條文原文逐項核對。
+    與外部文件不一致時，以主管機關公告為準：例如本屆第 12 條第 4 款組的收受起算日，
+    依監察院 115 年 2 月 9 日公告為 8 月 20 日，而非由任期屆滿日推算的日期。
+  </p>
+
+  <h2>哪些頁面不開放索引？</h2>
+  <ul>
+    <li>村里頁的四個差異化欄位（戶籍人口、本屆應選名額、上屆當選得票、起算日）未備齊者，一律 <code>noindex</code> 且不列入 sitemap。</li>
+    <li>法條頁若尚未有人工撰寫並審閱的白話說明，僅呈現條文原文，並標示 <code>noindex</code>。</li>
+    <li>站內搜尋頁一律 <code>noindex</code>。</li>
+  </ul>
+
+  <h2>署名與更新日期</h2>
+  <p>
+    每一頁的內容結束後都標示更新日期、審閱者與資料來源。
+    沒有日期與署名的法規內容不會被引用，這是刻意的設計，不是裝飾。
+  </p>
+
+  <h2>錯誤回報</h2>
+  <p>
+    本站的白話說明可能有誤，法條原文則以全國法規資料庫為準。
+    發現不一致時，請以原文與主管機關見解為準，並回報本站更正。
+  </p>
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>code{font-family:var(--font-mono);font-size:.9em;background:var(--alt);padding:.1em .35em}</style>

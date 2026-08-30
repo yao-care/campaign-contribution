@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KeyPoints from '../components/KeyPoints.astro';
+import Provenance from '../components/Provenance.astro';
+import { SITE, REVIEWER } from '../site.mjs';
+import lawData from '../data/law.json';
+import villagesData from '../data/villages.json';
+
+const DATASETS = [
+  { slug: 'receiving-periods', name: '政治獻金收受期間起算日對照', rows: 11,
+    desc: '11 種職位的第 12 條款次、任期屆滿前月數、本屆起算日與截止日、政黨捐贈上限。',
+    basis: '政治獻金法第 12 條、第 18 條第 2 項' },
+  { slug: 'donation-limits', name: '政治獻金捐贈上限矩陣', rows: 12,
+    desc: '三種捐贈者對兩種受贈對象的年度上限，加上政黨對其推薦候選人的六級上限。',
+    basis: '政治獻金法第 17 條、第 18 條' },
+  { slug: 'villages', name: '全國村里政治獻金基本資料', rows: villagesData.count,
+    desc: `全國 ${villagesData.count.toLocaleString('zh-TW')} 個村里的縣市、鄉鎮市區、村里名與村里長收受起算日。應選名額與上屆得票欄位待中選會公告。`,
+    basis: '內政部戶政司 ODRP001、政治獻金法第 12 條' },
+  { slug: 'prohibited-donors', name: '第 7 條 11 款不得捐贈者對照', rows: 11,
+    desc: '11 款排除對象、對應查證機關，以及違規獻金應返還或繳庫的處理路徑。',
+    basis: '政治獻金法第 7 條、第 15 條' },
+];
+
+const jsonld = DATASETS.map((d) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Dataset',
+  name: d.name,
+  description: d.desc,
+  inLanguage: 'zh-Hant-TW',
+  license: 'https://data.gov.tw/licenses/openness',
+  creator: { '@type': 'Organization', name: SITE.name },
+  distribution: [
+    { '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: new URL(`/data/${d.slug}.csv`, SITE.origin).href },
+    { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: new URL(`/data/${d.slug}.json`, SITE.origin).href },
+  ],
+}));
+---
+<BaseLayout
+  title="開放資料下載：政治獻金對照表與村里基本資料"
+  description="四份可直接引用的政治獻金資料集，CSV 與 JSON 格式：收受期間起算日、捐贈上限矩陣、全國村里基本資料、第 7 條 11 款不得捐贈者對照。"
+  crumbs={[{ name: '開放資料下載', href: '/downloads/' }]}
+  jsonld={jsonld}
+>
+  <h1>開放資料下載</h1>
+  <KeyPoints points={[
+    '四份資料集，CSV 與 JSON 各一份，可直接引用與重製。',
+    'CSV 為 UTF-8 with BOM，可直接以試算表軟體開啟；JSON 含欄位定義與資料來源。',
+    `最大的一份是全國村里基本資料，共 ${villagesData.count.toLocaleString('zh-TW')} 筆。`,
+  ]} />
+  <p class="lede">
+    本站的數字全部來自法條原文與政府開放資料。以下把整理後的對照表原樣釋出，
+    歡迎引用、重製與再散布，引用時請註明資料來源與期別。
+  </p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>四份資料集</caption>
+      <thead><tr><th scope="col">資料集</th><th scope="col" class="num">筆數</th><th scope="col">下載</th></tr></thead>
+      <tbody>{DATASETS.map((d) => (
+        <tr>
+          <th scope="row">{d.name}<span class="d">{d.desc}</span><span class="b">{d.basis}</span></th>
+          <td class="num">{d.rows.toLocaleString('zh-TW')}</td>
+          <td class="dl">
+            <a href={`/data/${d.slug}.csv`} download>CSV</a>
+            <a href={`/data/${d.slug}.json`} download>JSON</a>
+          </td>
+        </tr>))}
+      </tbody>
+    </table>
+  </div>
+  <p class="note">
+    機關提供的宣導素材（動畫短片、圖片、文字檔）尚未取得，取得後將於本頁與影音頁提供。
+    依規格要求，PDF 形式的素材會另做 HTML 版本，避免事實藏在 PDF 裡。
+  </p>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '內政部戶政司開放資料 ODRP001', href: villagesData.source },
+      { label: '監察院陽光法令主題網', href: 'https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855' },
+    ]} />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .d, .b { display:block; font-weight:400; font-size:var(--text-xs); color:var(--muted); margin-block-start:.35em; }
+  .dl a { display:inline-block; margin-inline-end:.75rem; }
+  table caption { text-align:start; font-size:var(--text-xs); color:var(--muted); padding-block-end:.5em; }
+</style>

@@ -1,0 +1,64 @@
+---
+import { REVIEWER } from '../../site.mjs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import lawData from '../../data/law.json';
+import { LAW_TOPICS } from '../../data/law-topics';
+
+const active = lawData.articles.filter((a) => !a.repealed);
+---
+<BaseLayout
+  title="政治獻金法全文索引：36 條逐條查詢"
+  description={`政治獻金法共 ${lawData.count} 條，有效條文 ${active.length} 條。逐條列出主題與對應工具，條文原文取自全國法規資料庫。`}
+  crumbs={[{ name: '政治獻金法', href: '/law/' }]}
+>
+  <h1>政治獻金法全文索引</h1>
+
+  <KeyPoints points={[
+    `政治獻金法共 ${lawData.count} 條，其中第 16 條已刪除，有效條文 ${active.length} 條。`,
+    '主管機關為內政部（第 3 條），受理申報機關為監察院（第 4 條）。',
+    `條文原文取自全國法規資料庫，抓取日 ${lawData.fetchedAt.slice(0, 10)}。`,
+  ]} />
+
+  <p class="lede">
+    政治獻金法規範誰可以捐、可以捐多少、什麼時候可以收、收了以後要怎麼記帳與申報。
+    以下逐條列出主題，點進去可看條文原文與白話拆解。
+  </p>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption class="sr-only">政治獻金法逐條主題與對應工具</caption>
+      <thead>
+        <tr><th scope="col">條</th><th scope="col">主題</th><th scope="col">對應工具</th></tr>
+      </thead>
+      <tbody>
+        {lawData.articles.map((a) => {
+          const t = LAW_TOPICS[a.article];
+          return (
+            <tr>
+              <th scope="row"><a href={`/law/${a.article}/`}>第 {a.article} 條</a></th>
+              <td>{a.repealed ? '（已刪除）' : t?.title ?? '—'}</td>
+              <td>{t?.tool ? <a href={t.tool.href}>{t.tool.label}</a> : <span class="dash">—</span>}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+
+  <Provenance
+    updated={new Date(lawData.fetchedAt)}
+    reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]}
+  />
+</BaseLayout>
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .dash { color: var(--muted); }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+</style>

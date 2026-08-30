@@ -1,0 +1,58 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import { LIMITS } from '../../../data/limits';
+import lawData from '../../../data/law.json';
+const general = LIMITS.filter((l) => l.donor !== '政黨');
+const party = LIMITS.filter((l) => l.donor === '政黨');
+---
+<BaseLayout
+  title="政治獻金可以捐多少？12 組捐贈上限對照"
+  description="個人、營利事業、人民團體對政黨與擬參選人的年度捐贈上限，加上政黨對其推薦候選人的 6 級上限，共 12 組。依政治獻金法第 17、18 條。"
+  crumbs={[{ name: '工具', href: '/tools/' }, { name: '上限試算', href: '/tools/limit/' }]}
+>
+  <h1>政治獻金可以捐多少？</h1>
+  <KeyPoints points={[
+    '個人對同一政黨每年上限新臺幣 30 萬元，對同一擬參選人每年上限新臺幣 10 萬元。',
+    '營利事業對同一政黨每年上限新臺幣 300 萬元，對同一擬參選人每年上限新臺幣 100 萬元。',
+    '政黨對其所推薦候選人的金錢捐贈，依職位分 6 級，從村里長 10 萬元到總統 2,500 萬元。',
+  ]} />
+  <h2>個人、營利事業、人民團體的捐贈上限</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>對同一對象／對不同對象合計（每年，新臺幣）</caption>
+      <thead><tr><th scope="col">組合</th><th scope="col" class="num">同一對象</th><th scope="col" class="num">不同對象合計</th><th scope="col">依據</th></tr></thead>
+      <tbody>
+        {general.map((l) => (
+          <tr>
+            <th scope="row"><a href={`/tools/limit/${l.slug}/`}>{l.donor} → {l.recipient}</a></th>
+            <td class="num">{l.same.toLocaleString('zh-TW')}</td>
+            <td class="num">{l.aggregate?.toLocaleString('zh-TW') ?? '—'}</td>
+            <td>{l.basis}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <h2>政黨對其所推薦候選人的捐贈上限</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>第 18 條第 2 項六款（每年，新臺幣）</caption>
+      <thead><tr><th scope="col">受贈候選人</th><th scope="col" class="num">上限</th><th scope="col">依據</th></tr></thead>
+      <tbody>
+        {party.map((l) => (
+          <tr>
+            <th scope="row"><a href={`/tools/limit/${l.slug}/`}>{l.recipient}</a></th>
+            <td class="num">{l.same.toLocaleString('zh-TW')}</td>
+            <td>{l.basis}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}</style>

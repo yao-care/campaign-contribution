@@ -1,0 +1,39 @@
+---
+import { REVIEWER } from '../../../site.mjs';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import KeyPoints from '../../../components/KeyPoints.astro';
+import Provenance from '../../../components/Provenance.astro';
+import { PENALTIES } from '../../../data/penalties';
+import lawData from '../../../data/law.json';
+---
+<BaseLayout
+  title="違反政治獻金法的罰則：第 25 至 32 條對照"
+  description="政治獻金法第 25 至 32 條規定刑責與罰鍰。最重為 5 年以下有期徒刑，行政罰鍰上限 120 萬元或按捐贈金額的倍數計算。"
+  crumbs={[{ name: '工具', href: '/tools/' }, { name: '罰則對照', href: '/tools/penalty/' }]}
+>
+  <h1>違反政治獻金法的罰則</h1>
+  <KeyPoints points={[
+    '最重的刑責是第 25 條的 5 年以下有期徒刑，適用於違法收受境外獻金未繳庫或違法募集。',
+    '未經許可設立專戶就收受政治獻金，依第 26 條處 3 年以下有期徒刑，得併科 20 萬至 100 萬元罰金。',
+    '行政罰由監察院處罰，裁處權時效 5 年，處罰確定後公開於網路（第 33 條）。',
+  ]} />
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>第 25 至 32 條罰則對照</caption>
+      <thead><tr><th scope="col">條</th><th scope="col">性質</th><th scope="col">行為</th><th scope="col">法律效果</th></tr></thead>
+      <tbody>
+        {PENALTIES.map((p) => (
+          <tr>
+            <th scope="row"><a href={`/tools/penalty/${p.article}/`}>第 {p.article} 條</a></th>
+            <td>{p.kind}</td>
+            <td>{p.trigger}</td>
+            <td>{p.sanction}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>table caption{text-align:start;font-size:var(--text-xs);color:var(--muted);padding-block-end:.5em}td{font-size:var(--text-xs)}</style>

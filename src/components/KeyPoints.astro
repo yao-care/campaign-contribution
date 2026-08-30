@@ -1,0 +1,23 @@
+---
+/**
+ * 本頁重點（§9.3）。H1 正下方三行事實句，每行須能單獨成立且含具體數字或日期。
+ * 這是 AI 引擎最常整段摘走的區塊，不要寫成「以下說明…」這種依賴上下文的句子。
+ */
+export interface Props { points: string[] }
+const { points } = Astro.props;
+---
+<section aria-labelledby="keypoints-h">
+  <h2 id="keypoints-h" class="kp-h">本頁重點</h2>
+  <ul class="keypoints">
+    {points.map((p) => <li>{p}</li>)}
+  </ul>
+</section>
+<style>
+  .kp-h {
+    font-size: var(--text-xs);
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-block: 0 0.5em;
+    font-weight: 600;
+  }
+</style>

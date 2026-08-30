@@ -1,0 +1,91 @@
+---
+/** 站內搜尋。§8.2：/search/ 一律 noindex。零 JS 時顯示完整分類目錄。 */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { FAQS } from '../data/faq';
+import { GLOSSARY } from '../data/glossary';
+import lawData from '../data/law.json';
+
+const SECTIONS = [
+  { h: '法條', href: '/law/', d: `政治獻金法全部 ${lawData.count} 條，逐條原文與白話拆解。` },
+  { h: '常見問答', href: '/faq/', d: `${FAQS.length} 題，分資格、金額、時間、程序、稅務、罰則、名詞七類。` },
+  { h: '名詞解釋', href: '/glossary/', d: `${GLOSSARY.length} 個關鍵用詞的定義與法條依據。` },
+  { h: '查詢工具', href: '/tools/', d: '資格檢核、起算日、上限試算、抵稅、申報期限、罰則對照。' },
+  { h: '不得捐贈者', href: '/donors/', d: '第 7 條 11 款排除對象與查證機關。' },
+  { h: '書表與流程', href: '/forms/', d: '專戶、收據、帳簿、會計報告書、簽證、申報、賸餘與返還。' },
+  { h: '選舉類別', href: '/elections/', d: '11 種職位的起算日、上限與申報規則。' },
+  { h: '情境指南', href: '/guides/', d: '五個情境把義務串成時間線。' },
+  { h: '行政區', href: '/regions/', d: '22 縣市、368 鄉鎮市區與轄下村里。' },
+  { h: '政黨', href: '/parties/', d: '現存政黨的制度事實與捐贈規則。' },
+  { h: '開放資料', href: '/downloads/', d: '四份資料集，CSV 與 JSON。' },
+];
+---
+<BaseLayout title="站內搜尋｜政治獻金指南" description="搜尋政治獻金指南的法條、問答、名詞與工具頁。" noindex={true}>
+  <h1>站內搜尋</h1>
+
+  <form class="searchbox" role="search" onsubmit="return false">
+    <label for="q">輸入關鍵字</label>
+    <input id="q" type="search" autocomplete="off" placeholder="例如：村里長、上限、專戶、抵稅" />
+  </form>
+  <p id="status" aria-live="polite" class="status">搜尋在你的瀏覽器內完成，不會傳送任何資料。</p>
+  <ul id="results" class="results"></ul>
+
+  <h2>分類目錄</h2>
+  <p>不使用搜尋也可以從這裡進入。</p>
+  <ul class="sections">
+    {SECTIONS.map((s) => (
+      <li><a href={s.href}>{s.h}</a><span>{s.d}</span></li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    var q = document.getElementById('q');
+    var out = document.getElementById('results');
+    var status = document.getElementById('status');
+    if (!q || !out || !status) return;
+    var data = null, timer = null;
+
+    fetch('/search-index.json')
+      .then(function (r) { return r.json(); })
+      .then(function (j) { data = j; status.textContent = '已載入 ' + j.length + ' 筆可搜尋項目。搜尋在你的瀏覽器內完成，不會傳送任何資料。'; })
+      .catch(function () { status.textContent = '索引載入失敗，請使用下方分類目錄。'; });
+
+    function run() {
+      var s = q.value.trim();
+      out.innerHTML = '';
+      if (!data || s.length === 0) { status.textContent = '輸入關鍵字開始搜尋。'; return; }
+      var hits = data.filter(function (r) {
+        return r.t.indexOf(s) >= 0 || r.c.indexOf(s) >= 0 || r.k.indexOf(s) >= 0;
+      }).slice(0, 40);
+      status.textContent = hits.length ? '找到 ' + hits.length + ' 筆。' : '沒有符合「' + s + '」的項目。';
+      hits.forEach(function (r) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = r.u; a.textContent = r.t;
+        var k = document.createElement('span'); k.className = 'k'; k.textContent = r.k;
+        li.appendChild(k); li.appendChild(a);
+        out.appendChild(li);
+      });
+    }
+    q.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(run, 120); });
+  })();
+</script>
+
+<style>
+  .searchbox { margin-block: 1.5rem; }
+  .searchbox label { display:block; font-size: var(--text-xs); color: var(--muted); margin-block-end:.4em; }
+  .searchbox input {
+    width: 100%; font-size: var(--text-base); font-family: inherit;
+    padding: .7em .9em; border: 2px solid var(--ink); background: var(--ground); color: var(--ink);
+    border-radius: var(--radius);
+  }
+  .status { font-size: var(--text-xs); color: var(--muted); }
+  .results { list-style:none; padding:0; margin-block:1rem; }
+  .results li { border-block-end:1px solid var(--rule); padding-block:.7em; display:flex; gap:.8em; align-items:baseline; }
+  .results .k { font-size: var(--text-xs); color: var(--muted); flex:0 0 5em; }
+  .sections { list-style:none; padding:0; }
+  .sections li { border-block-end:1px solid var(--rule); padding-block:.8em; }
+  .sections a { font-weight:600; }
+  .sections span { display:block; font-size:var(--text-xs); color:var(--muted); margin-block-start:.25em; }
+</style>

@@ -1,0 +1,174 @@
+---
+import { REVIEWER } from '../../site.mjs';
+/**
+ * T6 選舉類別頁。工具頁的可索引靜態版本，也是村里層與縣市層之間的橫向樞紐。
+ * 內容全部由 src/data/elections.ts 的制度事實驅動，該檔已對照法條原文複核。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import Statute from '../../components/Statute.astro';
+import {
+  ELECTIONS, CANDIDATE_CAPS, CANDIDATE_CAPS_AGGREGATE, DONOR_LABEL, twd, rocDate,
+} from '../../data/elections';
+import { POSITION_COUNTS, dataPeriod } from '../../data/geo';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return ELECTIONS.map((e) => ({ params: { position: e.slug }, props: { e } }));
+}
+
+const { e } = Astro.props;
+const count = POSITION_COUNTS[e.slug];
+const CLAUSE12 = ['', '第 1 款', '第 2 款', '第 3 款', '第 4 款'][e.clause12];
+
+const title = `${e.position}政治獻金完整規則：起算日、上限、申報`;
+const start = e.startDate ? rocDate(e.startDate) : null;
+const end = e.endDate ? rocDate(e.endDate) : null;
+
+const conclusion = e.inLocalCycle
+  ? `${e.position}擬參選人自${start}起，至${end}止，可以收受政治獻金。個人對同一位擬參選人每年最多捐 ${twd(CANDIDATE_CAPS.individual)}。`
+  : `${e.position}擬參選人的收受期間為任期屆滿前 ${e.startOffsetMonths} 個月起至投票日前一日止（第 12 條${CLAUSE12}）。本屆地方公職人員選舉不含此職位，確切日期須待該次選舉公告。`;
+
+const keypoints = e.inLocalCycle
+  ? [
+      `${e.position}擬參選人可收受政治獻金的期間為 ${start} 起至 ${end} 止。`,
+      `個人對同一位${e.position}擬參選人每年捐贈上限為 ${twd(CANDIDATE_CAPS.individual)}，營利事業 ${twd(CANDIDATE_CAPS.business)}。`,
+      `政黨對其所推薦的${e.position}候選人，金錢捐贈上限為 ${twd(e.partyDonationCap)}（第 18 條第 2 項第 ${e.clause18} 款）。`,
+    ]
+  : [
+      `${e.position}擬參選人的收受期間自任期屆滿前 ${e.startOffsetMonths} 個月起算（第 12 條${CLAUSE12}）。`,
+      `個人對同一（組）${e.position}擬參選人每年捐贈上限為 ${twd(CANDIDATE_CAPS.individual)}。`,
+      `政黨對其所推薦的${e.position}候選人，金錢捐贈上限為 ${twd(e.partyDonationCap)}（第 18 條第 2 項第 ${e.clause18} 款）。`,
+    ];
+
+const jsonld = [{
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description: conclusion,
+  inLanguage: 'zh-Hant-TW',
+  about: { '@type': 'Legislation', name: '政治獻金法第 12 條', url: `${Astro.site}law/12/` },
+}];
+---
+<BaseLayout
+  title={title}
+  description={conclusion}
+  crumbs={[{ name: '選舉類別', href: '/elections/' }, { name: e.position, href: `/elections/${e.slug}/` }]}
+  jsonld={jsonld}
+>
+  <h1>{e.position}的政治獻金規則</h1>
+
+  <KeyPoints points={keypoints} />
+  <p class="lede">{conclusion}</p>
+
+  <section aria-labelledby="stats-h">
+    <h2 id="stats-h" class="sr-only">關鍵數字</h2>
+    <dl class="stats">
+      <div><dt>收受起算日</dt><dd>{start ?? '待選舉公告'}</dd></div>
+      <div><dt>收受截止日</dt><dd>{end ?? '待選舉公告'}</dd></div>
+      <div><dt>個人捐贈上限</dt><dd>{CANDIDATE_CAPS.individual.toLocaleString('zh-TW')} 元</dd></div>
+      <div><dt>全國職位數</dt><dd>{count === null ? '待公告' : count.toLocaleString('zh-TW')}</dd></div>
+    </dl>
+  </section>
+
+  <h2>{e.position}擬參選人什麼時候可以開始收政治獻金？</h2>
+  <p>
+    {e.inLocalCycle
+      ? `${start}。政治獻金法第 12 條${CLAUSE12}規定，${e.position}擬參選人自各該公職人員任期屆滿前 ${e.startOffsetMonths} 個月起，至次屆選舉投票日前一日止，得收受政治獻金。本屆的確切日期依監察院公告為 ${start} 起至 ${end} 止；投票日為 ${rocDate('2026-11-28')}。`
+      : `政治獻金法第 12 條${CLAUSE12}規定，${e.position}擬參選人自任期屆滿前 ${e.startOffsetMonths} 個月起，至次屆選舉投票日前一日止，得收受政治獻金。本屆地方公職人員選舉不含此職位，確切起算日須待該次選舉的任期屆滿日與投票日確定。`}
+  </p>
+  <p>
+    另有例外：重行選舉、補選，以及總統解散立法院後辦理的立法委員選舉，收受期間改為自選舉公告發布之日起至投票日前一日止。
+    此外，若依前述規定算出的起始日落在選舉公告發布日之後，收受期間也改自選舉公告發布之日起算。
+  </p>
+
+  <Statute article="12" />
+
+  <h2>誰可以捐給{e.position}擬參選人？可以捐多少？</h2>
+  <p>
+    得捐贈者以個人、政黨、人民團體及營利事業為限，且不得屬於第 7 條第 1 項所列 11 款排除對象。
+    金額上限依捐贈者身分區分如下。
+  </p>
+
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>對{e.position}擬參選人的年度捐贈上限（第 18 條）</caption>
+      <thead>
+        <tr>
+          <th scope="col">捐贈者</th>
+          <th scope="col" class="num">對同一（組）擬參選人</th>
+          <th scope="col" class="num">對不同擬參選人合計</th>
+        </tr>
+      </thead>
+      <tbody>
+        {(Object.keys(DONOR_LABEL) as (keyof typeof DONOR_LABEL)[]).map((k) => (
+          <tr>
+            <th scope="row">{DONOR_LABEL[k]}</th>
+            <td class="num">{CANDIDATE_CAPS[k].toLocaleString('zh-TW')} 元</td>
+            <td class="num">{CANDIDATE_CAPS_AGGREGATE[k].toLocaleString('zh-TW')} 元</td>
+          </tr>
+        ))}
+        <tr>
+          <th scope="row">政黨（對其所推薦者）</th>
+          <td class="num">{e.partyDonationCap.toLocaleString('zh-TW')} 元</td>
+          <td class="num">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">
+    政黨對其所推薦的{e.position}候選人，金錢捐贈上限為 {twd(e.partyDonationCap)}，
+    依第 18 條第 2 項第 {e.clause18} 款。這個上限與個人、營利事業、人民團體的上限是分開計算的。
+  </p>
+
+  {count !== null && (
+    <>
+      <h2>全國有多少個{e.position}職位？</h2>
+      <p>
+        {count.toLocaleString('zh-TW')} 個。
+        {e.slug === 'village-chief' && `依內政部戶政司 ${dataPeriod} 期別資料，全國共 ${count.toLocaleString('zh-TW')} 個村里。`}
+        {' '}本屆各行政區的應選名額須待中選會選舉公告發布後確定。
+      </p>
+    </>
+  )}
+
+  <NextQuestions items={[
+    { q: `${e.position}擬參選人要怎麼申請政治獻金專戶？`, href: '/forms/account-application/' },
+    { q: '哪些人與哪些企業不得捐贈政治獻金？', href: '/donors/' },
+    { q: '政治獻金什麼時候要申報？逾期會怎樣？', href: '/tools/deadline/candidate/' },
+    { q: '捐了政治獻金可以抵稅嗎？', href: '/tools/deduction/individual/' },
+    { q: '沒有開專戶就收政治獻金會怎樣？', href: '/tools/penalty/26/' },
+  ]} />
+
+  <Provenance
+    updated={new Date(lawData.fetchedAt)}
+    reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '內政部戶政司開放資料', href: 'https://www.ris.gov.tw/' },
+    ]}
+  />
+</BaseLayout>
+
+<style>
+  .lede { font-size: var(--text-lg); color: var(--ink-2); }
+  .stats {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1px; background: var(--rule);
+    border: 1px solid var(--rule); margin-block: 1.5rem;
+  }
+  .stats > div { background: var(--ground); padding: 0.9em 1em; }
+  .stats dt { font-size: var(--text-xs); color: var(--muted); margin: 0; }
+  .stats dd {
+    margin: 0.2em 0 0; font-weight: 700;
+    font-variant-numeric: tabular-nums; color: var(--slate);
+  }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: 0.5em; }
+</style>
