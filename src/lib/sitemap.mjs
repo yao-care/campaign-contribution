@@ -10,7 +10,7 @@ import { GLOSSARY } from '../data/glossary';
 import { DONORS } from '../data/donors';
 import { FORMS } from '../data/forms';
 import { GUIDES } from '../data/guides';
-import { ELECTIONS } from '../data/elections';
+import { ELECTIONS, CYCLES } from '../data/elections';
 import { PENALTIES } from '../data/penalties';
 import { LIMITS } from '../data/limits';
 import { DEADLINES } from '../data/deadlines';
@@ -57,6 +57,7 @@ export function contentUrls() {
     { loc: '/forms/' }, ...FORMS.map((f) => ({ loc: `/forms/${f.slug}/` })),
     { loc: '/guides/' }, ...GUIDES.map((g) => ({ loc: `/guides/${g.slug}/` })),
     { loc: '/elections/' }, ...ELECTIONS.map((e) => ({ loc: `/elections/${e.slug}/` })),
+    { loc: '/cycles/' }, ...CYCLES.map((c) => ({ loc: `/cycles/${c.id}/` })),
     { loc: '/media/' }, ...MEDIA.map((m) => ({ loc: `/media/${m.slug}/` })),
     { loc: '/parties/' },
     ...partyData.parties.map((p) => ({ loc: `/parties/${encodeURIComponent(p.slug)}/` })),

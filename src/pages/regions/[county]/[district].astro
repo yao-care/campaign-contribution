@@ -47,7 +47,7 @@ const title = `${d.name}這次選什麼？${c.name}選舉與政治獻金規則`;
   <KeyPoints points={[
     `${c.name}${d.name}轄下有 ${d.villageCount} 個村里。`,
     `本屆改選 ${positions.length} 種職位：${positions.map((e) => e.position).join('、')}。`,
-    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起至 ${rocDate('2026-11-27')} 止可收受政治獻金。`,
+    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起至 ${rocDate(LOCAL_CYCLE.endDate)} 止可收受政治獻金。`,
   ]} />
 
   <dl class="stats">

@@ -1,7 +1,7 @@
 {
   "period": "11102",
   "source": "https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001",
-  "fetchedAt": "2026-08-30T13:27:29.726Z",
+  "fetchedAt": "2026-08-30T13:55:22.420Z",
   "note": "應選名額與選舉區劃分待中選會 115 年選舉公告發布，seatsPending 為 true 時頁面不呈現名額。",
   "counties": [
     {

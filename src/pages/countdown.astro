@@ -9,27 +9,60 @@ import lawData from '../data/law.json';
 
 const today = new Date();
 const days = (iso: string) => Math.ceil((new Date(iso + 'T00:00:00+08:00').getTime() - today.getTime()) / 86_400_000);
+const cand = DEADLINES.find((x) => x.slug === 'candidate')!;
+
+/**
+ * 四個尖峰日各掛一份「這天之前要做什麼」，連到站上既有的工具與書表頁。
+ * 搜尋量集中在這四天前後，此頁是那些查詢唯一該落的地方。
+ */
 const MILESTONES = [
-  { d: LOCAL_CYCLE.accountOpenClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：專戶設立申請受理起日', b: '監察院公告' },
-  { d: LOCAL_CYCLE.startClause3, n: '市長、議員、鄉鎮市長、山地原住民區長：可開始收受政治獻金', b: '第 12 條第 1 項第 3 款' },
-  { d: LOCAL_CYCLE.startClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：可開始收受政治獻金', b: '第 12 條第 1 項第 4 款及第 3 項' },
-  { d: '2026-11-27', n: '所有職位：收受政治獻金截止日（投票日前一日）', b: '第 12 條' },
-  { d: LOCAL_CYCLE.voteDay, n: '投票日', b: '中央選舉委員會' },
-  { d: '2027-02-06', n: '擬參選人收受達 1,000 萬元者：會計師查核簽證期限（投票日後 70 日）', b: '第 21 條第 1 項' },
-  { d: DEADLINES.find((x) => x.slug === 'candidate')!.thisCycle!, n: '擬參選人：會計報告書申報期限（投票日後 3 個月）', b: '第 21 條第 1 項第 2 款' },
+  { d: LOCAL_CYCLE.accountOpenClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：專戶設立申請受理起日', b: '監察院公告',
+    todo: [{ q: '專戶怎麼申請、要備什麼書表', href: '/forms/' }] },
+  { d: LOCAL_CYCLE.startClause3, n: '市長、議員、鄉鎮市長、山地原住民區長：可開始收受政治獻金', b: '第 12 條第 1 項第 3 款',
+    peak: true,
+    todo: [
+      { q: '我這個職位哪天可以開始收', href: '/tools/timeline/' },
+      { q: '沒開專戶就收錢會怎樣', href: '/tools/penalty/26/' },
+    ] },
+  { d: LOCAL_CYCLE.startClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：可開始收受政治獻金', b: '第 12 條第 1 項第 4 款及第 3 項',
+    peak: true,
+    todo: [
+      { q: '村里長的收受期間', href: '/tools/timeline/village-chief/' },
+      { q: '誰不能捐給我', href: '/donors/' },
+      { q: '一個人一年最多捐我多少', href: '/tools/limit/' },
+    ] },
+  { d: LOCAL_CYCLE.endDate, n: '所有職位：收受政治獻金截止日（投票日前一日）', b: '第 12 條',
+    peak: true,
+    todo: [
+      { q: '截止後還收到錢怎麼辦', href: '/guides/' },
+      { q: '賸餘政治獻金的四種用途', href: '/law/23/' },
+    ] },
+  { d: LOCAL_CYCLE.voteDay, n: '投票日', b: '中央選舉委員會',
+    peak: true,
+    todo: [{ q: '選完之後要做什麼', href: '/tools/deadline/candidate/' }] },
+  { d: cand.auditDate!, n: '擬參選人收受達 1,000 萬元者：會計師查核簽證期限（投票日後 70 日）', b: '第 21 條第 1 項',
+    todo: [{ q: '哪些人需要會計師簽證', href: '/tools/deadline/candidate/' }] },
+  { d: cand.thisCycle!, n: '擬參選人：會計報告書申報期限（投票日後 3 個月）', b: '第 21 條第 1 項第 2 款',
+    peak: true,
+    todo: [
+      { q: '申報要交哪些書表', href: '/forms/' },
+      { q: '沒選上還要不要申報', href: '/faq/' },
+      { q: '不申報罰多少', href: '/tools/penalty/25/' },
+    ] },
 ].map((m) => ({ ...m, left: days(m.d) })).sort((a, b) => a.d.localeCompare(b.d));
 
 const next = MILESTONES.find((m) => m.left >= 0);
+const upcoming = MILESTONES.filter((m) => m.left >= 0);
 ---
 <BaseLayout
-  title="政治獻金重要日期倒數：起算、截止、申報"
+  title="選舉行事曆：政治獻金的起算、截止與申報日"
   description={`本屆地方公職人員選舉投票日為 ${rocDate(LOCAL_CYCLE.voteDay)}。本頁列出政治獻金的收受起算日、截止日、會計師簽證與申報期限。`}
-  crumbs={[{ name: '重要日期', href: '/countdown/' }]}
+  crumbs={[{ name: '選舉行事曆', href: '/countdown/' }]}
 >
-  <h1>政治獻金重要日期</h1>
+  <h1>選舉行事曆</h1>
   <KeyPoints points={[
     `本屆地方公職人員選舉投票日為 ${rocDate(LOCAL_CYCLE.voteDay)}。`,
-    `收受政治獻金的截止日為 ${rocDate('2026-11-27')}，即投票日前一日。`,
+    `收受政治獻金的截止日為 ${rocDate(LOCAL_CYCLE.endDate)}，即投票日前一日。`,
     `擬參選人的申報期限為 ${rocDate(DEADLINES.find((x) => x.slug === 'candidate')!.thisCycle!)}。`,
   ]} />
   {next && (
@@ -37,11 +70,31 @@ const next = MILESTONES.find((m) => m.left >= 0);
       <h2>下一個期限</h2>
       <p><span class="figure">{rocDate(next.d)}</span></p>
       <p class="nx">{next.n}｜距今 {next.left} 天</p>
+      {next.todo && (
+        <ul class="todo">
+          {next.todo.map((t) => <li><a href={t.href}>{t.q}</a></li>)}
+        </ul>
+      )}
     </section>
   )}
+
+  <h2>接下來每一關，以及該做什麼</h2>
+  {upcoming.length === 0
+    ? <p>本屆所有期限都已過。日期保留在下表供查閱，下屆時程見<a href="/cycles/">屆別頁</a>。</p>
+    : <ol class="steps">
+        {upcoming.map((m) => (
+          <li>
+            <p class="when"><time datetime={m.d}>{rocDate(m.d)}</time>　距今 {m.left} 天</p>
+            <h3>{m.n}</h3>
+            {m.todo && <ul class="todo">{m.todo.map((t) => <li><a href={t.href}>{t.q}</a></li>)}</ul>}
+          </li>
+        ))}
+      </ol>}
+
+  <h2>本屆完整時程</h2>
   <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
     <table>
-      <caption>本屆時程（本頁靜態產出，每日重新建置）</caption>
+      <caption>{LOCAL_CYCLE.name}（本頁靜態產出，每日重新建置一次）</caption>
       <thead><tr><th scope="col">日期</th><th scope="col">事項</th><th scope="col">依據</th></tr></thead>
       <tbody>{MILESTONES.map((m) => (
         <tr class={m.left < 0 ? 'past' : ''}>
@@ -68,5 +121,13 @@ const next = MILESTONES.find((m) => m.left >= 0);
   .next-up p { margin:0; }
   .nx { font-size:var(--text-xs); color:var(--muted); margin-block-start:.5em !important; }
   tr.past th, tr.past td { color: var(--muted); text-decoration: line-through; }
+  .steps { list-style:none; padding:0; margin-block:1.5rem; counter-reset:step; }
+  .steps > li { border-inline-start:3px solid var(--stamp); padding:0 0 1.75rem 1.25rem; }
+  .steps .when { margin:0; font-size:var(--text-xs); color:var(--muted); font-variant-numeric:tabular-nums; }
+  .steps h3 { margin-block:.25em .5em; font-size:var(--text-base); }
+  .todo { list-style:none; padding:0; margin:.5em 0 0; display:flex; flex-wrap:wrap; gap:.5em; }
+  .todo li a { display:inline-block; border:1px solid var(--rule); padding:.4em .8em;
+               font-size:var(--text-xs); text-decoration:none; }
+  .todo li a:hover { border-color:var(--stamp); }
   table caption { text-align:start; font-size:var(--text-xs); color:var(--muted); padding-block-end:.5em; }
 </style>

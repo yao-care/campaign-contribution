@@ -1,0 +1,77 @@
+---
+/**
+ * 屆別索引。
+ *
+ * 站上其餘頁面講的是「規則」，這一區講的是「哪一屆套哪些日期」。
+ * 分開的理由：規則四年不動，日期每屆都變。混在同一頁，下屆更新時
+ * 只能就地覆蓋，2026 屆累積的外連與排名會一起消失。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import { REVIEWER } from '../../site.mjs';
+import { CYCLES, CURRENT_CYCLE_ID, rocDate } from '../../data/elections';
+import lawData from '../../data/law.json';
+
+const sorted = [...CYCLES].sort((a, b) => b.id.localeCompare(a.id));
+---
+<BaseLayout
+  title="歷屆選舉的政治獻金日期"
+  description={`政治獻金的收受起算日、截止日與申報期限每屆不同。本頁按屆別列出，目前收錄 ${CYCLES.length} 屆。`}
+  crumbs={[{ name: '屆別', href: '/cycles/' }]}
+>
+  <h1>歷屆選舉的政治獻金日期</h1>
+
+  <KeyPoints points={[
+    '政治獻金法的規則四年不動，但每一屆的起算日、截止日與申報期限都不一樣。',
+    '每屆一頁，網址固定不改。舊屆頁面在新屆上線後照樣留著，不會被覆蓋。',
+    `目前收錄 ${CYCLES.length} 屆，本屆為 ${CYCLES.find((c) => c.id === CURRENT_CYCLE_ID)!.name}。`,
+  ]} />
+
+  <p class="lede">
+    問「政治獻金什麼時候可以收」，答案取決於是哪一屆的哪一種選舉。
+    收受期間的長度寫在第 12 條裡不會變，但起算日要看該次選舉的投票日與主管機關公告。
+  </p>
+
+  <ul class="cycles">
+    {sorted.map((c) => (
+      <li>
+        <a href={`/cycles/${c.id}/`}>
+          <span class="y">{c.roc}</span>
+          <span class="c">
+            <strong>{c.name}{c.id === CURRENT_CYCLE_ID && <span class="now">本屆</span>}</strong>
+            <span class="d">投票日 {rocDate(c.voteDay)}．收受期間 {rocDate(c.startClause4)} 至 {rocDate(c.endDate)}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <p class="note">
+    總統、副總統與立法委員選舉不在地方公職人員選舉之列，其收受期間依第 12 條第 1 款、
+    第 2 款計算，日期待各該次選舉公告後才會確定，屆時另立一屆。
+  </p>
+
+  <NextQuestions items={[
+    { q: '本屆的完整時程表', href: '/countdown/' },
+    { q: '11 種選舉類別各自的收受期間', href: '/tools/timeline/' },
+    { q: '申報期限怎麼算', href: '/tools/deadline/' },
+    { q: '第 12 條原文', href: '/law/12/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[{ label: '全國法規資料庫．政治獻金法', href: lawData.source }]} />
+</BaseLayout>
+<style>
+  .cycles { list-style: none; padding: 0; margin-block: 2rem; }
+  .cycles li { border-block-end: 1px solid var(--rule); }
+  .cycles a { display: flex; align-items: baseline; gap: 1.25rem; padding-block: 1.1em; text-decoration: none; }
+  .cycles .y { flex: 0 0 3.5rem; font-size: var(--text-xl); font-weight: 700; color: var(--stamp);
+               font-variant-numeric: tabular-nums; }
+  .cycles .c { display: flex; flex-direction: column; gap: .3em; }
+  .cycles .c strong { font-size: var(--text-lg); }
+  .cycles .now { font-size: var(--text-xs); background: var(--stamp); color: var(--ground);
+                 padding: .1em .5em; margin-inline-start: .6em; vertical-align: .12em; }
+  .cycles .d { font-size: var(--text-xs); color: var(--muted); }
+</style>

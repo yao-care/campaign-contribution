@@ -25,7 +25,7 @@ const rest = counties.filter((c) => !isMunicipality(c.name));
 
   <KeyPoints points={[
     `本站收錄全國 ${villageCount.toLocaleString('zh-TW')} 個村里，分屬 ${counties.length} 個縣市、${districtCount} 個鄉鎮市區。`,
-    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起至 ${rocDate('2026-11-27')} 止可收受政治獻金。`,
+    `村（里）長擬參選人自 ${rocDate(LOCAL_CYCLE.startClause4)} 起至 ${rocDate(LOCAL_CYCLE.endDate)} 止可收受政治獻金。`,
     `個人對同一位村（里）長擬參選人每年捐贈上限為新臺幣 10 萬元。`,
   ]} />
 

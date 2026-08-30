@@ -42,7 +42,7 @@ const { v, siblingCount, nearby } = Astro.props;
 const full = `${v.county}${v.district}${v.village}`;
 const title = `${v.village}長選舉｜可收獻金起算日與捐贈上限`;
 const start = rocDate(LOCAL_CYCLE.startClause4);
-const end = rocDate('2026-11-27');
+const end = rocDate(LOCAL_CYCLE.endDate);
 ---
 <BaseLayout
   title={title}

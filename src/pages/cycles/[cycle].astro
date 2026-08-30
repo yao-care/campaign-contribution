@@ -1,0 +1,109 @@
+---
+/**
+ * 單屆頁。這一屆的所有日期集中在這裡，網址一經發布不再更動。
+ * 下屆新增一筆 CYCLES 就多一頁，這一頁的內容與網址不受影響。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
+import Provenance from '../../components/Provenance.astro';
+import NextQuestions from '../../components/NextQuestions.astro';
+import { REVIEWER } from '../../site.mjs';
+import { CYCLES, CURRENT_CYCLE_ID, ELECTIONS, rocDate } from '../../data/elections';
+import { DEADLINES } from '../../data/deadlines';
+import lawData from '../../data/law.json';
+
+export function getStaticPaths() {
+  return CYCLES.map((c) => ({ params: { cycle: c.id }, props: { c } }));
+}
+const { c } = Astro.props;
+const isCurrent = c.id === CURRENT_CYCLE_ID;
+const cand = DEADLINES.find((d) => d.slug === 'candidate')!;
+
+const clause3 = ELECTIONS.filter((e) => e.clause12 === 3 && e.inLocalCycle);
+const clause4 = ELECTIONS.filter((e) => e.clause12 === 4 && e.inLocalCycle);
+
+const ROWS = [
+  { d: c.accountOpenClause4, t: '第 4 款組專戶設立申請受理起日', b: c.sourceNote },
+  { d: c.startClause3, t: '第 3 款組可開始收受政治獻金', b: '第 12 條第 1 項第 3 款' },
+  { d: c.startClause4, t: '第 4 款組可開始收受政治獻金', b: '第 12 條第 1 項第 4 款及第 3 項' },
+  { d: c.endDate, t: '所有職位收受截止（投票日前一日）', b: '第 12 條' },
+  { d: c.voteDay, t: '投票日', b: '中央選舉委員會' },
+  { d: cand.auditDate!, t: '收受達 1,000 萬元者的會計師查核簽證期限', b: '第 21 條第 1 項' },
+  { d: cand.thisCycle!, t: '擬參選人會計報告書申報期限', b: '第 21 條第 1 項第 2 款' },
+].sort((a, b) => a.d.localeCompare(b.d));
+---
+<BaseLayout
+  title={`${c.name}：政治獻金收受期間與申報期限`}
+  description={`${c.name}投票日為 ${rocDate(c.voteDay)}。第 3 款組自 ${rocDate(c.startClause3)} 起、第 4 款組自 ${rocDate(c.startClause4)} 起可收受政治獻金，均至 ${rocDate(c.endDate)} 止。`}
+  crumbs={[{ name: '屆別', href: '/cycles/' }, { name: `${c.roc} 年`, href: `/cycles/${c.id}/` }]}
+  jsonld={[{
+    '@context': 'https://schema.org', '@type': 'Event',
+    name: c.name, startDate: c.startClause3, endDate: c.voteDay,
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: { '@type': 'Country', name: '中華民國臺灣' },
+    inLanguage: 'zh-Hant-TW',
+  }]}
+>
+  <h1>{c.name}</h1>
+
+  <KeyPoints points={[
+    `投票日為 ${rocDate(c.voteDay)}，收受政治獻金一律至前一日 ${rocDate(c.endDate)} 止。`,
+    `${clause3.length} 種第 3 款組職位自 ${rocDate(c.startClause3)} 起可收受，${clause4.length} 種第 4 款組職位自 ${rocDate(c.startClause4)} 起。`,
+    `擬參選人的會計報告書申報期限為 ${rocDate(cand.thisCycle!)}，沒選上也要申報。`,
+  ]} />
+
+  {isCurrent
+    ? <p class="lede">這是本屆。站上其他頁面標示的「本屆」日期都指這一組。</p>
+    : <p class="lede">這是已結束的屆別，頁面保留供查閱，日期不再更動。</p>}
+
+  <h2>完整時程</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>{c.name}的政治獻金相關日期</caption>
+      <thead><tr><th scope="col">日期</th><th scope="col">事項</th><th scope="col">依據</th></tr></thead>
+      <tbody>{ROWS.map((r) => (
+        <tr><th scope="row">{rocDate(r.d)}</th><td>{r.t}</td><td>{r.b}</td></tr>
+      ))}</tbody>
+    </table>
+  </div>
+
+  <h2>本屆改選的職位</h2>
+  <p>
+    第 12 條依職位的任期屆滿時點分四款。本屆改選的 {clause3.length + clause4.length} 種職位分屬第 3、4 款，
+    起算日因此差了四個月。
+  </p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
+    <table>
+      <caption>職位與起算日對照</caption>
+      <thead><tr><th scope="col">職位</th><th scope="col">款次</th><th scope="col">起算日</th></tr></thead>
+      <tbody>{[...clause3, ...clause4].map((e) => (
+        <tr>
+          <th scope="row"><a href={`/tools/timeline/${e.slug}/`}>{e.position}</a></th>
+          <td>第 {e.clause12} 款</td>
+          <td>{rocDate(e.clause12 === 3 ? c.startClause3 : c.startClause4)}</td>
+        </tr>
+      ))}</tbody>
+    </table>
+  </div>
+
+  <p class="note">
+    起算日以主管機關公告為準，不由任期屆滿日自行推算。本屆依據為{c.sourceNote}。
+  </p>
+
+  <NextQuestions items={[
+    { q: '距離下一個期限還有幾天', href: '/countdown/' },
+    { q: '我這個職位的收受期間', href: '/tools/timeline/' },
+    { q: '申報期限與應備書表', href: '/forms/' },
+    { q: '第 12 條原文', href: '/law/12/' },
+    { q: '其他屆別', href: '/cycles/' },
+  ]} />
+
+  <Provenance updated={new Date(lawData.fetchedAt)} reviewer={REVIEWER}
+    sources={[
+      { label: '全國法規資料庫．政治獻金法', href: lawData.source },
+      { label: '監察院陽光法令主題網', href: c.source },
+    ]} />
+</BaseLayout>
+<style>
+  table caption { text-align: start; font-size: var(--text-xs); color: var(--muted); padding-block-end: .5em; }
+</style>

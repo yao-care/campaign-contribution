@@ -7,24 +7,56 @@
  */
 
 /**
- * 本屆地方公職人員選舉的起算日。
+ * 選舉屆別（cycle）。
  *
- * 來源為監察院 115/02/09 公告的兩份「申請開立政治獻金專戶許可注意事項」，
- * 不是由任期屆滿日自行推算——建站規格 §5.3 推算出的第 4 款組 8/25 與公告不符，
- * 公告載明為 8/20（依第 12 條第 1 項第 4 款「及第 3 項」，第 3 項會把起始日
- * 提前到選舉公告發布之日）。凡公告有載明的日期，一律以公告為準。
+ * 站上所有日期都由這裡推算。刻意做成陣列而不是單一物件：下屆選舉來時
+ * 只需要新增一筆並改 CURRENT_CYCLE_ID，2026 屆的頁面與網址原封不動保留。
+ * 舊屆頁面是四年累積的外連與搜尋排名所在，改網址等於把它們洗掉一次。
+ *
+ * 起算日一律以監察院公告為準，不由任期屆滿日自行推算——建站規格 §5.3
+ * 推算出的第 4 款組 8/25 與公告不符，公告載明為 8/20（依第 12 條第 1 項
+ * 第 4 款「及第 3 項」，第 3 項會把起始日提前到選舉公告發布之日）。
  */
-export const LOCAL_CYCLE = {
-  voteDay: '2026-11-28',        // 115 年 11 月 28 日
-  /** 第 12 條第 3 款組：直轄市長、直轄市議員、縣(市)長、縣(市)議員、鄉(鎮、市)長、直轄市山地原住民區長 */
-  startClause3: '2026-04-25',   // 監察院公告：115 年 4 月 25 日
-  /** 第 12 條第 4 款組：鄉(鎮、市)民代表、直轄市山地原住民區民代表、村(里)長 */
-  startClause4: '2026-08-20',   // 監察院公告：115 年 8 月 20 日
-  /** 專戶設立申請受理起日（第 4 款組），公告載明自 115 年 8 月 17 日起 */
-  accountOpenClause4: '2026-08-17',
-  source: 'https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855',
-  sourceNote: '監察院 115/02/09「申請開立政治獻金專戶許可注意事項」',
-} as const;
+export interface Cycle {
+  /** 路由片段，用西元投票年 */
+  id: string;
+  /** 民國年 */
+  roc: number;
+  name: string;
+  voteDay: string;
+  /** 第 12 條第 1 項第 3 款組起算日 */
+  startClause3: string;
+  /** 第 12 條第 1 項第 4 款組起算日 */
+  startClause4: string;
+  /** 專戶設立申請受理起日（第 4 款組） */
+  accountOpenClause4: string;
+  /** 收受期間截止日，投票日前一日 */
+  endDate: string;
+  source: string;
+  sourceNote: string;
+}
+
+export const CYCLES: Cycle[] = [
+  {
+    id: '2026',
+    roc: 115,
+    name: '115 年地方公職人員選舉',
+    voteDay: '2026-11-28',            // 115 年 11 月 28 日
+    startClause3: '2026-04-25',       // 監察院公告：115 年 4 月 25 日
+    startClause4: '2026-08-20',       // 監察院公告：115 年 8 月 20 日
+    accountOpenClause4: '2026-08-17', // 公告載明自 115 年 8 月 17 日起受理
+    endDate: '2026-11-27',            // 投票日前一日，兩份公告均載明
+    source: 'https://sunshine.cy.gov.tw/News.aspx?n=8&sms=8855',
+    sourceNote: '監察院 115/02/09「申請開立政治獻金專戶許可注意事項」',
+  },
+];
+
+export const CURRENT_CYCLE_ID = '2026';
+export const CURRENT_CYCLE = CYCLES.find((c) => c.id === CURRENT_CYCLE_ID)!;
+if (!CURRENT_CYCLE) throw new Error(`CURRENT_CYCLE_ID ${CURRENT_CYCLE_ID} 不在 CYCLES 中`);
+
+/** 本屆。舊名保留，站上二十餘處引用不必為了改名一起動。 */
+export const LOCAL_CYCLE = CURRENT_CYCLE;
 
 /** 直轄市山地原住民區共 6 區，名單取自監察院前揭公告 */
 export const INDIGENOUS_DISTRICTS = [
@@ -64,7 +96,7 @@ export interface Election {
   inLocalCycle: boolean;
 }
 
-const LOCAL_END = '2026-11-27';   // 投票日前一日，兩份公告均載明
+const LOCAL_END = CURRENT_CYCLE.endDate;   // 投票日前一日，兩份公告均載明
 
 export const ELECTIONS: Election[] = [
   { slug: 'president', position: '總統、副總統',

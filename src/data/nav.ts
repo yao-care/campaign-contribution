@@ -1,18 +1,47 @@
 /**
- * 全站導覽。8,444 頁若只靠麵包屑，多數區塊從首頁點不到。
- * 頂欄放八個主要入口，頁尾放完整網站地圖。純 CSS、零 JS，不藏進漢堡選單。
+ * 全站導覽。8,453 頁若只靠麵包屑，多數區塊從首頁點不到。
+ * 頂欄放主要入口，頁尾放完整網站地圖。純 CSS、零 JS，不藏進漢堡選單。
  */
-export const NAV = [
-  { label: '法條', href: '/law/' },
-  { label: '工具', href: '/tools/' },
-  { label: '誰能捐', href: '/donors/' },
-  { label: '選舉類別', href: '/elections/' },
-  { label: '行政區與村里', href: '/regions/' },
-  { label: '書表', href: '/forms/' },
-  { label: '問答', href: '/faq/' },
-  { label: '名詞', href: '/glossary/' },
-  { label: '素材庫', href: '/media/' },
-];
+import { LOCAL_CYCLE } from './elections';
+
+const ITEMS = {
+  calendar: { label: '選舉行事曆', href: '/countdown/' },
+  law: { label: '法條', href: '/law/' },
+  tools: { label: '工具', href: '/tools/' },
+  donors: { label: '誰能捐', href: '/donors/' },
+  elections: { label: '選舉類別', href: '/elections/' },
+  regions: { label: '行政區與村里', href: '/regions/' },
+  forms: { label: '書表', href: '/forms/' },
+  faq: { label: '問答', href: '/faq/' },
+  glossary: { label: '名詞', href: '/glossary/' },
+  media: { label: '素材庫', href: '/media/' },
+  deadline: { label: '申報期限', href: '/tools/deadline/' },
+};
+
+/**
+ * 導覽順序隨時程改變。
+ *
+ * 站上流量集中在四個日期前後，而這四天前後民眾要找的東西完全不同：
+ * 收受期間內問「可以收了嗎、誰能捐」，投票日後問「什麼時候要申報」。
+ * 順序在建置期依日期決定，每日重建一次即生效，不需要任何前端程式。
+ */
+const today = new Date().toISOString().slice(0, 10);
+const phase: 'before' | 'receiving' | 'after' =
+  today < LOCAL_CYCLE.startClause4 ? 'before'
+  : today <= LOCAL_CYCLE.endDate ? 'receiving'
+  : 'after';
+
+const ORDER = {
+  // 起算日前：先建立「什麼時候才能開始」的認知
+  before: ['calendar', 'law', 'tools', 'elections', 'donors', 'regions', 'forms', 'faq', 'glossary', 'media'],
+  // 收受期間：問的是能不能收、誰能捐、上限多少
+  receiving: ['calendar', 'donors', 'tools', 'law', 'regions', 'elections', 'forms', 'faq', 'glossary', 'media'],
+  // 投票日後：問的全是申報
+  after: ['deadline', 'forms', 'calendar', 'law', 'tools', 'faq', 'donors', 'glossary', 'elections', 'media'],
+} as const;
+
+export const NAV_PHASE = phase;
+export const NAV = ORDER[phase].map((k) => ITEMS[k as keyof typeof ITEMS]);
 
 export const FOOTER = [
   {
@@ -44,12 +73,13 @@ export const FOOTER = [
     ],
   },
   {
-    h: '查我的地方',
+    h: '查時程與地方',
     items: [
+      { label: '選舉行事曆', href: '/countdown/' },
+      { label: '歷屆日期', href: '/cycles/' },
       { label: '22 縣市', href: '/regions/' },
       { label: '村里查詢說明', href: '/villages/' },
       { label: '現存政黨', href: '/parties/' },
-      { label: '重要日期', href: '/countdown/' },
     ],
   },
   {
@@ -61,7 +91,8 @@ export const FOOTER = [
       { label: '宣導素材庫', href: '/media/' },
       { label: '開放資料下載', href: '/downloads/' },
       { label: '申報資料查詢', href: '/reports/' },
-      { label: '資料更新紀錄', href: '/updates/' },
+      { label: '制度與資料異動', href: '/updates/' },
+      { label: '異動訂閱（Atom）', href: '/updates.xml' },
       { label: '站內搜尋', href: '/search/' },
     ],
   },
