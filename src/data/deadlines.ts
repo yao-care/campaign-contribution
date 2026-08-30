@@ -3,14 +3,24 @@
  */
 import { LOCAL_CYCLE } from './elections';
 
+/**
+ * 日期運算一律在 UTC 上做。
+ *
+ * 原本是 `new Date(iso + 'T00:00:00+08:00')` 再 setDate/setMonth、toISOString——
+ * 三個時區混在一起：輸入是台北零時，setDate 走建置機器的本地時區，
+ * toISOString 讀的是 UTC。建置機器在 +08 以西時整組結果早一天，
+ * 而 CI 跑在 UTC，所以線上一直是錯的：投票日後 3 個月算成 116/2/27（應為 2/28），
+ * 投票日後 70 日算成 116/2/5（應為 2/6）。
+ * 這裡的日期只有年月日、沒有時刻，用 UTC 從頭到尾算就與時區無關。
+ */
 const addDays = (iso: string, n: number) => {
-  const d = new Date(iso + 'T00:00:00+08:00');
-  d.setDate(d.getDate() + n);
+  const d = new Date(iso + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 };
 const addMonths = (iso: string, n: number) => {
-  const d = new Date(iso + 'T00:00:00+08:00');
-  d.setMonth(d.getMonth() + n);
+  const d = new Date(iso + 'T00:00:00Z');
+  d.setUTCMonth(d.getUTCMonth() + n);
   return d.toISOString().slice(0, 10);
 };
 

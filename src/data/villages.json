@@ -2,7 +2,7 @@
   "source": "https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP001",
   "dataset": "ODRP001 鄉鎮市區出生死亡結婚離婚數",
   "period": "11102",
-  "fetchedAt": "2026-08-30T13:52:50.023Z",
+  "fetchedAt": "2026-08-30T14:20:07.914Z",
   "count": 7734,
   "note": "本資料集提供出生死亡結婚離婚數，不含戶籍人口數；村里頁人口欄位另需資料來源。",
   "counties": [

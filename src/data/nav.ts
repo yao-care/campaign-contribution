@@ -25,7 +25,8 @@ const ITEMS = {
  * 收受期間內問「可以收了嗎、誰能捐」，投票日後問「什麼時候要申報」。
  * 順序在建置期依日期決定，每日重建一次即生效，不需要任何前端程式。
  */
-const today = new Date().toISOString().slice(0, 10);
+// 用台北日期，不是 UTC 日期：CI 跑在 UTC，台北時間當日 08:00 前會算成前一天
+const today = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
 const phase: 'before' | 'receiving' | 'after' =
   today < LOCAL_CYCLE.startClause4 ? 'before'
   : today <= LOCAL_CYCLE.endDate ? 'receiving'

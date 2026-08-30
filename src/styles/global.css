@@ -65,6 +65,11 @@ a:hover { text-decoration-thickness: 2px; }
 /* max-content：表格取自然寬度，窄螢幕改捲動而不是把欄位壓到逐字換行 */
 .table-scroll table { min-width: max-content; }
 .table-scroll:focus-visible { outline: 3px solid var(--stamp); outline-offset: 2px; }
+/* 寬螢幕上讓表格跨出 38rem 的量測寬。量測寬是為連續文字的可讀性設的，
+   表格不是連續文字——把它壓在文字欄裡只會逼使用者橫捲讀日期。 */
+@media (min-width: 64rem) {
+  .table-scroll { width: 60rem; margin-inline: calc((var(--measure) - 60rem) / 2); }
+}
 table {
   width: 100%;
   border-collapse: collapse;

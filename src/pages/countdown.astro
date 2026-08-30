@@ -16,22 +16,22 @@ const cand = DEADLINES.find((x) => x.slug === 'candidate')!;
  * 搜尋量集中在這四天前後，此頁是那些查詢唯一該落的地方。
  */
 const MILESTONES = [
-  { d: LOCAL_CYCLE.accountOpenClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：專戶設立申請受理起日', b: '監察院公告',
+  { d: LOCAL_CYCLE.accountOpenClause4, n: '第 4 款組：專戶設立申請受理起日', b: '監察院公告',
     todo: [{ q: '專戶怎麼申請、要備什麼書表', href: '/forms/' }] },
-  { d: LOCAL_CYCLE.startClause3, n: '市長、議員、鄉鎮市長、山地原住民區長：可開始收受政治獻金', b: '第 12 條第 1 項第 3 款',
+  { d: LOCAL_CYCLE.startClause3, n: '第 3 款組：可開始收受政治獻金', b: '第 12 條第 1 項第 3 款',
     peak: true,
     todo: [
       { q: '我這個職位哪天可以開始收', href: '/tools/timeline/' },
       { q: '沒開專戶就收錢會怎樣', href: '/tools/penalty/26/' },
     ] },
-  { d: LOCAL_CYCLE.startClause4, n: '鄉鎮市民代表、山地原住民區民代表、村里長：可開始收受政治獻金', b: '第 12 條第 1 項第 4 款及第 3 項',
+  { d: LOCAL_CYCLE.startClause4, n: '第 4 款組：可開始收受政治獻金', b: '第 12 條第 1 項第 4 款及第 3 項',
     peak: true,
     todo: [
       { q: '村里長的收受期間', href: '/tools/timeline/village-chief/' },
       { q: '誰不能捐給我', href: '/donors/' },
       { q: '一個人一年最多捐我多少', href: '/tools/limit/' },
     ] },
-  { d: LOCAL_CYCLE.endDate, n: '所有職位：收受政治獻金截止日（投票日前一日）', b: '第 12 條',
+  { d: LOCAL_CYCLE.endDate, n: '所有職位：收受截止（投票日前一日）', b: '第 12 條',
     peak: true,
     todo: [
       { q: '截止後還收到錢怎麼辦', href: '/guides/' },
@@ -40,9 +40,9 @@ const MILESTONES = [
   { d: LOCAL_CYCLE.voteDay, n: '投票日', b: '中央選舉委員會',
     peak: true,
     todo: [{ q: '選完之後要做什麼', href: '/tools/deadline/candidate/' }] },
-  { d: cand.auditDate!, n: '擬參選人收受達 1,000 萬元者：會計師查核簽證期限（投票日後 70 日）', b: '第 21 條第 1 項',
+  { d: cand.auditDate!, n: '收受達 1,000 萬元者：會計師簽證期限', b: '第 21 條第 1 項',
     todo: [{ q: '哪些人需要會計師簽證', href: '/tools/deadline/candidate/' }] },
-  { d: cand.thisCycle!, n: '擬參選人：會計報告書申報期限（投票日後 3 個月）', b: '第 21 條第 1 項第 2 款',
+  { d: cand.thisCycle!, n: '擬參選人：會計報告書申報期限', b: '第 21 條第 1 項第 2 款',
     peak: true,
     todo: [
       { q: '申報要交哪些書表', href: '/forms/' },
@@ -92,6 +92,10 @@ const upcoming = MILESTONES.filter((m) => m.left >= 0);
       </ol>}
 
   <h2>本屆完整時程</h2>
+  <p class="lede">
+    第 3 款組是市長、議員、鄉（鎮、市）長與山地原住民區長；第 4 款組是鄉（鎮、市）民代表、
+    山地原住民區民代表與村（里）長。<a href="/cycles/2026/">完整職位對照見本屆頁</a>。
+  </p>
   <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
     <table>
       <caption>{LOCAL_CYCLE.name}（本頁靜態產出，每日重新建置一次）</caption>
