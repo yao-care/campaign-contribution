@@ -1,0 +1,68 @@
+---
+/**
+ * 折線圖，兩系列（收入／支出）。用同色雙階而非兩個色相，見 docs/圖表規格.md §1.2。
+ * 兩系列一律附圖例，且四個以內同時直接標註。
+ */
+import { scaleLinear, scalePoint } from 'd3-scale';
+import { line as d3line } from 'd3-shape';
+import { max } from 'd3-array';
+import { fmtWan, esc, CHART } from '../../lib/chart';
+
+export interface Props {
+  title: string;
+  /** x 由舊到新 */
+  points: { x: string; a: number; b: number }[];
+  aLabel: string;
+  bLabel: string;
+  describedBy?: string;
+  /** 錨點 id，供頁內連結與截圖定位 */
+  anchor?: string;
+}
+const { title, points, aLabel, bLabel, describedBy, anchor } = Astro.props;
+const W = 640, H = 300, M = { t: 28, r: 96, b: 40, l: 64 };
+const xs = scalePoint<string>().domain(points.map((p) => p.x)).range([M.l, W - M.r]).padding(0.5);
+const yMax = max(points, (p) => Math.max(p.a, p.b)) ?? 1;
+const ys = scaleLinear().domain([0, yMax]).nice().range([H - M.b, M.t]);
+const mk = (k: 'a' | 'b') => d3line<typeof points[number]>().x((p) => xs(p.x)!).y((p) => ys(p[k]))(points) ?? '';
+const ticks = ys.ticks(4);
+const last = points.at(-1)!;
+---
+<figure class="chart" id={anchor}>
+  <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img"
+       aria-label={`${title}（折線圖，${aLabel}與${bLabel}兩條線）`} aria-describedby={describedBy}>
+    <title>{title}</title>
+    {ticks.map((t) => (
+      <g>
+        <line x1={M.l} x2={W - M.r} y1={ys(t)} y2={ys(t)} stroke="var(--rule)" stroke-width="1" />
+        <text x={M.l - 8} y={ys(t)} text-anchor="end" dominant-baseline="central"
+              font-size={CHART.labelSize} fill="var(--muted)"
+              style="font-variant-numeric:tabular-nums">{fmtWan(t)}</text>
+      </g>
+    ))}
+    {points.map((p) => (
+      <text x={xs(p.x)} y={H - M.b + 18} text-anchor="middle" font-size={CHART.labelSize} fill="var(--ink-2)"
+            style="font-variant-numeric:tabular-nums">{esc(p.x)}</text>
+    ))}
+    <path d={mk('a')} fill="none" stroke="var(--c-hi)" stroke-width="2" stroke-linejoin="round" />
+    <path d={mk('b')} fill="none" stroke="var(--c-lo)" stroke-width="2" stroke-linejoin="round"
+          stroke-dasharray="6 4" />
+    {points.map((p) => (
+      <g>
+        <circle cx={xs(p.x)} cy={ys(p.a)} r="4.5" fill="var(--c-hi)" stroke="var(--ground)" stroke-width="2" />
+        <circle cx={xs(p.x)} cy={ys(p.b)} r="4.5" fill="var(--c-lo)" stroke="var(--ground)" stroke-width="2" />
+      </g>
+    ))}
+    <text x={W - M.r + 10} y={ys(last.a)} dominant-baseline="central" font-size={CHART.labelSize}
+          fill="var(--ink)">{esc(aLabel)}</text>
+    <text x={W - M.r + 10} y={ys(last.b)} dominant-baseline="central" font-size={CHART.labelSize}
+          fill="var(--ink)">{esc(bLabel)}</text>
+  </svg>
+  <figcaption>
+    {title}。實線為{aLabel}，虛線為{bLabel}；單位為新臺幣。
+  </figcaption>
+</figure>
+<style>
+  .chart { margin: 1.5rem 0; }
+  .chart svg { display: block; max-width: 100%; height: auto; }
+  figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+</style>

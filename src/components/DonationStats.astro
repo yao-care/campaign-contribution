@@ -7,6 +7,8 @@
  * 這裡讓讀者看到實際上大多數人收到多少。
  */
 import { POSITION_STATS, DONATION_META } from '../data/donation-stats';
+import BarChart from './charts/BarChart.astro';
+import Histogram from './charts/Histogram.astro';
 
 export interface Props {
   /** 選舉類別 slug；查無資料時整個區塊不輸出 */
@@ -21,6 +23,9 @@ const twd = (n: number) => n.toLocaleString('zh-TW');
 const wan = (n: number) => n >= 10_000 ? `${Math.round(n / 10_000).toLocaleString('zh-TW')} 萬元` : `${twd(n)} 元`;
 
 const topExpense = d ? Object.entries(d.expense)[0] : null;
+const incomeBars = d ? Object.entries(d.income).map(([label, value]) => ({ label, value })) : [];
+const expenseBars = d ? Object.entries(d.expense).map(([label, value]) => ({ label, value })) : [];
+const reportIncomes = d?.reportIncomes ?? [];
 const expenseTotal = d?.expenseTotal || 0;
 const topIncome = d ? Object.entries(d.income)[0] : null;
 const incomeTotal = d?.incomeTotal || 0;
@@ -48,8 +53,11 @@ const years = d?.years ?? [];
       <div><dt>最高收入</dt><dd>{wan(d.incomeMax)}</dd></div>
     </dl>
 
+    <BarChart title={`${positionName}的收入結構（歷年合計）`} data={incomeBars} describedBy="ds-table" />
+    <BarChart title={`${positionName}的支出結構（歷年合計）`} data={expenseBars} describedBy="ds-table" />
+
     <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
-      <table>
+      <table id="ds-table">
         <caption>{positionName}的收支結構（歷年合計，依第 20 條科目）</caption>
         <thead>
           <tr><th scope="col">科目</th><th scope="col" class="num">金額</th><th scope="col" class="num">占比</th></tr>
@@ -73,6 +81,8 @@ const years = d?.years ?? [];
         支出則以「{topExpense[0]}」最高，占 {pct(topExpense[1], expenseTotal)}。
       </p>
     )}
+
+    <Histogram anchor="hist" title={`${positionName}擬參選人的收入分布`} values={reportIncomes} describedBy="ds-table" />
 
     <p class="ds-note">
       統計涵蓋 {covered.length} 場選舉{years.length ? `（民國 ${years.at(-1)}–${years[0]} 年）` : ''}，

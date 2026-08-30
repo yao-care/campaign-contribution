@@ -1,0 +1,65 @@
+---
+/**
+ * 熱區圖。用於「以格線比大小」——3 種捐贈者 × 2 種受贈對象的上限矩陣。
+ * 單一色相由淺到深，格子之間留 2px 底色縫隙。
+ */
+import { fmtWan, esc, CHART } from '../../lib/chart';
+
+export interface Props {
+  title: string;
+  cols: string[];
+  rows: { label: string; values: number[] }[];
+  describedBy?: string;
+  /** 錨點 id，供頁內連結與截圖定位 */
+  anchor?: string;
+}
+const { title, cols, rows, describedBy, anchor } = Astro.props;
+const flat = rows.flatMap((r) => r.values);
+const lo = Math.min(...flat), hi = Math.max(...flat);
+/** 以對數比例取階，避免 30 萬與 600 萬擠在同一階 */
+const step = (v: number) => {
+  const t = (Math.log10(v) - Math.log10(lo)) / Math.max(1e-9, Math.log10(hi) - Math.log10(lo));
+  return Math.min(6, Math.max(1, Math.round(t * 5) + 1));
+};
+const W = 640, LABEL = 148, HEAD = 34, CELL_H = 62;
+const CW = (W - LABEL - 8) / cols.length;
+const H = HEAD + rows.length * (CELL_H + CHART.gap) + 4;
+---
+<figure class="chart" id={anchor}>
+  <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img"
+       aria-label={`${title}（熱區圖，顏色越深金額越高）`} aria-describedby={describedBy}>
+    <title>{title}</title>
+    {cols.map((c, j) => (
+      <text x={LABEL + j * CW + CW / 2} y={HEAD - 12} text-anchor="middle"
+            font-size={CHART.labelSize} fill="var(--ink-2)">{esc(c)}</text>
+    ))}
+    {rows.map((r, i) => {
+      const y = HEAD + i * (CELL_H + CHART.gap);
+      return (
+        <g>
+          <text x={LABEL - 10} y={y + CELL_H / 2} text-anchor="end" dominant-baseline="central"
+                font-size={CHART.labelSize} fill="var(--ink-2)">{esc(r.label)}</text>
+          {r.values.map((v, j) => {
+            const s = step(v);
+            return (
+              <g>
+                <rect x={LABEL + j * CW + CHART.gap} y={y} width={CW - CHART.gap * 2} height={CELL_H}
+                      rx={CHART.radius} fill={`var(--c${s})`} />
+                <text x={LABEL + j * CW + CW / 2} y={y + CELL_H / 2} text-anchor="middle"
+                      dominant-baseline="central" font-size="15" font-weight="700"
+                      fill={s >= 4 ? '#fff' : 'var(--ink)'}
+                      style="font-variant-numeric:tabular-nums">{fmtWan(v)}元</text>
+              </g>
+            );
+          })}
+        </g>
+      );
+    })}
+  </svg>
+  <figcaption>{title}。顏色越深代表上限越高，色階為對數級距。</figcaption>
+</figure>
+<style>
+  .chart { margin: 1.5rem 0; }
+  .chart svg { display: block; max-width: 100%; height: auto; }
+  figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+</style>

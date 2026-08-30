@@ -1,0 +1,59 @@
+---
+/**
+ * 水平長條圖，依值排序。用於「比大小」。
+ * 建置期產出的靜態 SVG，無執行期 JS。旁邊必須另有 table（見 docs/圖表規格.md §0.2）。
+ */
+import { scaleLinear } from 'd3-scale';
+import { max } from 'd3-array';
+import { fmtWan, esc, CHART } from '../../lib/chart';
+
+export interface Props {
+  title: string;
+  /** 已排序或未排序皆可，元件會自行由大到小排 */
+  data: { label: string; value: number }[];
+  /** 圖表的無障礙描述，指向對應表格的 id */
+  describedBy?: string;
+  /** 錨點 id，供頁內連結與截圖定位 */
+  anchor?: string;
+  unit?: string;
+  /** 單一強調色（不分階）；預設用序列色由深到淺 */
+  solid?: boolean;
+  labelWidth?: number;
+}
+const { title, data, describedBy, anchor, unit = '元', solid = false, labelWidth = 168 } = Astro.props;
+
+const rows = [...data].filter((d) => d.value > 0).sort((a, b) => b.value - a.value);
+const W = 640, PAD_R = 88;
+const H = rows.length * (CHART.rowH + CHART.gap) + 8;
+const x = scaleLinear().domain([0, max(rows, (d) => d.value) ?? 1]).range([0, W - labelWidth - PAD_R]);
+const color = (i: number) =>
+  solid ? 'var(--c5)' : `var(--c${Math.min(6, Math.max(1, 6 - Math.floor(i * 5 / Math.max(1, rows.length - 1))))})`;
+---
+<figure class="chart" id={anchor}>
+  <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img"
+       aria-label={`${title}（橫向長條圖，依金額排序）`} aria-describedby={describedBy}>
+    <title>{title}</title>
+    {rows.map((d, i) => {
+      const y = i * (CHART.rowH + CHART.gap);
+      const w = Math.max(2, x(d.value));
+      return (
+        <g>
+          <text x={labelWidth - 8} y={y + CHART.rowH / 2} text-anchor="end" dominant-baseline="central"
+                font-size={CHART.labelSize} fill="var(--ink-2)">{esc(d.label)}</text>
+          <rect x={labelWidth} y={y + 3} width={w} height={CHART.rowH - 6}
+                rx={CHART.radius} fill={color(i)} />
+          <text x={labelWidth + w + 8} y={y + CHART.rowH / 2} dominant-baseline="central"
+                font-size={CHART.valueSize} fill="var(--ink)"
+                style="font-variant-numeric:tabular-nums">{fmtWan(d.value)}{unit}</text>
+        </g>
+      );
+    })}
+  </svg>
+  <figcaption>{title}</figcaption>
+</figure>
+
+<style>
+  .chart { margin: 1.5rem 0; }
+  .chart svg { display: block; max-width: 100%; height: auto; }
+  figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+</style>

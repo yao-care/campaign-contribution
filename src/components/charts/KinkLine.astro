@@ -1,0 +1,71 @@
+---
+/**
+ * 上限拐點折線。可扣除額對所得：先依比例斜升，觸及金額上限後轉平。
+ * 依 docs/圖表規格.md §3.2，轉折點（cap / ratio）必須是取樣點，否則拐角會被畫圓。
+ */
+import { scaleLinear } from 'd3-scale';
+import { line as d3line } from 'd3-shape';
+import { fmtWan, esc, CHART } from '../../lib/chart';
+
+export interface Props {
+  title: string;
+  ratio: number;
+  cap: number;
+  ratioBase: string;
+  describedBy?: string;
+  /** 錨點 id，供頁內連結與截圖定位 */
+  anchor?: string;
+}
+const { title, ratio, cap, ratioBase, describedBy, anchor } = Astro.props;
+
+const kink = cap / ratio;                 // 拐點：所得達此值後，比例上限被金額上限取代
+const xMax = kink * 2.2;
+const pts: [number, number][] = [];
+for (let i = 0; i <= 24; i++) {
+  const x = (xMax * i) / 24;
+  if (pts.length && pts.at(-1)![0] < kink && x > kink) pts.push([kink, cap]);  // 強制取樣拐點
+  pts.push([x, Math.min(x * ratio, cap)]);
+}
+
+const W = 640, H = 300, M = { t: 24, r: 28, b: 44, l: 78 };
+const x = scaleLinear().domain([0, xMax]).range([M.l, W - M.r]);
+const y = scaleLinear().domain([0, cap * 1.25]).range([H - M.b, M.t]);
+const path = d3line<[number, number]>().x((p) => x(p[0])).y((p) => y(p[1]))(pts) ?? '';
+---
+<figure class="chart" id={anchor}>
+  <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img"
+       aria-label={`${title}（折線圖，顯示上限生效的轉折點）`} aria-describedby={describedBy}>
+    <title>{title}</title>
+    {y.ticks(4).map((t) => (
+      <g>
+        <line x1={M.l} x2={W - M.r} y1={y(t)} y2={y(t)} stroke="var(--rule)" stroke-width="1" />
+        <text x={M.l - 8} y={y(t)} text-anchor="end" dominant-baseline="central"
+              font-size={CHART.labelSize} fill="var(--muted)"
+              style="font-variant-numeric:tabular-nums">{fmtWan(t)}</text>
+      </g>
+    ))}
+    {x.ticks(5).map((t) => (
+      <text x={x(t)} y={H - M.b + 18} text-anchor="middle" font-size={CHART.labelSize} fill="var(--ink-2)"
+            style="font-variant-numeric:tabular-nums">{fmtWan(t)}</text>
+    ))}
+    <line x1={M.l} x2={W - M.r} y1={y(cap)} y2={y(cap)}
+          stroke="var(--c-lo)" stroke-width="2" stroke-dasharray="6 4" />
+    <text x={W - M.r} y={y(cap) - 10} text-anchor="end" font-size={CHART.labelSize} fill="var(--c-hi)"
+          font-weight="700">金額上限 {fmtWan(cap)}元</text>
+    <path d={path} fill="none" stroke="var(--c-hi)" stroke-width="2.5" stroke-linejoin="round" />
+    <circle cx={x(kink)} cy={y(cap)} r="6" fill="var(--c-hi)" stroke="var(--ground)" stroke-width="2" />
+    <text x={x(kink) + 12} y={y(cap) + 22} font-size={CHART.labelSize} fill="var(--ink)">
+      {esc(ratioBase)} {fmtWan(kink)}元起，改由金額上限拘束
+    </text>
+    <text x={(M.l + W - M.r) / 2} y={H - 6} text-anchor="middle"
+          font-size={CHART.labelSize} fill="var(--muted)">{esc(ratioBase)}（元）</text>
+  </svg>
+  <figcaption>
+    {title}。斜線段為{ratioBase}的 {ratio * 100}%，達 {fmtWan(kink)}元後由金額上限 {fmtWan(cap)}元接手，兩個上限取較低者。
+  </figcaption>
+</figure>
+<style>
+  .chart { margin: 1.5rem 0; }
+  .chart svg { display: block; max-width: 100%; height: auto; }
+  figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+</style>

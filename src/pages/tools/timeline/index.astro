@@ -4,6 +4,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import KeyPoints from '../../../components/KeyPoints.astro';
 import Provenance from '../../../components/Provenance.astro';
 import Statute from '../../../components/Statute.astro';
+import Timeline from '../../../components/charts/Timeline.astro';
 import { ELECTIONS, rocDate, LOCAL_CYCLE } from '../../../data/elections';
 import lawData from '../../../data/law.json';
 ---
@@ -19,10 +20,19 @@ import lawData from '../../../data/law.json';
     `全部至投票日前一日 ${rocDate('2026-11-27')} 止。`,
   ]} />
   <p class="lede">選擇職位查看該職位的起算日、截止日與計算方式。</p>
+
+  <Timeline
+    title="本屆各職位可收受政治獻金的期間"
+    rows={ELECTIONS.filter((e) => e.startDate).map((e) => ({
+      label: e.position, start: e.startDate!, end: e.endDate!,
+    }))}
+    marks={[{ at: LOCAL_CYCLE.voteDay, label: '投票日' }]}
+    describedBy="tl-table"
+  />
   <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
     <table>
       <caption>11 種職位的收受起算日</caption>
-      <thead><tr><th scope="col">職位</th><th scope="col">第 12 條</th><th scope="col">起算日</th><th scope="col">截止日</th></tr></thead>
+      <thead id="tl-table"><tr><th scope="col">職位</th><th scope="col">第 12 條</th><th scope="col">起算日</th><th scope="col">截止日</th></tr></thead>
       <tbody>
         {ELECTIONS.map((e) => (
           <tr>

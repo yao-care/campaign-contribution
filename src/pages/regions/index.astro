@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import KeyPoints from '../../components/KeyPoints.astro';
 import Provenance from '../../components/Provenance.astro';
 import { counties, districtCount, villageCount, dataPeriod, isMunicipality } from '../../data/geo';
+import BarChart from '../../components/charts/BarChart.astro';
 import { LOCAL_CYCLE, rocDate } from '../../data/elections';
 import lawData from '../../data/law.json';
 const muni = counties.filter((c) => isMunicipality(c.name));
@@ -22,11 +23,15 @@ const rest = counties.filter((c) => !isMunicipality(c.name));
   ]} />
   <p class="lede">選擇縣市，查看轄下鄉鎮市區、本次改選職位與各職位的收受起算日。</p>
 
+  <BarChart anchor="chart" title="各縣市的村里數" unit="個" labelWidth={96}
+            data={counties.map((c) => ({ label: c.name, value: c.villageCount }))}
+            describedBy="reg-table" />
+
   <h2>直轄市</h2>
   <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
     <table>
       <caption>6 個直轄市</caption>
-      <thead><tr><th scope="col">縣市</th><th scope="col" class="num">鄉鎮市區</th><th scope="col" class="num">村里</th></tr></thead>
+      <thead id="reg-table"><tr><th scope="col">縣市</th><th scope="col" class="num">鄉鎮市區</th><th scope="col" class="num">村里</th></tr></thead>
       <tbody>{muni.map((c) => (
         <tr>
           <th scope="row"><a href={`/regions/${c.slug}/`}>{c.name}</a></th>

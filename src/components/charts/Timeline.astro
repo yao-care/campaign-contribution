@@ -1,0 +1,73 @@
+---
+/**
+ * 時間軸。把收受期間畫在選舉時程上，讓 4/25 與 8/20 兩組的差異一眼可見。
+ */
+import { scaleTime } from 'd3-scale';
+import { esc, CHART } from '../../lib/chart';
+
+export interface Props {
+  title: string;
+  /** 每列一個區間；point 為單一時間點（如投票日） */
+  rows: { label: string; start?: string; end?: string; point?: string; note?: string }[];
+  /** 垂直參考線（投票日等） */
+  marks?: { at: string; label: string }[];
+  describedBy?: string;
+  /** 錨點 id，供頁內連結與截圖定位 */
+  anchor?: string;
+}
+const { title, rows, marks = [], describedBy, anchor } = Astro.props;
+const D = (s: string) => new Date(s + 'T00:00:00+08:00');
+const all = [...rows.flatMap((r) => [r.start, r.end, r.point]), ...marks.map((m) => m.at)]
+  .filter(Boolean).map((s) => D(s as string));
+const lo = new Date(Math.min(...all.map((d) => +d)));
+const hi = new Date(Math.max(...all.map((d) => +d)));
+const W = 640, LABEL = 176, PAD_R = 24, TOP = 26;
+const H = rows.length * (CHART.rowH + CHART.gap) + TOP + 12;
+const x = scaleTime().domain([lo, hi]).range([LABEL, W - PAD_R]).nice();
+const roc = (s: string) => { const d = D(s); return `${d.getFullYear() - 1911}/${d.getMonth() + 1}/${d.getDate()}`; };
+---
+<figure class="chart" id={anchor}>
+  <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img"
+       aria-label={`${title}（時間軸）`} aria-describedby={describedBy}>
+    <title>{title}</title>
+    {marks.map((m) => (
+      <g>
+        <line x1={x(D(m.at))} x2={x(D(m.at))} y1={TOP - 8} y2={H - 8}
+              stroke="var(--slate)" stroke-width="1.5" stroke-dasharray="4 3" />
+        <text x={x(D(m.at))} y={TOP - 14} text-anchor="middle" font-size={CHART.labelSize}
+              fill="var(--slate)">{esc(m.label)}</text>
+      </g>
+    ))}
+    {rows.map((r, i) => {
+      const y = TOP + i * (CHART.rowH + CHART.gap);
+      const x0 = r.start ? x(D(r.start)) : null;
+      const x1 = r.end ? x(D(r.end)) : null;
+      return (
+        <g>
+          <text x={LABEL - 10} y={y + CHART.rowH / 2} text-anchor="end" dominant-baseline="central"
+                font-size={CHART.labelSize} fill="var(--ink-2)">{esc(r.label)}</text>
+          {x0 !== null && x1 !== null && (
+            <>
+              <rect x={x0} y={y + 6} width={Math.max(3, x1 - x0)} height={CHART.rowH - 12}
+                    rx={CHART.radius} fill="var(--c4)" />
+              <text x={x0 + 6} y={y + CHART.rowH / 2} dominant-baseline="central"
+                    font-size="12" fill="#fff" style="font-variant-numeric:tabular-nums">{roc(r.start!)}</text>
+            </>
+          )}
+          {r.point && <circle cx={x(D(r.point))} cy={y + CHART.rowH / 2} r="5"
+                              fill="var(--c5)" stroke="var(--ground)" stroke-width="2" />}
+          {!x0 && !r.point && (
+            <text x={LABEL + 4} y={y + CHART.rowH / 2} dominant-baseline="central"
+                  font-size={CHART.labelSize} fill="var(--muted)">{esc(r.note ?? '待公告')}</text>
+          )}
+        </g>
+      );
+    })}
+  </svg>
+  <figcaption>{title}。長條為可收受政治獻金的期間，虛線為投票日。</figcaption>
+</figure>
+<style>
+  .chart { margin: 1.5rem 0; }
+  .chart svg { display: block; max-width: 100%; height: auto; }
+  figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+</style>

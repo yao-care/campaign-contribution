@@ -4,9 +4,18 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import KeyPoints from '../../../components/KeyPoints.astro';
 import Provenance from '../../../components/Provenance.astro';
 import { LIMITS } from '../../../data/limits';
+import Heatmap from '../../../components/charts/Heatmap.astro';
+import BarChart from '../../../components/charts/BarChart.astro';
 import lawData from '../../../data/law.json';
 const general = LIMITS.filter((l) => l.donor !== '政黨');
 const party = LIMITS.filter((l) => l.donor === '政黨');
+const donors = ['個人', '營利事業', '人民團體'];
+const recipients = ['政黨、政治團體', '擬參選人'];
+const matrix = donors.map((d) => ({
+  label: d,
+  values: recipients.map((r) => general.find((l) => l.donor === d && l.recipient === r)!.same),
+}));
+const partyBars = party.map((l) => ({ label: l.recipient.replace('其所推薦的', '').replace('候選人', ''), value: l.same }));
 ---
 <BaseLayout
   title="政治獻金可以捐多少？12 組捐贈上限對照"
@@ -20,10 +29,11 @@ const party = LIMITS.filter((l) => l.donor === '政黨');
     '政黨對其所推薦候選人的金錢捐贈，依職位分 6 級，從村里長 10 萬元到總統 2,500 萬元。',
   ]} />
   <h2>個人、營利事業、人民團體的捐贈上限</h2>
+  <Heatmap title="三種捐贈者對兩種受贈對象的年度上限" cols={recipients} rows={matrix} describedBy="lim-table" />
   <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
     <table>
       <caption>對同一對象／對不同對象合計（每年，新臺幣）</caption>
-      <thead><tr><th scope="col">組合</th><th scope="col" class="num">同一對象</th><th scope="col" class="num">不同對象合計</th><th scope="col">依據</th></tr></thead>
+      <thead id="lim-table"><tr><th scope="col">組合</th><th scope="col" class="num">同一對象</th><th scope="col" class="num">不同對象合計</th><th scope="col">依據</th></tr></thead>
       <tbody>
         {general.map((l) => (
           <tr>
@@ -37,10 +47,12 @@ const party = LIMITS.filter((l) => l.donor === '政黨');
     </table>
   </div>
   <h2>政黨對其所推薦候選人的捐贈上限</h2>
+  <BarChart title="政黨對其所推薦候選人的金錢捐贈上限（第 18 條第 2 項六款）"
+            data={partyBars} describedBy="party-lim-table" labelWidth={230} />
   <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
     <table>
       <caption>第 18 條第 2 項六款（每年，新臺幣）</caption>
-      <thead><tr><th scope="col">受贈候選人</th><th scope="col" class="num">上限</th><th scope="col">依據</th></tr></thead>
+      <thead id="party-lim-table"><tr><th scope="col">受贈候選人</th><th scope="col" class="num">上限</th><th scope="col">依據</th></tr></thead>
       <tbody>
         {party.map((l) => (
           <tr>

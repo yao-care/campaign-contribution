@@ -62,7 +62,8 @@ a:hover { text-decoration-thickness: 2px; }
 /* --- 表格：數字一律進表格（§9.1 第 3 條），真 table + th + scope --------- */
 /* 窄螢幕改為橫向捲動，而不是把欄位壓到斷字。容器可鍵盤聚焦以符合 AA。 */
 .table-scroll { overflow-x: auto; }
-.table-scroll table { min-width: 26rem; }
+/* max-content：表格取自然寬度，窄螢幕改捲動而不是把欄位壓到逐字換行 */
+.table-scroll table { min-width: max-content; }
 .table-scroll:focus-visible { outline: 3px solid var(--stamp); outline-offset: 2px; }
 table {
   width: 100%;

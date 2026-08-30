@@ -5,6 +5,7 @@ import KeyPoints from '../../../components/KeyPoints.astro';
 import Provenance from '../../../components/Provenance.astro';
 import NextQuestions from '../../../components/NextQuestions.astro';
 import Statute from '../../../components/Statute.astro';
+import KinkLine from '../../../components/charts/KinkLine.astro';
 import { DEDUCTION_ENTITIES } from '../../../data/deductions';
 import lawData from '../../../data/law.json';
 
@@ -47,8 +48,11 @@ const conclusion = `${e.entity}對政黨、政治團體及擬參選人的捐贈�
     若這個金額超過新臺幣 {e.d.cap.toLocaleString('zh-TW')} 元，則以 {e.d.cap.toLocaleString('zh-TW')} 元為準。
   </p>
 
+  <KinkLine anchor="chart" title={`${e.entity}的可扣除額如何隨${e.d.ratioBase}變化`}
+            ratio={e.d.ratio} cap={e.d.cap} ratioBase={e.d.ratioBase} describedBy="ded-table" />
+
   <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
-    <table>
+    <table id="ded-table">
       <caption>{e.d.ratioBase}與可扣除金額對照</caption>
       <thead>
         <tr>

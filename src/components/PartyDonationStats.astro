@@ -7,6 +7,7 @@
  * 不寫敘述性評論。每一頁的欄位完全相同，版型不提供寫出比較的空間。
  */
 import { PARTY_STATS, DONATION_META } from '../data/donation-stats';
+import LineChart from './charts/LineChart.astro';
 
 export interface Props { partyName: string }
 const { partyName } = Astro.props;
@@ -25,6 +26,10 @@ const latest = years.length ? byYear![years[0]] : null;
  * 收支科目在此先取出。型別斷言不能寫在模板裡——Astro 會把 `as Record<string, ...>`
  * 的 `<string` 當成 JSX 標籤解析，建置雖然過得去，astro check 會報一堆假錯誤。
  */
+/** 年度 ≥ 3 才畫折線；1–2 年的資料畫成折線會誤導（見 docs/圖表規格.md §2.1） */
+const trend = years.length >= 3
+  ? [...years].reverse().map((y) => ({ x: `${y}`, a: byYear![y].incomeTotal, b: byYear![y].expenseTotal }))
+  : [];
 const latestIncome: [string, number][] = latest ? Object.entries(latest.income) : [];
 const latestExpense: [string, number][] = latest ? Object.entries(latest.expense) : [];
 ---
@@ -49,8 +54,13 @@ const latestExpense: [string, number][] = latest ? Object.entries(latest.expense
       以下為該黨自行申報的數字，依政治獻金法第 20 條第 2 項的科目分類。
     </p>
 
+    {trend.length > 0 && (
+      <LineChart anchor="chart" title={`${partyName}歷年申報收支`} points={trend}
+                 aLabel="收入" bLabel="支出" describedBy="pd-table" />
+    )}
+
     <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可橫向捲動">
-      <table>
+      <table id="pd-table">
         <caption>{partyName}歷年申報收支合計</caption>
         <thead><tr><th scope="col">年度</th><th scope="col" class="num">收入</th><th scope="col" class="num">支出</th></tr></thead>
         <tbody>

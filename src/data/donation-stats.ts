@@ -18,6 +18,8 @@ export interface PositionStats {
   expense: Record<string, number>;
   elections: { name: string; year: number }[];
   years: number[];
+  /** 逐份報告書的收入（已排序、無姓名），供直方圖用 */
+  reportIncomes: number[];
 }
 
 type Raw = {
@@ -48,7 +50,7 @@ function build(): Record<string, PositionStats> {
     const p = (out[slug] ??= {
       reportCount: 0, incomeTotal: 0, expenseTotal: 0,
       incomeMedian: 0, expenseMedian: 0, incomeMax: 0, overAuditThreshold: 0,
-      income: {}, expense: {}, elections: [], years: [],
+      income: {}, expense: {}, elections: [], years: [], reportIncomes: [],
     });
     p.reportCount += raw.reportCount;
     p.incomeTotal += raw.incomeTotal;
@@ -69,6 +71,7 @@ function build(): Record<string, PositionStats> {
     }
     p.incomeMedian = median(inc);
     p.expenseMedian = median(exp);
+    p.reportIncomes = inc.sort((a, b) => a - b);
     p.years.sort((a, b) => b - a);
     const sortDesc = (o: Record<string, number>) =>
       Object.fromEntries(Object.entries(o).sort((a, b) => b[1] - a[1]));

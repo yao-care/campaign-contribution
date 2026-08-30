@@ -1,0 +1,63 @@
+---
+/**
+ * 直方圖。收入分布極度右偏，依 docs/圖表規格.md §3.3 用對數分組。
+ * n < 30 時不輸出（樣本太少的分布圖會誤導）。
+ */
+import { fmtWan, esc, CHART } from '../../lib/chart';
+
+export interface Props {
+  title: string;
+  values: number[];
+  describedBy?: string;
+  /** 錨點 id，供頁內連結與截圖定位 */
+  anchor?: string;
+  minN?: number;
+}
+const { title, values, describedBy, anchor, minN = 30 } = Astro.props;
+const vals = values.filter((v) => v > 0);
+
+/** 對數分組：每組為 10 的次方，標籤用萬元 */
+const bins: { lo: number; hi: number; n: number }[] = [];
+if (vals.length >= minN) {
+  const edges = [0, 1e4, 5e4, 1e5, 5e5, 1e6, 5e6, 1e7, 5e7, Infinity];
+  for (let i = 0; i < edges.length - 1; i++) {
+    bins.push({ lo: edges[i], hi: edges[i + 1], n: vals.filter((v) => v >= edges[i] && v < edges[i + 1]).length });
+  }
+  while (bins.length && bins.at(-1)!.n === 0) bins.pop();
+}
+const shown = bins.filter((b, i) => i < 2 || b.n > 0 || bins.slice(i).some((x) => x.n > 0));
+const maxN = Math.max(1, ...shown.map((b) => b.n));
+const W = 640, LABEL = 152, PAD_R = 76;
+const H = shown.length * (CHART.rowH + CHART.gap) + 8;
+const label = (b: { lo: number; hi: number }) =>
+  b.hi === Infinity ? `${fmtWan(b.lo)}元以上` : `${fmtWan(b.lo)}–${fmtWan(b.hi)}元`;
+---
+{shown.length > 0 && (
+  <figure class="chart" id={anchor}>
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img"
+         aria-label={`${title}（直方圖，對數分組）`} aria-describedby={describedBy}>
+      <title>{title}</title>
+      {shown.map((b, i) => {
+        const y = i * (CHART.rowH + CHART.gap);
+        const w = Math.max(2, (b.n / maxN) * (W - LABEL - PAD_R));
+        return (
+          <g>
+            <text x={LABEL - 8} y={y + CHART.rowH / 2} text-anchor="end" dominant-baseline="central"
+                  font-size={CHART.labelSize} fill="var(--ink-2)">{esc(label(b))}</text>
+            <rect x={LABEL} y={y + 3} width={w} height={CHART.rowH - 6} rx={CHART.radius}
+                  fill={b.n === maxN ? 'var(--c5)' : 'var(--c3)'} />
+            <text x={LABEL + w + 8} y={y + CHART.rowH / 2} dominant-baseline="central"
+                  font-size={CHART.valueSize} fill="var(--ink)"
+                  style="font-variant-numeric:tabular-nums">{b.n} 份</text>
+          </g>
+        );
+      })}
+    </svg>
+    <figcaption>{title}。分組為對數級距，最高的一組以深色標示。</figcaption>
+  </figure>
+)}
+<style>
+  .chart { margin: 1.5rem 0; }
+  .chart svg { display: block; max-width: 100%; height: auto; }
+  figcaption { font-size: var(--text-xs); color: var(--muted); margin-top: .5em; }
+</style>
